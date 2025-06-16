@@ -2,58 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>ZAFA TOOLS</title>
+  <title>Monochrome Tools - Unified Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- QR Code Generator Library -->
+  <!-- Library for QR Code & 2FA -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/otpauth@9.2.2/dist/otpauth.umd.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-    .page-content { display: none; }
-    .page-content.active { display: block; }
-    .nav-btn, .qr-tab-btn {
-        display: flex;
-        align-items: center;
-        width: 100%;
-        padding: 0.75rem 1rem;
-        border-radius: 0.375rem;
-        transition: background-color 0.2s, color 0.2s;
-        cursor: pointer;
-    }
-    .nav-btn.active, .nav-btn:hover { background-color: #374151; }
-    .qr-tab-btn {
-        background-color: #e5e7eb; color: #374151;
-        justify-content: center; flex-grow: 1;
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-        padding: 0.5rem 1rem;
-        font-size: 0.875rem;
-    }
-    .dark .qr-tab-btn { background-color: #374151; color: #d1d5db; }
-    .qr-tab-btn.active { background-color: #3b82f6; color: white; }
-    .dark .qr-tab-btn.active { background-color: #3b82f6; }
-    .qr-tab-content { display: none; }
-    .qr-tab-content.active { display: block; }
-    .nav-btn svg { margin-right: 0.75rem; flex-shrink: 0; }
-    /* Custom scrollbar */
-    ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-track { background: #1f2937; }
-    ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
-    /* Custom styles for FB page selection */
-    .fb-page-card { transition: transform 0.2s, box-shadow 0.2s; }
-    .fb-page-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .fb-page-card.selected { box-shadow: 0 0 0 3px #3b82f6; transform: translateY(-2px); }
-  </style>
+  <style>body{font-family:'Inter',sans-serif}.page-content{display:none}.page-content.active{display:block}.nav-btn,.qr-tab-btn,.fb-sub-tab-btn{display:flex;align-items:center;width:100%;padding:.75rem 1rem;border-radius:.375rem;transition:background-color .2s,color .2s;cursor:pointer}.nav-btn.active,.nav-btn:hover{background-color:#374151}.qr-tab-btn,.fb-sub-tab-btn{background-color:#e5e7eb;color:#374151;justify-content:center;flex-grow:1;border-bottom-left-radius:0;border-bottom-right-radius:0;padding:.5rem 1rem;font-size:.875rem}.dark .qr-tab-btn,.dark .fb-sub-tab-btn{background-color:#374151;color:#d1d5db}.qr-tab-btn.active,.fb-sub-tab-btn.active{background-color:#3b82f6;color:white}.dark .qr-tab-btn.active,.dark .fb-sub-tab-btn.active{background-color:#3b82f6}.qr-tab-content,.fb-sub-tab-content{display:none}.qr-tab-content.active,.fb-sub-tab-content.active{display:block}.nav-btn svg{margin-right:.75rem;flex-shrink:0}::-webkit-scrollbar{width:8px}::-webkit-scrollbar-track{background:#1f2937}::-webkit-scrollbar-thumb{background:#4b5563;border-radius:4px}::-webkit-scrollbar-thumb:hover{background:#6b7280}.fb-page-card{transition:transform .2s,box-shadow .2s}.fb-page-card:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,0.1)}.fb-page-card.selected{box-shadow:0 0 0 3px #3b82f6;transform:translateY(-2px)}.calendar-day-today{background-color:#fef9c3 !important}.dark .calendar-day-today{background-color:#4338ca !important}#two-fa-progress-bar{transition:width .5s linear}
+    </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex h-screen antialiased">
 
   <!-- Sidebar -->
   <aside class="w-64 bg-gray-800 text-white flex-shrink-0 flex flex-col p-4 space-y-2 overflow-y-auto">
-    <div class="text-2xl font-bold mb-4 text-center">📦 ZAFA Tools</div>
+    <div class="text-2xl font-bold mb-4 text-center">📦 MyTools</div>
 
     <div class="space-y-1">
         <div class="text-sm uppercase text-gray-400 mt-4 px-2">Primary Tools</div>
@@ -61,29 +26,22 @@
         <button data-page="image-download" class="nav-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>Image Downloader</button>
         <button data-page="upload-imgbb" class="nav-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>Upload to ImgBB</button>
         <button data-page="image-tools" class="nav-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>Image Tools</button>
+        <button data-page="calendar" class="nav-btn">📅 Hijri Calendar</button>
     </div>
     
     <div class="space-y-1">
         <div class="text-sm uppercase text-gray-400 mt-4 px-2">Generators</div>
         <button data-page="qr-generator" class="nav-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>QR Code Generator</button>
+        <button data-page="2fa-generator" class="nav-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>2FA Generator</button>
     </div>
 
     <div class="space-y-1">
         <div class="text-sm uppercase text-gray-400 mt-4 px-2">Facebook Suite</div>
         <button data-page="fb-publisher" class="nav-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>Publisher</button>
         <button data-page="fb-power-editor" class="nav-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z"></path></svg>Power Editor</button>
-        <button data-page="fb-inbox" class="nav-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>Unified Inbox</button>
         <button data-page="fb-pages" class="nav-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>Pages</button>
         <button data-page="fb-bm" class="nav-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>Business Manager</button>
         <button data-page="fb-ads" class="nav-btn"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>Ads Manager</button>
-    </div>
-    
-    <div class="space-y-1">
-        <div class="text-sm uppercase text-gray-400 mt-4 px-2">Other Demos</div>
-        <button data-page="islam" class="nav-btn">🕌 Islamic Hub</button>
-        <button data-page="qiblat" class="nav-btn">🕋 Qibla Finder</button>
-        <button data-page="calendar" class="nav-btn">📅 Hijri Calendar</button>
-        <button data-page="travel" class="nav-btn">✈️ Travel App</button>
     </div>
   </aside>
 
@@ -92,24 +50,21 @@
     <div id="mainContent">
       
       <!-- Home Page -->
-      <div id="page-home" class="page-content active"><h1 class="text-3xl font-bold mb-6 text-gray-800 dark:text-white">Dashboard</h1><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><button data-page="fb-publisher" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-blue-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">Facebook Publisher</div></button><button data-page="qr-generator" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-sky-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">QR Code Generator</div></button><button data-page="image-download" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-green-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">Image Downloader</div></button><button data-page="upload-imgbb" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-indigo-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">Upload to ImgBB</div></button><button data-page="image-tools" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-purple-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">Image Tools</div></button></div></div>
+      <div id="page-home" class="page-content active"><h1 class="text-3xl font-bold mb-6 text-gray-800 dark:text-white">Dashboard</h1><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"><button data-page="fb-publisher" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-blue-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">Facebook Publisher</div></button><button data-page="fb-power-editor" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-purple-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">Power Editor</div></button><button data-page="fb-ads" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-red-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">Ads Manager</div></button><button data-page="qr-generator" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-sky-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">QR Code Generator</div></button><button data-page="2fa-generator" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-teal-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">2FA Generator</div></button><button data-page="image-download" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-green-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">Image Downloader</div></button><button data-page="upload-imgbb" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-indigo-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">Upload to ImgBB</div></button><button data-page="image-tools" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-purple-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">Image Tools</div></button></div></div>
 
        <!-- QR Code Generator Page -->
       <div id="page-qr-generator" class="page-content">
-        <div class="max-w-4xl mx-auto">
+        <div class="w-full">
             <h1 class="text-3xl font-bold mb-4 text-gray-800 dark:text-white">Advanced QR Code Generator</h1>
             <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
                 <!-- Left Panel: Input -->
                 <div class="lg:col-span-3 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-                    <!-- Tabs for QR Type -->
                     <div class="flex flex-wrap border-b border-gray-300 dark:border-gray-600 mb-4">
                         <button data-qr-tab="url" class="qr-tab-btn active">🔗 URL/Text</button>
                         <button data-qr-tab="vcard" class="qr-tab-btn">👤 VCard</button>
                         <button data-qr-tab="email" class="qr-tab-btn">✉️ Email</button>
                         <button data-qr-tab="sms" class="qr-tab-btn">💬 SMS</button>
                     </div>
-
-                    <!-- Tab Content -->
                     <div class="qr-tab-content active" id="qr-tab-content-url"><label class="block text-sm font-medium">URL or Text</label><textarea id="qr-text" rows="4" class="w-full mt-1 border p-2 bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="https://example.com"></textarea></div>
                     <div class="qr-tab-content" id="qr-tab-content-vcard"><div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto pr-2"><div><label class="block text-sm font-medium">First Name</label><input type="text" id="qr-vcard-fn" class="w-full mt-1 border p-2 bg-gray-50 dark:bg-gray-700 rounded-md"></div><div><label class="block text-sm font-medium">Last Name</label><input type="text" id="qr-vcard-ln" class="w-full mt-1 border p-2 bg-gray-50 dark:bg-gray-700 rounded-md"></div><div class="md:col-span-2"><label class="block text-sm font-medium">Organization</label><input type="text" id="qr-vcard-org" class="w-full mt-1 border p-2 bg-gray-50 dark:bg-gray-700 rounded-md"></div><div class="md:col-span-2"><label class="block text-sm font-medium">Position</label><input type="text" id="qr-vcard-title" class="w-full mt-1 border p-2 bg-gray-50 dark:bg-gray-700 rounded-md"></div><div><label class="block text-sm font-medium">Phone (Work)</label><input type="tel" id="qr-vcard-tel-work" class="w-full mt-1 border p-2 bg-gray-50 dark:bg-gray-700 rounded-md"></div><div><label class="block text-sm font-medium">Phone (Private)</label><input type="tel" id="qr-vcard-tel-private" class="w-full mt-1 border p-2 bg-gray-50 dark:bg-gray-700 rounded-md"></div><div><label class="block text-sm font-medium">Email</label><input type="email" id="qr-vcard-email" class="w-full mt-1 border p-2 bg-gray-50 dark:bg-gray-700 rounded-md"></div><div><label class="block text-sm font-medium">Website</label><input type="url" id="qr-vcard-url" class="w-full mt-1 border p-2 bg-gray-50 dark:bg-gray-700 rounded-md"></div><div class="md:col-span-2"><label class="block text-sm font-medium">Street</label><input type="text" id="qr-vcard-street" class="w-full mt-1 border p-2 bg-gray-50 dark:bg-gray-700 rounded-md"></div><div><label class="block text-sm font-medium">City</label><input type="text" id="qr-vcard-city" class="w-full mt-1 border p-2 bg-gray-50 dark:bg-gray-700 rounded-md"></div><div><label class="block text-sm font-medium">Zip Code</label><input type="text" id="qr-vcard-zip" class="w-full mt-1 border p-2 bg-gray-50 dark:bg-gray-700 rounded-md"></div><div class="md:col-span-2"><label class="block text-sm font-medium">Country</label><input type="text" id="qr-vcard-country" class="w-full mt-1 border p-2 bg-gray-50 dark:bg-gray-700 rounded-md"></div></div></div>
                     <div class="qr-tab-content" id="qr-tab-content-email"><label class="block text-sm font-medium">Email Address</label><input type="email" id="qr-email-to" class="w-full mt-1 border p-2 bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="recipient@example.com"><label class="block text-sm font-medium mt-4">Subject</label><input type="text" id="qr-email-subject" class="w-full mt-1 border p-2 bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Email Subject"><label class="block text-sm font-medium mt-4">Message</label><textarea id="qr-email-body" rows="3" class="w-full mt-1 border p-2 bg-gray-50 dark:bg-gray-700 rounded-md"></textarea></div>
@@ -121,8 +76,26 @@
                     </div>
                 </div>
 
-                <!-- Right Panel: Customization & Preview -->
                 <div class="lg:col-span-2 space-y-6"><div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"><h3 class="font-semibold mb-3 text-lg">Customize</h3><div class="grid grid-cols-2 gap-4"><div><label for="qr-color-dark" class="block text-sm font-medium">Color</label><input type="color" id="qr-color-dark" value="#000000" class="w-full h-10 border-none rounded-md cursor-pointer"></div><div><label for="qr-color-light" class="block text-sm font-medium">Background</label><input type="color" id="qr-color-light" value="#ffffff" class="w-full h-10 border-none rounded-md cursor-pointer"></div></div><div class="mt-4"><label for="qr-logo-url" class="block text-sm font-medium">Logo URL (optional)</label><input type="url" id="qr-logo-url" class="w-full border p-2 mt-1 bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="https://.../logo.png"></div></div><div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md text-center"><h3 class="font-semibold mb-3 text-lg">Preview</h3><div id="qr-code-container" class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg flex items-center justify-center min-h-[200px]"><canvas id="qr-canvas" class="hidden"></canvas><span id="qr-placeholder" class="text-gray-500">Awaiting input...</span></div><button id="btn-generate-qr" class="mt-4 w-full bg-sky-600 text-white px-4 py-3 rounded-md hover:bg-sky-700 font-semibold">Generate & Update QR</button><a id="btn-download-qr" href="#" download="qrcode.png" class="mt-2 w-full inline-block bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 opacity-50 pointer-events-none">Download PNG</a></div></div>
+            </div>
+        </div>
+      </div>
+      
+       <!-- 2FA Generator Page -->
+       <div id="page-2fa-generator" class="page-content">
+        <div class="max-w-md mx-auto">
+            <h1 class="text-3xl font-bold mb-4 text-gray-800 dark:text-white">2FA Code Generator</h1>
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <label for="two-fa-secret" class="block text-sm font-medium">Secret Key</label>
+                <input type="text" id="two-fa-secret" class="w-full mt-1 border p-2 bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Enter your 2FA secret key">
+                
+                <div class="my-6 text-center">
+                    <div id="two-fa-code" class="text-5xl font-bold tracking-widest text-blue-500">------</div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mt-4 dark:bg-gray-700">
+                      <div id="two-fa-progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div id="two-fa-error" class="text-red-500 text-sm text-center"></div>
             </div>
         </div>
       </div>
@@ -137,7 +110,7 @@
       <div id="page-image-tools" class="page-content"><div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><section class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"><h3 class="text-xl font-semibold mb-4">Image Resizer</h3><input type="file" id="resizerInput" multiple accept="image/*" class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"><div class="flex gap-4 mb-4"><input type="number" id="resizerWidth" placeholder="Width (px)" class="w-full border p-2 rounded bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"><input type="number" id="resizerHeight" placeholder="Height (px)" class="w-full border p-2 rounded bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"></div><div class="flex gap-2"><button id="btn-resize" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex-grow">Resize</button><button id="btn-download-resized" class="bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-600">Download All</button></div><div id="resizerOutput" class="mt-6 grid grid-cols-2 gap-4"></div></section><section class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"><h3 class="text-xl font-semibold mb-4">Image Compressor</h3><input type="file" id="compressorInput" multiple accept="image/*" class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"><label class="block text-sm font-medium mb-2">Quality (0.1 to 1.0)</label><input type="number" id="compressorQuality" step="0.1" value="0.7" min="0.1" max="1.0" class="w-full border p-2 rounded mb-4 bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-green-500"><div class="flex gap-2"><button id="btn-compress" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 flex-grow">Compress</button><button id="btn-download-compressed" class="ml-2 bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-600">Download All</button></div><div id="compressorOutput" class="mt-6 grid grid-cols-2 gap-4"></div></section></div></div>
 
       <!-- Facebook Publisher Page -->
-      <div id="page-fb-publisher" class="page-content"><div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6"><div class="flex flex-wrap items-center gap-4"><label for="fb-token-input-publisher" class="font-semibold">Facebook Access Token:</label><input type="password" id="fb-token-input-publisher" class="flex-grow p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Paste your token here..."><button id="fb-token-submit-publisher" class="bg-blue-600 text-white px-5 py-2 rounded-md font-semibold hover:bg-blue-700">Fetch Data</button></div></div><div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div class="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"><div><h3 class="font-semibold text-lg mb-2">1. Select Pages to Post to</h3><div id="fb-page-selection-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-60 overflow-y-auto p-2 bg-gray-50 dark:bg-gray-900 rounded"><span class="text-gray-500 col-span-full text-center p-4">Please submit a token to see your pages.</span></div></div><div><h3 class="font-semibold text-lg mb-2">2. Compose Your Post</h3><textarea id="fb-post-message" rows="5" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="What's on your mind?"></textarea><label class="mt-4 block w-full cursor-pointer bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-center p-4 rounded-md">🖼️ Upload Images from Computer<input type="file" id="fb-media-upload" accept="image/*" multiple hidden></label><div id="fb-media-preview-grid" class="grid grid-cols-4 gap-2 mt-2"></div></div><button id="fb-publish-button" class="w-full bg-green-600 text-white px-5 py-3 rounded-md font-bold text-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>Publish to Selected Pages</button></div><div><h3 class="font-semibold text-lg mb-2">3. Live Preview</h3><div class="w-full max-w-lg mx-auto bg-white dark:bg-gray-700 rounded-lg shadow-lg p-4 border border-gray-200 dark:border-gray-600"><div class="flex items-center mb-3"><img id="fb-preview-avatar" src="https://placehold.co/40x40/cbd5e1/475569?text=P" class="w-10 h-10 rounded-full mr-3 bg-gray-200"><div><div id="fb-preview-name" class="font-bold">Page Name</div><div class="text-xs text-gray-500 dark:text-gray-400">Just now · 🌎</div></div></div><div id="fb-preview-message" class="mb-3 whitespace-pre-wrap"></div><div id="fb-preview-media" class="grid grid-cols-2 gap-1 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-600 min-h-[100px]"></div></div><div id="fb-publish-status" class="mt-4 text-sm space-y-2"></div></div></div></div>
+      <div id="page-fb-publisher" class="page-content"><div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6"><div class="flex flex-wrap items-center gap-4"><label for="fb-token-input-publisher" class="font-semibold">Facebook Access Token:</label><input type="password" id="fb-token-input-publisher" class="flex-grow p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Paste your token here..."><button id="fb-token-submit-publisher" class="bg-blue-600 text-white px-5 py-2 rounded-md font-semibold hover:bg-blue-700">Fetch Data</button></div></div><div class="flex space-x-1 mb-[-1px]"><button data-fb-sub-tab="photo" class="fb-sub-tab-btn active">📷 Photo Post</button><button data-fb-sub-tab="video" class="fb-sub-tab-btn">🎬 Video / Reels</button></div><div class="bg-white dark:bg-gray-800 p-6 rounded-b-lg rounded-r-lg shadow-md"><div id="fb-sub-tab-photo" class="fb-sub-tab-content active"><div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div class="space-y-6"><div><h3 class="font-semibold text-lg mb-2">1. Select Pages</h3><div id="fb-page-selection-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-60 overflow-y-auto p-2 bg-gray-50 dark:bg-gray-900 rounded"><span class="text-gray-500 col-span-full text-center p-4">Please submit a token.</span></div></div><div><h3 class="font-semibold text-lg mb-2">2. Compose Post</h3><textarea id="fb-post-message" rows="5" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="What's on your mind?"></textarea><div class="mt-4"><label class="block text-sm font-medium">Image Source</label><div class="flex mt-1"><button id="img-src-upload" class="px-4 py-2 bg-blue-500 text-white rounded-l-md">Upload</button><button id="img-src-url" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded-r-md">URL</button></div></div><label id="fb-media-upload-label" class="mt-2 block w-full cursor-pointer bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-center p-4 rounded-md">🖼️ Upload Images from Computer<input type="file" id="fb-media-upload" accept="image/*" multiple hidden></label><textarea id="fb-media-urls" rows="3" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md mt-2 hidden" placeholder="Enter one image URL per line..."></textarea></div><button id="fb-publish-button" class="w-full bg-green-600 text-white px-5 py-3 rounded-md font-bold text-lg hover:bg-green-700 disabled:bg-gray-400" disabled>Publish to Selected Pages</button></div><div><h3 class="font-semibold text-lg mb-2">3. Live Preview</h3><div class="w-full max-w-lg mx-auto bg-white dark:bg-gray-700 rounded-lg shadow-lg p-4 border border-gray-200 dark:border-gray-600"><div class="flex items-center mb-3"><img id="fb-preview-avatar" src="https://placehold.co/40x40/cbd5e1/475569?text=P" class="w-10 h-10 rounded-full mr-3 bg-gray-200"><div><div id="fb-preview-name" class="font-bold">Page Name</div><div class="text-xs text-gray-500 dark:text-gray-400">Just now · 🌎</div></div></div><div id="fb-preview-message" class="mb-3 whitespace-pre-wrap"></div><div id="fb-preview-media" class="grid grid-cols-2 gap-1 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-600 min-h-[100px]"></div></div><div id="fb-publish-status" class="mt-4 text-sm space-y-2"></div></div></div></div><div id="fb-sub-tab-video" class="fb-sub-tab-content"><div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div><h3 class="font-semibold text-lg mb-2">1. Select Page</h3><select id="fb-video-page-selector" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md"><option>Submit token first</option></select><h3 class="font-semibold text-lg mt-6 mb-2">2. Upload Video</h3><label class="mt-2 block w-full cursor-pointer bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-center p-4 rounded-md">🎬 Upload Video from Computer<input type="file" id="fb-video-upload" accept="video/*" hidden></label><textarea id="fb-video-description" rows="4" class="w-full mt-4 p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Video description..."></textarea><div class="flex items-center mt-4"><input type="checkbox" id="fb-post-as-reel" class="h-4 w-4"><label for="fb-post-as-reel" class="ml-2">Post as Reel</label></div><button id="fb-publish-video-button" class="w-full mt-4 bg-green-600 text-white px-5 py-3 rounded-md font-bold text-lg hover:bg-green-700 disabled:bg-gray-400" disabled>Publish Video</button><div id="fb-video-publish-status" class="mt-4 text-sm"></div></div><div><h3 class="font-semibold text-lg mb-2">Video Preview</h3><video id="fb-video-preview" class="w-full rounded-lg bg-black" controls></video></div></div></div></div></div>
       
       <!-- Facebook Pages Page -->
       <div id="page-fb-pages" class="page-content"><h1 class="text-3xl font-bold mb-4">Facebook Page Posts</h1><div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6"><label for="fb-page-post-selector" class="block text-sm font-medium mb-1">Select a Page to view its posts</label><select id="fb-page-post-selector" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md"><option>Submit token in Publisher first</option></select></div><div id="fb-posts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"><p class="text-gray-500 col-span-full text-center p-8">No Page selected.</p></div></div>
@@ -149,13 +122,25 @@
       <div id="page-fb-ads" class="page-content"><h1 class="text-3xl font-bold mb-4">Ads Manager</h1><div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6"><label for="fb-ad-account-selector" class="block text-sm font-medium mb-1">Select an Ad Account to view campaigns</label><select id="fb-ad-account-selector" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md"><option>Submit token in Publisher first</option></select></div><div id="fb-campaigns-container" class="bg-white dark:bg-gray-800 p-1 rounded-lg shadow-md overflow-x-auto"><p class="text-gray-500 text-center p-8">No Ad Account selected.</p></div></div>
 
       <!-- Facebook Power Editor Page -->
-      <div id="page-fb-power-editor" class="page-content"><h1 class="text-3xl font-bold mb-4">Power Editor: Video Carousel</h1><div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div class="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"><h3 class="font-semibold text-lg mb-2">1. Select Page & Add Message</h3><select id="fb-carousel-page-selector" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md"><option>Submit token in Publisher first</option></select><textarea id="fb-carousel-message" rows="3" class="w-full mt-4 p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Overall message for the carousel..."></textarea><h3 class="font-semibold text-lg mt-4 mb-2">2. Build Carousel Cards</h3><div id="fb-carousel-cards-container" class="space-y-4"></div><button id="fb-add-carousel-card" class="mt-4 w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Add Video Card</button><button id="fb-publish-carousel" class="mt-4 w-full bg-green-600 text-white px-5 py-3 rounded-md font-bold text-lg hover:bg-green-700 disabled:bg-gray-400" disabled>Publish Carousel Post</button></div><div><h3 class="font-semibold text-lg mb-2">3. Preview</h3><div id="fb-carousel-preview-container" class="p-4 bg-gray-200 dark:bg-gray-900 rounded-lg"><p class="text-gray-500 text-center">Add cards to see a preview.</p></div><div id="fb-carousel-publish-status" class="mt-4 text-sm"></div></div></div></div>
+      <div id="page-fb-power-editor" class="page-content"><h1 class="text-3xl font-bold mb-4">Power Editor: Instant Experience</h1><div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div class="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"><h3 class="font-semibold text-lg mb-2">1. Select Page & Post Message</h3><select id="fb-canvas-page-selector" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md"><option>Submit token in Publisher first</option></select><textarea id="fb-canvas-message" rows="3" class="w-full mt-4 p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Message for the post that opens the Instant Experience..."></textarea><h3 class="font-semibold text-lg mt-4 mb-2">2. Build Canvas Elements</h3><div id="fb-canvas-elements-container" class="space-y-4 max-h-96 overflow-y-auto p-2 border-t border-b"></div><button id="fb-add-canvas-element" class="mt-4 w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Add Element</button><button id="fb-publish-canvas" class="mt-4 w-full bg-green-600 text-white px-5 py-3 rounded-md font-bold text-lg hover:bg-green-700 disabled:bg-gray-400" disabled>Publish Instant Experience</button></div><div><h3 class="font-semibold text-lg mb-2">3. Preview (Conceptual)</h3><div id="fb-canvas-preview" class="p-4 bg-gray-200 dark:bg-gray-900 rounded-lg min-h-[400px]"></div><div id="fb-canvas-publish-status" class="mt-4 text-sm"></div></div></div></div>
       
       <!-- Facebook Unified Inbox Page -->
       <div id="page-fb-inbox" class="page-content"><h1 class="text-3xl font-bold mb-4">Unified Inbox</h1><div class="bg-blue-100 dark:bg-blue-900/30 border-l-4 border-blue-500 text-blue-700 dark:text-blue-300 p-4 rounded-md mb-6" role="alert"><p class="font-bold">Feature Notice</p><p>A fully functional real-time inbox requires a backend server and special permissions from Facebook. This page serves as a UI concept and is not connected to live data.</p></div><div class="h-[75vh] flex bg-white dark:bg-gray-800 rounded-lg shadow-md"><div class="w-1/3 border-r dark:border-gray-700 flex flex-col"><div class="p-4 border-b dark:border-gray-600 font-bold">Conversations</div><div class="flex-grow overflow-y-auto"><div class="p-4 border-b dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"><div><strong>John Doe</strong><span class="text-xs text-gray-500 ml-2">2h</span></div><p class="text-sm text-gray-600 dark:text-gray-400 truncate">Hey, is this item still available?</p></div><div class="p-4 border-b dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 bg-blue-50 dark:bg-blue-900/20"><div><strong>Jane Smith</strong><span class="text-xs text-gray-500 ml-2">1d</span></div><p class="text-sm font-semibold truncate">I'd like to place an order.</p></div></div></div><div class="w-2/3 flex flex-col"><div class="p-4 border-b dark:border-gray-600 font-bold">Jane Smith</div><div class="flex-grow p-4 overflow-y-auto space-y-4"><div class="flex justify-start"><div class="bg-gray-200 dark:bg-gray-600 p-3 rounded-lg max-w-md">I'd like to place an order.</div></div><div class="flex justify-end"><div class="bg-blue-500 text-white p-3 rounded-lg max-w-md">Great! What can I get for you?</div></div></div><div class="p-4 border-t dark:border-gray-600"><input class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Type a message..." disabled></div></div></div></div>
-
-      <!-- Other Demo Pages -->
-      <div id="page-islam" class="page-content"></div><div id="page-qiblat" class="page-content"></div><div id="page-calendar" class="page-content"></div><div id="page-travel" class="page-content"></div>
+      
+      <!-- Hijri Calendar Page -->
+      <div id="page-calendar" class="page-content">
+        <div class="flex gap-6">
+            <div class="w-2/3 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <div class="flex items-center justify-between mb-4"><button id="cal-prev" class="text-2xl font-bold">&larr;</button><h2 id="calendar-title" class="text-2xl font-bold">Calendar</h2><button id="cal-next" class="text-2xl font-bold">&rarr;</button></div>
+                <div id="calendar-grid-header" class="grid grid-cols-7 gap-2 text-center font-medium text-gray-500"></div>
+                <div id="calendar-grid" class="grid grid-cols-7 gap-2 mt-2 auto-rows-fr"></div>
+            </div>
+            <div class="w-1/3 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <h3 class="font-bold text-lg mb-4">Events This Month</h3>
+                <div id="calendar-event-list" class="space-y-3 max-h-[60vh] overflow-y-auto"></div>
+            </div>
+        </div>
+      </div>
     </div>
   </main>
   
@@ -166,21 +151,20 @@
     * SINGLE PAGE APP ROUTER & CORE LOGIC
     *******************************************************************/
     let activePage = 'home';
-    const pages = ['home', 'qr-generator', 'image-download', 'upload-imgbb', 'image-tools', 'fb-publisher', 'fb-power-editor', 'fb-inbox', 'fb-pages', 'fb-bm', 'fb-ads', 'islam', 'qiblat', 'calendar', 'travel'];
-    const demoContentCache = {};
-
+    const pages = ['home', 'qr-generator', '2fa-generator', 'image-download', 'upload-imgbb', 'image-tools', 'fb-publisher', 'fb-power-editor', 'fb-inbox', 'fb-pages', 'fb-bm', 'fb-ads', 'calendar'];
+    
     const showPage = (pageName) => {
         if (!pages.includes(pageName)) pageName = 'home';
-        document.getElementById(`page-${activePage}`)?.classList.remove('active');
+        const currentPageEl = document.getElementById(`page-${activePage}`);
+        if(currentPageEl) currentPageEl.classList.remove('active');
         document.querySelector(`.nav-btn[data-page="${activePage}"]`)?.classList.remove('active');
-        const newPage = document.getElementById(`page-${pageName}`);
-        if(newPage) newPage.classList.add('active');
-        const newNav = document.querySelector(`.nav-btn[data-page="${pageName}"]`);
-        if(newNav) newNav.classList.add('active');
+        
+        const newPageEl = document.getElementById(`page-${pageName}`);
+        if(newPageEl) newPageEl.classList.add('active');
+        document.querySelector(`.nav-btn[data-page="${pageName}"]`)?.classList.add('active');
+        
         activePage = pageName;
-        if (['islam', 'qiblat', 'calendar', 'travel'].includes(pageName) && !demoContentCache[pageName]) {
-            injectDemoContent(pageName);
-        }
+        if(pageName === 'calendar') renderCalendar();
         window.location.hash = pageName;
     };
     
@@ -191,7 +175,94 @@
     document.querySelectorAll('.dashboard-card').forEach(card => { card.addEventListener('click', () => showPage(card.dataset.page)); });
 
     /*******************************************************************
-    * QR CODE GENERATOR LOGIC
+    * CALENDAR LOGIC
+    *******************************************************************/
+    const islamicHolidays = {"01-01":"Isra' and Mi'raj (Approx.)","03-12":"Start of Ramadan (Approx.)","04-10":"Eid al-Fitr (Approx.)","06-16":"Arafat Day (Approx.)","06-17":"Eid al-Adha (Approx.)","07-07":"Islamic New Year (Approx.)","09-15":"Prophet's Birthday (Approx.)"};
+    const khmerHolidays = {"01-01":"International New Year Day","01-07":"Victory Day","03-08":"International Women's Day","04-13":"Khmer New Year Day","04-14":"Khmer New Year Day","04-15":"Khmer New Year Day","04-16":"Khmer New Year Day","05-01":"International Labour Day","05-14":"King Sihamoni's Birthday","05-22":"Visak Bochea Day","05-26":"Royal Ploughing Ceremony","06-18":"Queen Mother's Birthday","09-24":"Constitution Day","10-12":"Pchum Ben Day","10-13":"Pchum Ben Day","10-14":"Pchum Ben Day","10-15":"Commemoration Day of King's Father","10-29":"King's Coronation Day","11-09":"Independence Day","11-25":"Water Festival","11-26":"Water Festival","11-27":"Water Festival"};
+    let calCurrentDate = new Date();
+
+    const renderCalendar = () => {
+        const year = calCurrentDate.getFullYear();
+        const month = calCurrentDate.getMonth();
+        const today = new Date();
+        const calendarTitle = document.getElementById('calendar-title');
+        const calendarGrid = document.getElementById('calendar-grid');
+        const eventList = document.getElementById('calendar-event-list');
+        if(!calendarTitle) return;
+
+        calendarTitle.textContent = `${calCurrentDate.toLocaleString('default', { month: 'long' })} ${year}`;
+        calendarGrid.innerHTML = '';
+        eventList.innerHTML = '';
+
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const startDay = new Date(year, month, 1).getDay();
+        
+        const header = document.getElementById('calendar-grid-header');
+        if(header.children.length === 0) {
+            ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => header.innerHTML += `<div>${day}</div>`);
+        }
+
+        for (let i = 0; i < startDay; i++) { calendarGrid.innerHTML += `<div></div>`; }
+
+        let monthEvents = {};
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateKey = `${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const islamicEvent = islamicHolidays[dateKey];
+            const khmerEvent = khmerHolidays[dateKey];
+            let eventsOnDay = [];
+            if(islamicEvent) eventsOnDay.push({name: islamicEvent, type: 'islamic'});
+            if(khmerEvent) eventsOnDay.push({name: khmerEvent, type: 'khmer'});
+
+            if(eventsOnDay.length > 0) monthEvents[day] = eventsOnDay;
+
+            const cell = document.createElement('div');
+            let cellClasses = 'p-2 h-24 border dark:border-gray-700 rounded-md flex flex-col';
+            if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                 cellClasses += ' calendar-day-today';
+            }
+            cellClasses += eventsOnDay.length > 0 ? ' bg-blue-50 dark:bg-blue-900/30 cursor-pointer' : ' bg-gray-50 dark:bg-gray-900/50';
+            cell.className = cellClasses;
+
+            cell.innerHTML = `<div class="font-semibold">${day}</div>`;
+            if(eventsOnDay.length > 0) {
+                 cell.innerHTML += `<div class="text-xs mt-1 truncate ${eventsOnDay[0].type === 'islamic' ? 'text-green-500' : 'text-red-500'}">${eventsOnDay[0].name}</div>`;
+                 if(eventsOnDay.length > 1) cell.innerHTML += `<div class="text-xs mt-1 text-gray-400">+1 more</div>`;
+                 cell.addEventListener('click', () => {
+                    document.querySelectorAll('.calendar-day-selected').forEach(el => el.classList.remove('calendar-day-selected', 'ring-2', 'ring-blue-500'));
+                    cell.classList.add('calendar-day-selected', 'ring-2', 'ring-blue-500');
+                    renderEventList(monthEvents, day);
+                 });
+            }
+            calendarGrid.appendChild(cell);
+        }
+        renderEventList(monthEvents);
+    };
+    
+    const renderEventList = (events, specificDay = null) => {
+        const eventList = document.getElementById('calendar-event-list');
+        eventList.innerHTML = '';
+        const daysWithEvents = specificDay ? [specificDay] : Object.keys(events).sort((a,b) => a-b);
+        if(daysWithEvents.length === 0 && !specificDay) {
+            eventList.innerHTML = '<p class="text-gray-500">No holidays this month.</p>';
+            return;
+        }
+        daysWithEvents.forEach(day => {
+            events[day].forEach(event => {
+                const eventDiv = document.createElement('div');
+                eventDiv.className = `p-3 rounded-md border-l-4 ${event.type === 'islamic' ? 'border-green-500 bg-green-500/10' : 'border-red-500 bg-red-500/10'}`;
+                eventDiv.innerHTML = `<p class="font-bold">${event.name}</p><p class="text-sm">${day} ${calCurrentDate.toLocaleString('default', { month: 'long' })}</p>`;
+                eventList.appendChild(eventDiv);
+            });
+        });
+    };
+
+    document.getElementById('cal-prev')?.addEventListener('click', () => { calCurrentDate.setMonth(calCurrentDate.getMonth() - 1); renderCalendar(); });
+    document.getElementById('cal-next')?.addEventListener('click', () => { calCurrentDate.setMonth(calCurrentDate.getMonth() + 1); renderCalendar(); });
+
+
+    /*******************************************************************
+    * QR & 2FA GENERATOR LOGIC
     *******************************************************************/
     let activeQrTab = 'url';
     document.querySelectorAll('.qr-tab-btn').forEach(btn => {
@@ -208,19 +279,20 @@
         let textToEncode = '';
         if (activeQrTab === 'url') {
             textToEncode = document.getElementById('qr-text').value;
-        } else if (activeQrTab === 'whatsapp') {
-            const phone = document.getElementById('qr-whatsapp-phone').value.replace(/\D/g, '');
-            const message = encodeURIComponent(document.getElementById('qr-whatsapp-message').value);
-            if(phone) textToEncode = `https://wa.me/${phone}?text=${message}`;
-        } else if (activeQrTab === 'app') {
-            const iosUrl = document.getElementById('qr-app-ios').value.trim();
-            const androidUrl = document.getElementById('qr-app-android').value.trim();
-            const fallbackUrl = document.getElementById('qr-app-fallback').value.trim();
-            if (iosUrl || androidUrl || fallbackUrl) {
-                const script = `const ua=navigator.userAgent||navigator.vendor||window.opera;const android="${androidUrl}";const ios="${iosUrl}";const fallback="${fallbackUrl||androidUrl||iosUrl}";if(/android/i.test(ua)&&android){window.location.href=android}else if(/iPad|iPhone|iPod/.test(ua)&&!window.MSStream&&ios){window.location.href=ios}else{window.location.href=fallback}`;
-                textToEncode = `data:text/html,<script>${script}<\/script>`;
-            }
+        } else if (activeQrTab === 'vcard') {
+            const vcard = `BEGIN:VCARD\nVERSION:3.0\nN:${document.getElementById('qr-vcard-ln').value};${document.getElementById('qr-vcard-fn').value}\nFN:${document.getElementById('qr-vcard-fn').value} ${document.getElementById('qr-vcard-ln').value}\nORG:${document.getElementById('qr-vcard-org').value}\nTITLE:${document.getElementById('qr-vcard-title').value}\nTEL;TYPE=WORK,VOICE:${document.getElementById('qr-vcard-tel-work').value}\nTEL;TYPE=HOME,VOICE:${document.getElementById('qr-vcard-tel-private').value}\nEMAIL:${document.getElementById('qr-vcard-email').value}\nURL:${document.getElementById('qr-vcard-url').value}\nADR;TYPE=WORK:;;${document.getElementById('qr-vcard-street').value};${document.getElementById('qr-vcard-city').value};;${document.getElementById('qr-vcard-zip').value};${document.getElementById('qr-vcard-country').value}\nEND:VCARD`;
+            textToEncode = vcard;
+        } else if (activeQrTab === 'email') {
+            const to = document.getElementById('qr-email-to').value;
+            const subject = encodeURIComponent(document.getElementById('qr-email-subject').value);
+            const body = encodeURIComponent(document.getElementById('qr-email-body').value);
+            if(to) textToEncode = `mailto:${to}?subject=${subject}&body=${body}`;
+        } else if (activeQrTab === 'sms') {
+             const phone = document.getElementById('qr-sms-phone').value.replace(/\D/g, '');
+             const message = encodeURIComponent(document.getElementById('qr-sms-message').value);
+             if(phone) textToEncode = `smsto:${phone}:${message}`;
         }
+        
         const qrContainer = document.getElementById('qr-code-container');
         const downloadBtn = document.getElementById('btn-download-qr');
         const canvas = document.getElementById('qr-canvas');
@@ -247,10 +319,64 @@
                 logo.src = `${corsProxy}${encodeURIComponent(logoUrl)}`;
             } else { downloadBtn.href = canvas.toDataURL(); }
             placeholder.classList.add('hidden'); canvas.classList.remove('hidden');
+            const qrName = document.getElementById('qr-name').value.trim();
+            downloadBtn.download = qrName ? `${qrName}.png` : 'qrcode.png';
             downloadBtn.classList.remove('opacity-50', 'pointer-events-none');
         });
     };
     document.getElementById('btn-generate-qr')?.addEventListener('click', generateQrCode);
+
+    let twoFaInterval = null;
+    const twoFaCodeEl = document.getElementById('two-fa-code');
+    const twoFaProgressEl = document.getElementById('two-fa-progress-bar');
+    const twoFaErrorEl = document.getElementById('two-fa-error');
+
+    const handle2faCodeGeneration = () => {
+        clearInterval(twoFaInterval);
+        const secret = document.getElementById('two-fa-secret').value.trim().replace(/\s/g, '');
+        if (secret.length < 8) {
+            twoFaCodeEl.textContent = '------';
+            twoFaProgressEl.style.width = '100%';
+            twoFaErrorEl.textContent = '';
+            return;
+        }
+
+        try {
+            const totp = new otpauth.TOTP({
+                issuer: "ACME",
+                label: "2FA",
+                algorithm: 'SHA1',
+                digits: 6,
+                period: 30,
+                secret: secret
+            });
+
+            twoFaErrorEl.textContent = '';
+            
+            const updateCode = () => {
+                try {
+                    const token = totp.generate();
+                    const timeRemaining = totp.period - (Math.floor(Date.now() / 1000) % totp.period);
+                    twoFaCodeEl.textContent = token.match(/.{1,3}/g).join(' ');
+                    twoFaProgressEl.style.width = `${(timeRemaining / totp.period) * 100}%`;
+                } catch (e) {
+                     twoFaCodeEl.textContent = '------';
+                     twoFaErrorEl.textContent = 'Invalid secret key.';
+                     clearInterval(twoFaInterval);
+                }
+            };
+
+            updateCode();
+            twoFaInterval = setInterval(updateCode, 1000);
+
+        } catch (e) {
+            twoFaCodeEl.textContent = '------';
+            twoFaProgressEl.style.width = '100%';
+            twoFaErrorEl.textContent = 'Invalid secret key. Please check the key and try again.';
+            console.error(e);
+        }
+    };
+    document.getElementById('two-fa-secret')?.addEventListener('input', handle2faCodeGeneration);
     
     /*******************************************************************
     * IMAGE DOWNLOADER LOGIC (CORS FIX)
@@ -379,13 +505,13 @@
     *******************************************************************/
     let fbData = { token: null, pages: [], businesses: [], adAccounts: [] };
 
-    // --- DOM Elements ---
     const fbTokenInput = document.getElementById('fb-token-input-publisher');
     const fbTokenSubmitBtn = document.getElementById('fb-token-submit-publisher');
+    
     const fbPageSelectionGrid = document.getElementById('fb-page-selection-grid');
     const fbPostMessage = document.getElementById('fb-post-message');
     const fbMediaUpload = document.getElementById('fb-media-upload');
-    const fbMediaPreviewGrid = document.getElementById('fb-media-preview-grid');
+    const fbMediaUrls = document.getElementById('fb-media-urls');
     const fbPublishButton = document.getElementById('fb-publish-button');
     const fbPublishStatus = document.getElementById('fb-publish-status');
     const fbPreviewAvatar = document.getElementById('fb-preview-avatar');
@@ -398,26 +524,48 @@
     const fbCampaignsContainer = document.getElementById('fb-campaigns-container');
     const fbPagePostSelector = document.getElementById('fb-page-post-selector');
     const fbPostsContainer = document.getElementById('fb-posts-container');
-    const fbCarouselPageSelector = document.getElementById('fb-carousel-page-selector');
-    const fbCarouselCardsContainer = document.getElementById('fb-carousel-cards-container');
-    const fbAddCarouselCardBtn = document.getElementById('fb-add-carousel-card');
-    const fbPublishCarouselBtn = document.getElementById('fb-publish-carousel');
+    
+    const fbCanvasPageSelector = document.getElementById('fb-canvas-page-selector');
+    const fbCanvasElementsContainer = document.getElementById('fb-canvas-elements-container');
+    const fbAddCanvasElementBtn = document.getElementById('fb-add-canvas-element');
+    const fbPublishCanvasBtn = document.getElementById('fb-publish-canvas');
 
     // --- Event Listeners ---
     fbTokenSubmitBtn.addEventListener('click', fetchFacebookData);
     fbMediaUpload.addEventListener('change', handleMediaPreview);
     fbPostMessage.addEventListener('input', updateFbPostPreview);
+    fbMediaUrls.addEventListener('input', updateFbPostPreview);
     fbPublishButton.addEventListener('click', publishToFacebook);
     fbPagePostSelector.addEventListener('change', (e) => fetchPagePosts(e.target.value));
     fbAdAccountSelector.addEventListener('change', (e) => fetchCampaigns(e.target.value));
-    fbAddCarouselCardBtn.addEventListener('click', addCarouselCard);
-    fbPublishCarouselBtn.addEventListener('click', publishCarouselPost);
+    
+    document.querySelectorAll('.fb-sub-tab-btn').forEach(btn => btn.addEventListener('click', (e) => {
+        document.querySelector('.fb-sub-tab-btn.active').classList.remove('active');
+        e.target.classList.add('active');
+        document.querySelector('.fb-sub-tab-content.active').classList.remove('active');
+        document.getElementById(`fb-sub-tab-${e.target.dataset.fbSubTab}`).classList.add('active');
+    }));
+
+    document.getElementById('img-src-upload').addEventListener('click', () => {
+        document.getElementById('fb-media-upload-label').classList.remove('hidden');
+        document.getElementById('fb-media-urls').classList.add('hidden');
+        document.getElementById('img-src-upload').classList.add('bg-blue-500', 'text-white');
+        document.getElementById('img-src-url').classList.remove('bg-blue-500', 'text-white');
+    });
+
+    document.getElementById('img-src-url').addEventListener('click', () => {
+        document.getElementById('fb-media-upload-label').classList.add('hidden');
+        document.getElementById('fb-media-urls').classList.remove('hidden');
+        document.getElementById('img-src-url').classList.add('bg-blue-500', 'text-white');
+        document.getElementById('img-src-upload').classList.remove('bg-blue-500', 'text-white');
+    });
 
     // --- Core API & Data Handling ---
     async function fetchFacebookData() {
-        fbData.token = fbTokenInput.value.trim();
-        if (!fbData.token) return alert('Please enter an access token.');
+        const token = fbTokenInput.value.trim();
+        if (!token) return alert('Please enter an access token.');
         
+        fbData.token = token;
         fbTokenSubmitBtn.textContent = 'Loading...';
         fbTokenSubmitBtn.disabled = true;
 
@@ -457,6 +605,7 @@
         let url = `https://graph.facebook.com/v19.0/${endpoint}`;
         const fetchOptions = { method, body };
         
+        let finalBody = body;
         if (body instanceof FormData) {
             body.append('access_token', finalToken);
         } else {
@@ -495,17 +644,7 @@
     }
 
     function handleMediaPreview() {
-        const files = fbMediaUpload.files;
-        fbMediaPreviewGrid.innerHTML = '';
-        Array.from(files).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = e => {
-                const img = document.createElement('img'); img.src = e.target.result;
-                img.className = 'w-full h-16 object-cover rounded';
-                fbMediaPreviewGrid.appendChild(img);
-            };
-            reader.readAsDataURL(file);
-        });
+        // This function now just triggers the main preview update
         updateFbPostPreview();
     }
     
@@ -521,19 +660,22 @@
         }
         fbPreviewMessage.textContent = fbPostMessage.value;
         fbPreviewMedia.innerHTML = '';
+        
         const files = fbMediaUpload.files;
-        if(files.length > 0) {
-            fbPreviewMedia.style.gridTemplateColumns = files.length > 1 ? 'repeat(2, 1fr)' : '1fr';
-            Array.from(files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    const img = document.createElement('img'); img.src = e.target.result;
-                    img.className = 'w-full h-full object-cover'; fbPreviewMedia.appendChild(img);
-                };
-                reader.readAsDataURL(file);
+        const urls = fbMediaUrls.value.trim().split('\n').filter(Boolean);
+
+        const imageSources = Array.from(files).map(file => URL.createObjectURL(file)).concat(urls);
+
+        if(imageSources.length > 0) {
+            fbPreviewMedia.style.gridTemplateColumns = imageSources.length > 1 ? 'repeat(2, 1fr)' : '1fr';
+            imageSources.forEach(src => {
+                const img = document.createElement('img');
+                img.src = src;
+                img.className = 'w-full h-full object-cover';
+                fbPreviewMedia.appendChild(img);
             });
         }
-        fbPublishButton.disabled = selectedPages.length === 0 || (fbPostMessage.value.trim() === '' && files.length === 0);
+        fbPublishButton.disabled = selectedPages.length === 0 || (fbPostMessage.value.trim() === '' && imageSources.length === 0);
     }
     
     function getSelectedPages() {
@@ -544,6 +686,7 @@
         const pagesToPost = getSelectedPages();
         const message = fbPostMessage.value;
         const files = fbMediaUpload.files;
+        const urls = fbMediaUrls.value.trim().split('\n').filter(Boolean);
         fbPublishStatus.innerHTML = '';
         fbPublishButton.disabled = true;
 
@@ -551,10 +694,11 @@
             const statusP = document.createElement('p'); statusP.textContent = `Posting to ${page.id}...`;
             fbPublishStatus.appendChild(statusP);
             try {
-                if (files.length === 0) {
+                if (files.length === 0 && urls.length === 0) {
                     await fbApiPost(`${page.id}/feed?message=${encodeURIComponent(message)}`, { method: 'POST', token: page.token });
                 } else {
                     const photoIds = [];
+                    // Handle uploaded files
                     for(const [i, file] of Array.from(files).entries()) {
                          statusP.textContent = `Uploading image ${i + 1}/${files.length} for ${page.id}...`;
                          const formData = new FormData();
@@ -562,6 +706,13 @@
                          const res = await fbApiPost(`${page.id}/photos`, { body: formData, token: page.token });
                          photoIds.push(res.id);
                     }
+                    // Handle URLs
+                    for(const [i, url] of urls.entries()) {
+                         statusP.textContent = `Processing URL ${i + 1}/${urls.length} for ${page.id}...`;
+                         const res = await fbApiPost(`${page.id}/photos?url=${encodeURIComponent(url)}&published=false`, { method: 'POST', token: page.token });
+                         photoIds.push(res.id);
+                    }
+                    
                      statusP.textContent = `Publishing post to ${page.id}...`;
                      const attachedMedia = photoIds.map((id, i) => `attached_media[${i}]={"media_fbid":"${id}"}`).join('&');
                      await fbApiPost(`${page.id}/feed?message=${encodeURIComponent(message)}&${attachedMedia}`, { method: 'POST', token: page.token });
@@ -675,132 +826,50 @@
     
     // --- Power Editor Functions ---
     function renderPowerEditor() {
-        fbCarouselPageSelector.innerHTML = '<option>Select a Page</option>';
+        fbCanvasPageSelector.innerHTML = '<option>Select a Page</option>';
         fbData.pages.forEach(page => {
-            fbCarouselPageSelector.innerHTML += `<option value="${page.id}|${page.access_token}">${page.name}</option>`;
+            fbCanvasPageSelector.innerHTML += `<option value="${page.id}|${page.access_token}">${page.name}</option>`;
         });
-        fbCarouselCardsContainer.innerHTML = ''; // Clear old cards
-        addCarouselCard(); // Start with one card
+        fbCanvasElementsContainer.innerHTML = '';
+        fbAddCanvasElementBtn.dispatchEvent(new Event('click')); // Add the first element
+        fbPublishCanvasBtn.disabled = false;
     }
 
-    function addCarouselCard() {
-        const cardIndex = fbCarouselCardsContainer.children.length;
-        const card = document.createElement('div');
-        card.className = 'carousel-card border dark:border-gray-700 p-3 rounded-md space-y-2 relative';
-        card.innerHTML = `
-            <h4 class="font-semibold text-sm">Card ${cardIndex + 1}</h4>
-            <label class="block w-full cursor-pointer bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-center p-2 rounded-md text-xs">
-                Upload Video
-                <input type="file" class="hidden carousel-video-upload" accept="video/*">
-            </label>
-            <span class="text-xs text-gray-500 file-name-display">No video selected</span>
-            <select class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md carousel-cta-select">
-                <option value="NO_BUTTON">No Button</option>
-                <option value="LEARN_MORE">Learn More</option>
-                <option value="SHOP_NOW">Shop Now</option>
-                <option value="SIGN_UP">Sign Up</option>
-                <option value="WATCH_MORE">Watch More</option>
-                <option value="CONTACT_US">Contact Us</option>
+    function addCanvasElement() {
+        const element = document.createElement('div');
+        element.className = 'canvas-element border dark:border-gray-700 p-3 rounded-md space-y-2';
+        element.innerHTML = `
+            <select class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md canvas-element-type">
+                <option value="photo">Image</option>
+                <option value="text">Text Block</option>
+                <option value="button">Button</option>
             </select>
-            <input type="text" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md carousel-link-input" placeholder="Destination link for this card">
-            <button class="text-red-500 text-xs hover:underline absolute top-2 right-2 remove-card-btn">Remove</button>
+            <div class="canvas-element-fields">
+                 <input type="text" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Image URL">
+            </div>
         `;
-        card.querySelector('.remove-card-btn').addEventListener('click', () => card.remove());
-        card.querySelector('.carousel-video-upload').addEventListener('change', (e) => {
-            const fileName = e.target.files[0]?.name || 'No video selected';
-            card.querySelector('.file-name-display').textContent = fileName;
-        });
-        fbCarouselCardsContainer.appendChild(card);
-        fbPublishCarouselBtn.disabled = false;
-    }
-
-    async function publishCarouselPost() {
-        const pageData = document.getElementById('fb-carousel-page-selector').value;
-        if (!pageData || pageData.startsWith('Select')) return alert('Please select a page.');
-        const [pageId, pageToken] = pageData.split('|');
-        const message = document.getElementById('fb-carousel-message').value;
-        const cards = fbCarouselCardsContainer.querySelectorAll('.carousel-card');
-        const statusDiv = document.getElementById('fb-carousel-publish-status');
-        
-        statusDiv.textContent = 'Starting carousel post...';
-        fbPublishCarouselBtn.disabled = true;
-
-        try {
-            const childAttachments = [];
-            for (const [i, card] of Array.from(cards).entries()) {
-                statusDiv.textContent = `Uploading video for card ${i + 1}...`;
-                const videoFile = card.querySelector('.carousel-video-upload').files[0];
-                const link = card.querySelector('.carousel-link-input').value;
-                const callToActionValue = card.querySelector('.carousel-cta-select').value;
-
-                if (!videoFile) throw new Error(`Card ${i+1} is missing a video file.`);
-                if (!link) throw new Error(`Card ${i+1} is missing a destination link.`);
-                
-                const formData = new FormData();
-                formData.append('file_url', videoFile.name); // This is a placeholder; actual upload happens via another mechanism
-                formData.append('published', 'false');
-
-                // This is a simplified version. A real video upload is a multi-step resumable process.
-                // For this tool, we will simulate the upload and construct the child attachment.
-                // In a real app, you would upload the video first, get a video_id, and use that.
-                // For now, we'll use a placeholder video ID to structure the call. This part won't successfully post without a real video upload flow.
-
-                statusDiv.textContent = 'NOTE: Video upload is complex. This is a simulation.';
-                
-                // Constructing the child attachment with CTA
-                const attachment = {
-                    link: link,
-                    call_to_action: {
-                        type: callToActionValue,
-                        value: { link: link }
-                    }
-                };
-                // In a real scenario, you'd add the 'object_id' of the uploaded video here.
-                // childAttachments.push(attachment);
-                throw new Error("Video Carousel posting is not supported via simple API calls and requires a more complex server-side upload process.");
+        element.querySelector('.canvas-element-type').addEventListener('change', (e) => {
+            const fieldsContainer = element.querySelector('.canvas-element-fields');
+            switch(e.target.value) {
+                case 'photo':
+                    fieldsContainer.innerHTML = '<input type="text" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Image URL">';
+                    break;
+                case 'text':
+                    fieldsContainer.innerHTML = '<textarea class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" rows="3" placeholder="Enter text content..."></textarea>';
+                    break;
+                case 'button':
+                    fieldsContainer.innerHTML = '<input type="text" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md mb-2" placeholder="Button Text"><input type="text" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Destination URL">';
+                    break;
             }
-            
-            statusDiv.textContent = 'Publishing to page...';
-            // Final API call would be constructed here
-
-        } catch (error) {
-            statusDiv.textContent = `❌ Error: ${error.message}`;
-            statusDiv.className = 'text-red-500';
-        } finally {
-             fbPublishCarouselBtn.disabled = false;
-        }
+        });
+        fbCanvasElementsContainer.appendChild(element);
     }
+    fbAddCanvasElementBtn.addEventListener('click', addCanvasElement);
 
-
-    // --- DEMO PAGE INJECTION ---
-    const injectDemoContent = (pageName) => {
-        const container = document.getElementById(`page-${pageName}`);
-        if (!container || demoContentCache[pageName]) return; 
-
-        let html = '', script = null;
-        if (pageName === 'islam') {
-            html = `<div class="phone-frame w-full max-w-sm mx-auto"><div class="status-bar"><span>9:41 AM</span><span>📶 LTE 🔋</span></div><div class="phone-display-area"><header class="bg-emerald-800 text-white shadow-lg py-3"><div class="container mx-auto px-4 flex justify-between items-center"><a href="#" class="text-xl font-bold tracking-wide">Islamic Hub</a><nav><ul class="flex space-x-3 text-sm"><li><a href="#" class="hover:text-amber-200">Athan</a></li><li><a href="#" class="hover:text-amber-200">Quran</a></li></ul></nav></div></header><main class="container mx-auto px-4 py-6 text-gray-800"><section class="bg-white rounded-lg shadow-xl p-4 mb-8 border-t-4 border-emerald-600"><h2 class="text-2xl font-bold text-emerald-800 mb-4 text-center">Athan - Prayer Times</h2><p><span class="font-medium">Location:</span> <span id="islam-location" class="text-emerald-600 font-bold">[Fetching...]</span></p><audio controls class="w-full mt-4"><source src="https://www.islamicity.org/media/mp3/azan_abdulbasit.mp3" type="audio/mpeg"></audio></section></main></div><div class="home-bar"><div class="home-indicator"></div></div></div><style>.phone-frame{height: 800px;background-color:#f8f8f8;border:12px solid #333;border-radius:48px;box-shadow:0 20px 40px rgba(0,0,0,0.4);position:relative;display:flex;flex-direction:column;overflow:hidden}.phone-display-area{flex-grow:1;overflow-y:auto;padding:32px 0}.status-bar,.home-bar{position:absolute;left:0;right:0;height:32px;z-index:10}.status-bar{top:0;background-color:#f1f1f1;border-top-left-radius:36px;border-top-right-radius:36px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:.75rem;color:#4b5563}.home-bar{bottom:0;display:flex;align-items:center;justify-content:center}.home-indicator{width:40%;height:4px;background-color:#cbd5e1;border-radius:2px}</style>`;
-            script = () => { if (navigator.geolocation) navigator.geolocation.getCurrentPosition(p => {document.getElementById('islam-location').textContent = `Lat: ${p.coords.latitude.toFixed(2)}, Lon: ${p.coords.longitude.toFixed(2)}`;}, () => {document.getElementById('islam-location').textContent = 'Denied';}); };
-        } else if (pageName === 'qiblat') {
-            html = `<div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6 w-full max-w-sm mx-auto text-center"><h2 class="text-xl font-bold mb-4">Qibla Finder</h2><button id="btn-qibla" class="bg-green-600 text-white px-4 py-2 rounded-full w-full font-medium hover:bg-green-700">Detect & Enable Compass</button><div class="mt-4 text-gray-500 text-sm" id="qiblat_status">Waiting...</div><div class="mt-2 font-semibold" id="qiblat_result"></div><div class="mt-6 relative w-32 h-32 mx-auto"><img src="https://i.ibb.co/wNsbqs6P/qibla.jpg" alt="Arrow" id="qiblat_arrow" style="transition:transform 0.3s; width:100%; height:100%;" /></div></div>`;
-            script = () => {
-                const status = document.getElementById('qiblat_status'), result = document.getElementById('qiblat_result'), arrow = document.getElementById('qiblat_arrow'); let qiblaBearing = null;
-                const updateCompass = (e) => { if (qiblaBearing === null) return; let head = e.webkitCompassHeading || e.alpha; arrow.style.transform = `rotate(${qiblaBearing - head}deg)`; };
-                const enableCompass = () => { (window.DeviceOrientationEvent?.requestPermission || (() => Promise.resolve('granted')))().then(s => { if (s === 'granted') window.addEventListener('deviceorientation', updateCompass); }); };
-                document.getElementById('btn-qibla').onclick = () => {
-                    status.innerText = 'Getting location...';
-                    navigator.geolocation.getCurrentPosition(p => {
-                        status.innerText = `Location: ${p.coords.latitude.toFixed(2)}, ${p.coords.longitude.toFixed(2)}`;
-                        const lat1=p.coords.latitude*Math.PI/180, lon1=p.coords.longitude*Math.PI/180, lat2=21.4225*Math.PI/180, lon2=39.8262*Math.PI/180;
-                        const dLon = lon2-lon1; qiblaBearing = (Math.atan2(Math.sin(dLon)*Math.cos(lat2),Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLon))*180/Math.PI+360)%360;
-                        result.innerText = `Qibla: ${qiblaBearing.toFixed(1)}°`; enableCompass();
-                    }, () => { status.innerText = 'Failed to get location.'; });
-                };
-            };
-        }
-        if (html) { container.innerHTML = html; demoContentCache[pageName] = true; } if (script) script();
-    };
-
+    async function publishCanvas() {
+       alert("Publishing Instant Experiences via the API is highly complex and not suitable for this client-side tool. This is a conceptual demonstration.");
+    }
+    fbPublishCanvasBtn.addEventListener('click', publishCanvas);
     }); // End of DOMContentLoaded
   </script>
 
