@@ -55,6 +55,9 @@
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex h-screen antialiased">
 
+  <!-- Notification Container -->
+  <div id="notification-container" class="fixed top-5 right-5 z-50 space-y-3"></div>
+
   <!-- Sidebar -->
   <aside class="w-64 bg-gray-800 text-white flex-shrink-0 flex flex-col p-4 space-y-2 overflow-y-auto">
     <div class="text-2xl font-bold mb-4 text-center">📦 MyTools</div>
@@ -91,7 +94,7 @@
       <!-- Home Page -->
       <div id="page-home" class="page-content active"><h1 class="text-3xl font-bold mb-6 text-gray-800 dark:text-white">Dashboard</h1><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"><button data-page="fb-publisher" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-blue-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">Facebook Publisher</div></button><button data-page="fb-power-editor" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-purple-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">Power Editor</div></button><button data-page="fb-ads" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-red-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">Ads Manager</div></button><button data-page="qr-generator" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-sky-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">QR Code Generator</div></button><button data-page="2fa-generator" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-teal-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">2FA Generator</div></button><button data-page="image-download" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-green-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">Image Downloader</div></button><button data-page="upload-imgbb" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-indigo-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">Upload to ImgBB</div></button><button data-page="image-tools" class="dashboard-card bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-200"><div class="flex items-center justify-center mb-3 text-purple-500"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg></div><div class="text-lg font-semibold text-center text-gray-800 dark:text-white">Image Tools</div></button></div></div>
 
-       <!-- QR Code Generator Page -->
+      <!-- QR Code Generator Page -->
       <div id="page-qr-generator" class="page-content">
         <div class="w-full">
             <h1 class="text-3xl font-bold mb-4 text-gray-800 dark:text-white">Advanced QR Code Generator</h1>
@@ -120,8 +123,8 @@
         </div>
       </div>
       
-       <!-- 2FA Generator Page -->
-       <div id="page-2fa-generator" class="page-content">
+      <!-- 2FA Generator Page -->
+      <div id="page-2fa-generator" class="page-content">
         <div class="max-w-md mx-auto">
             <h1 class="text-3xl font-bold mb-4 text-gray-800 dark:text-white">2FA Code Generator</h1>
             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
@@ -140,7 +143,7 @@
       </div>
       
       <!-- Image Download Page -->
-      <div id="page-image-download" class="page-content"><div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"><h1 class="text-2xl font-bold mb-4">Image Downloader</h1><textarea id="imageUrls" class="w-full h-40 border p-2 mb-4 bg-gray-50 dark:bg-gray-700 rounded-md focus:ring-2 focus:ring-blue-500" placeholder="Enter image URLs here (one per line)..."></textarea><div class="space-x-2 mb-4"><button id="btn-preview" class="bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-600">Preview</button><button id="btn-download" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Download All</button></div><div id="preview" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div></div></div>
+      <div id="page-image-download" class="page-content"><div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"><h1 class="text-2xl font-bold mb-4">Image Downloader</h1><textarea id="imageUrls" class="w-full h-40 border p-2 mb-4 bg-gray-50 dark:bg-gray-700 rounded-md focus:ring-2 focus:ring-blue-500" placeholder="Enter image URLs here (one per line)..."></textarea><div class="flex items-center gap-4 mb-4"><button id="btn-preview" class="bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-600">Preview</button><button id="btn-download" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Download All</button></div><div id="preview" class="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div></div></div>
 
       <!-- Upload to ImgBB Page -->
       <div id="page-upload-imgbb" class="page-content"><div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6"><h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2"><svg class="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>Upload to ImgBB</h1><label for="uploadInput" class="block w-full cursor-pointer border-dashed border-2 border-gray-300 dark:border-gray-600 p-6 text-center text-gray-600 dark:text-gray-400 rounded-lg hover:border-indigo-500 hover:text-indigo-500 transition-colors">📁 Click or drag and drop images<input type="file" id="uploadInput" accept="image/*" multiple hidden /></label><div id="previewArea" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6"></div><button id="btn-upload-imgbb" class="mt-6 w-full bg-indigo-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition flex items-center justify-center gap-2"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"></path></svg>Upload Images</button><div id="uploadStatus" class="mt-4 text-sm text-center text-gray-600 dark:text-gray-400"></div><ul id="uploadedUrls" class="mt-6 space-y-4"></ul></div></div>
@@ -186,6 +189,43 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
 
+    /*******************************************************************
+    * NOTIFICATION SYSTEM
+    *******************************************************************/
+    function showNotification(message, type = 'info') {
+        const container = document.getElementById('notification-container');
+        if (!container) return;
+        const notif = document.createElement('div');
+        let classes;
+
+        switch(type) {
+            case 'success':
+                classes = 'bg-green-100 dark:bg-green-800/50 border-green-500 text-green-800 dark:text-green-200';
+                break;
+            case 'error':
+                classes = 'bg-red-100 dark:bg-red-800/50 border-red-500 text-red-800 dark:text-red-200';
+                break;
+            default: // info
+                classes = 'bg-blue-100 dark:bg-blue-800/50 border-blue-500 text-blue-800 dark:text-blue-200';
+        }
+
+        notif.className = `max-w-sm p-4 rounded-lg shadow-lg border-l-4 transform transition-all duration-300 opacity-0 translate-x-10 ${classes}`;
+        notif.textContent = message;
+        notif.setAttribute('role', 'alert');
+        container.appendChild(notif);
+
+        // Animate in
+        setTimeout(() => {
+            notif.classList.remove('opacity-0', 'translate-x-10');
+        }, 10);
+
+        // Animate out and remove after a delay
+        setTimeout(() => {
+            notif.classList.add('opacity-0');
+            notif.addEventListener('transitionend', () => notif.remove());
+        }, 4000);
+    }
+    
     /*******************************************************************
     * SINGLE PAGE APP ROUTER & CORE LOGIC
     *******************************************************************/
@@ -265,13 +305,13 @@
 
             cell.innerHTML = `<div class="font-semibold">${day}</div>`;
             if(eventsOnDay.length > 0) {
-                 cell.innerHTML += `<div class="text-xs mt-1 truncate ${eventsOnDay[0].type === 'islamic' ? 'text-green-500' : 'text-red-500'}">${eventsOnDay[0].name}</div>`;
-                 if(eventsOnDay.length > 1) cell.innerHTML += `<div class="text-xs mt-1 text-gray-400">+1 more</div>`;
-                 cell.addEventListener('click', () => {
+                cell.innerHTML += `<div class="text-xs mt-1 truncate ${eventsOnDay[0].type === 'islamic' ? 'text-green-500' : 'text-red-500'}">${eventsOnDay[0].name}</div>`;
+                if(eventsOnDay.length > 1) cell.innerHTML += `<div class="text-xs mt-1 text-gray-400">+1 more</div>`;
+                cell.addEventListener('click', () => {
                     document.querySelectorAll('.calendar-day-selected').forEach(el => el.classList.remove('calendar-day-selected', 'ring-2', 'ring-blue-500'));
                     cell.classList.add('calendar-day-selected', 'ring-2', 'ring-blue-500');
                     renderEventList(monthEvents, day);
-                 });
+                });
             }
             calendarGrid.appendChild(cell);
         }
@@ -327,9 +367,9 @@
             const body = encodeURIComponent(document.getElementById('qr-email-body').value);
             if(to) textToEncode = `mailto:${to}?subject=${subject}&body=${body}`;
         } else if (activeQrTab === 'sms') {
-             const phone = document.getElementById('qr-sms-phone').value.replace(/\D/g, '');
-             const message = encodeURIComponent(document.getElementById('qr-sms-message').value);
-             if(phone) textToEncode = `smsto:${phone}:${message}`;
+           const phone = document.getElementById('qr-sms-phone').value.replace(/\D/g, '');
+           const message = encodeURIComponent(document.getElementById('qr-sms-message').value);
+           if(phone) textToEncode = `smsto:${phone}:${message}`;
         }
         
         const qrContainer = document.getElementById('qr-code-container');
@@ -354,8 +394,9 @@
                     ctx.drawImage(logo, x, y, logoSize, logoSize);
                     downloadBtn.href = canvas.toDataURL();
                 };
-                logo.onerror = () => alert("Could not load logo. Check URL and CORS policy.");
-                logo.src = `${corsProxy}${encodeURIComponent(logoUrl)}`;
+                logo.onerror = () => showNotification("Could not load logo. Check URL and CORS policy.", "error");
+                // Use a proxy for the logo to avoid canvas tainting
+                logo.src = `https://images.weserv.nl/?url=${logoUrl.replace(/^https?:\/\//, '')}`;
             } else { downloadBtn.href = canvas.toDataURL(); }
             placeholder.classList.add('hidden'); canvas.classList.remove('hidden');
             const qrName = document.getElementById('qr-name').value.trim();
@@ -381,7 +422,6 @@
         }
 
         try {
-            // The library can handle Base32 strings directly without the Secret class
             const totp = new otpauth.TOTP({
                 issuer: "ACME",
                 label: "2FA",
@@ -419,37 +459,87 @@
     document.getElementById('two-fa-secret')?.addEventListener('input', handle2faCodeGeneration);
     
     /*******************************************************************
-    * IMAGE DOWNLOADER LOGIC (CORS FIX)
+    * IMAGE DOWNLOADER LOGIC (REVISED)
     *******************************************************************/
-    const corsProxy = 'https://corsproxy.io/?';
+    // Using a reliable image proxy for previews.
+    const imagePreviewProxy = 'https://images.weserv.nl/?url=';
+    // Using a general CORS proxy for downloading the original file.
+    const downloadProxy = 'https://corsproxy.io/?';
+
     const previewImages = () => {
         const urls = document.getElementById('imageUrls').value.trim().split('\n').filter(Boolean);
-        const container = document.getElementById('preview'); container.innerHTML = 'Loading previews...'; 
+        const container = document.getElementById('preview');
+        container.innerHTML = ''; // Clear previous previews
+
+        if (urls.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 col-span-full text-center">No URLs entered. Paste URLs and click Preview.</p>';
+            return;
+        }
+
         urls.forEach(url => {
-            const proxiedUrl = `${corsProxy}${encodeURIComponent(url.trim())}`;
-            const imgContainer = document.createElement('div'); imgContainer.className = "bg-white dark:bg-gray-700 p-2 rounded-lg shadow";
-            const img = document.createElement('img'); img.src = proxiedUrl;
-            img.className = 'w-full h-auto object-cover rounded';
-            img.onerror = () => { img.src = 'https://placehold.co/300x200/ef4444/ffffff?text=Failed+to+load'; };
+            const trimmedUrl = url.trim();
+            // The `images.weserv.nl` proxy requires the URL without the protocol scheme (http:// or https://)
+            const urlForPreviewProxy = trimmedUrl.replace(/^https?:\/\//, '');
+            const proxiedUrl = `${imagePreviewProxy}${urlForPreviewProxy}`;
+            
+            const imgContainer = document.createElement('div');
+            imgContainer.className = "bg-gray-100 dark:bg-gray-700 p-2 rounded-lg shadow-inner";
+            
+            const img = document.createElement('img');
+            img.src = proxiedUrl;
+            // Use `object-contain` to ensure the entire image is visible without being cropped.
+            img.className = 'w-full h-48 object-contain rounded';
+            
+            img.onerror = function() {
+                this.onerror = null; // Prevent potential infinite loop if the placeholder image also fails
+                this.src = 'https://placehold.co/400x300/ef4444/ffffff?text=Failed+to+Load';
+                this.title = `Error loading: ${trimmedUrl}`;
+            };
+            
             imgContainer.appendChild(img);
-            if (container.innerHTML === 'Loading previews...') container.innerHTML = '';
             container.appendChild(imgContainer);
         });
     };
+
     const downloadImages = () => {
         const urls = document.getElementById('imageUrls').value.trim().split('\n').filter(Boolean);
-        if (urls.length === 0) return alert('Please enter image URLs.');
+        if (urls.length === 0) {
+            showNotification('Please enter image URLs to download.', 'error');
+            return;
+        }
+        
+        showNotification(`Starting download for ${urls.length} image(s)...`, 'info');
+
         urls.forEach((url, i) => {
-            const proxiedUrl = `${corsProxy}${encodeURIComponent(url.trim())}`;
-            fetch(proxiedUrl).then(res => { if (!res.ok) throw new Error(`Failed to fetch ${url}`); return res.blob(); }).then(blob => {
-                const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-                try { const filename = new URL(url).pathname.split('/').pop(); a.download = filename || `image_${i + 1}.jpg`; } catch { a.download = `image_${i + 1}.jpg`; }
-                document.body.appendChild(a); a.click(); document.body.removeChild(a);
-            }).catch((err) => alert(`Could not download: ${url}.\nError: ${err.message}`));
+            // Use the general CORS proxy for downloading to get the original file data.
+            const proxiedUrl = `${downloadProxy}${encodeURIComponent(url.trim())}`;
+            fetch(proxiedUrl)
+                .then(res => {
+                    if (!res.ok) throw new Error(`Server responded with status ${res.status}`);
+                    return res.blob();
+                })
+                .then(blob => {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    try {
+                        // Attempt to get a reasonable filename from the original URL.
+                        const filename = new URL(url).pathname.split('/').pop();
+                        a.download = filename || `image_${i + 1}.jpg`;
+                    } catch {
+                        a.download = `image_${i + 1}.jpg`;
+                    }
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(a.href); // Clean up the created blob URL from memory
+                })
+                .catch((err) => showNotification(`Download failed for ${url.substring(0,40)}... Error: ${err.message}`, 'error'));
         });
     };
+
     document.getElementById('btn-preview')?.addEventListener('click', previewImages);
     document.getElementById('btn-download')?.addEventListener('click', downloadImages);
+
 
     /*******************************************************************
     * IMGBB UPLOADER LOGIC
@@ -469,10 +559,30 @@
             reader.readAsDataURL(file);
         });
     };
+    
+    function copyToClipboard(text) {
+        const input = document.createElement('textarea');
+        input.style.position = 'fixed';
+        input.style.opacity = '0';
+        input.value = text;
+        document.body.appendChild(input);
+        input.select();
+        try {
+            document.execCommand('copy');
+            showNotification('URL copied to clipboard!', 'success');
+        } catch (err) {
+            showNotification('Failed to copy URL.', 'error');
+        }
+        document.body.removeChild(input);
+    }
+
     const uploadImages = () => {
         const files = document.getElementById("uploadInput").files; const status = document.getElementById("uploadStatus"); const uploadedList = document.getElementById("uploadedUrls");
-        if (files.length === 0) return alert("Please select image files first.");
-        uploadedList.innerHTML = ""; status.innerText = "Uploading...";
+        if (files.length === 0) {
+            showNotification("Please select image files first.", "error");
+            return;
+        }
+        uploadedList.innerHTML = ""; status.innerText = `Uploading ${files.length} image(s)...`;
         const uploadPromises = Array.from(files).map(file => {
             const formData = new FormData(); formData.append("image", file);
             return fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, { method: "POST", body: formData }).then(res => res.json()).then(data => ({ success: data.success, file, data: data.data })).catch(err => ({ success: false, file, error: err }));
@@ -492,7 +602,10 @@
     document.getElementById('uploadInput')?.addEventListener('change', previewSelectedImages);
     document.getElementById('btn-upload-imgbb')?.addEventListener('click', uploadImages);
     document.getElementById('uploadedUrls').addEventListener('click', (e) => {
-        if (e.target.classList.contains('copy-url-btn')) { const urlToCopy = e.target.previousElementSibling.value; navigator.clipboard.writeText(urlToCopy).then(() => alert("✅ URL copied to clipboard!")); }
+        if (e.target.classList.contains('copy-url-btn')) { 
+            const urlToCopy = e.target.previousElementSibling.value;
+            copyToClipboard(urlToCopy);
+        }
     });
 
     /*******************************************************************
@@ -532,7 +645,10 @@
     };
     const downloadAll = (type) => {
         const list = type === 'resized' ? resizerBlobList : compressorBlobList;
-        if (list.length === 0) return alert(`Please ${type} images first.`);
+        if (list.length === 0) {
+            showNotification(`Please process images to download first.`, 'error');
+            return;
+        }
         list.forEach(({ name, blob }) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${type}-${name}`; document.body.appendChild(a); a.click(); document.body.removeChild(a); });
     };
     document.getElementById('btn-resize')?.addEventListener('click', () => processImages('resize'));
@@ -603,7 +719,10 @@
     // --- Core API & Data Handling ---
     async function fetchFacebookData() {
         const token = fbTokenInput.value.trim();
-        if (!token) return alert('Please enter an access token.');
+        if (!token) {
+            showNotification('Please enter an access token.', 'error');
+            return;
+        }
         
         fbData.token = token;
         fbTokenSubmitBtn.textContent = 'Loading...';
@@ -622,9 +741,10 @@
             renderBusinessManager();
             renderAdsManager();
             renderPowerEditor();
+            showNotification('Facebook data loaded successfully!', 'success');
 
         } catch (error) {
-            alert(`Failed to fetch data: ${error.message}`);
+            showNotification(`Failed to fetch data: ${error.message}`, 'error');
         } finally {
              fbTokenSubmitBtn.textContent = 'Fetch Data';
              fbTokenSubmitBtn.disabled = false;
@@ -651,8 +771,8 @@
         } else {
              url += `${endpoint.includes('?') ? '&' : '?'}access_token=${finalToken}`;
              if (body) {
-                fetchOptions.body = body;
-                fetchOptions.headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+                 fetchOptions.body = body;
+                 fetchOptions.headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
              }
         }
 
@@ -684,7 +804,6 @@
     }
 
     function handleMediaPreview() {
-        // This function now just triggers the main preview update
         updateFbPostPreview();
     }
     
@@ -907,7 +1026,7 @@
     fbAddCanvasElementBtn.addEventListener('click', addCanvasElement);
 
     async function publishCanvas() {
-       alert("Publishing Instant Experiences via the API is highly complex and not suitable for this client-side tool. This is a conceptual demonstration.");
+        showNotification("This is a conceptual demo. Publishing Instant Experiences via the API is complex and not fully implemented here.", "info");
     }
     fbPublishCanvasBtn.addEventListener('click', publishCanvas);
     }); // End of DOMContentLoaded
