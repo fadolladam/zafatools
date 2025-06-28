@@ -15,7 +15,7 @@
     body { font-family: 'Inter', sans-serif; }
     .page-content { display: none; }
     .page-content.active { display: block; }
-    .nav-btn, .qr-tab-btn, .fb-sub-tab-btn {
+    .nav-btn, .qr-tab-btn, .fb-sub-tab-btn, .ads-tab-btn {
         display: flex;
         align-items: center;
         width: 100%;
@@ -25,7 +25,7 @@
         cursor: pointer;
     }
     .nav-btn.active, .nav-btn:hover { background-color: #374151; }
-    .qr-tab-btn, .fb-sub-tab-btn {
+    .qr-tab-btn, .fb-sub-tab-btn, .ads-tab-btn {
         background-color: #e5e7eb; color: #374151;
         justify-content: center; flex-grow: 1;
         border-bottom-left-radius: 0;
@@ -33,11 +33,11 @@
         padding: 0.5rem 1rem;
         font-size: 0.875rem;
     }
-    .dark .qr-tab-btn, .dark .fb-sub-tab-btn { background-color: #374151; color: #d1d5db; }
-    .qr-tab-btn.active, .fb-sub-tab-btn.active { background-color: #3b82f6; color: white; }
-    .dark .qr-tab-btn.active, .dark .fb-sub-tab-btn.active { background-color: #3b82f6; }
-    .qr-tab-content, .fb-sub-tab-content { display: none; }
-    .qr-tab-content.active, .fb-sub-tab-content.active { display: block; }
+    .dark .qr-tab-btn, .dark .fb-sub-tab-btn, .dark .ads-tab-btn { background-color: #374151; color: #d1d5db; }
+    .qr-tab-btn.active, .fb-sub-tab-btn.active, .ads-tab-btn.active { background-color: #3b82f6; color: white; }
+    .dark .qr-tab-btn.active, .dark .fb-sub-tab-btn.active, .dark .ads-tab-btn.active { background-color: #3b82f6; }
+    .qr-tab-content, .fb-sub-tab-content, .ads-tab-content { display: none; }
+    .qr-tab-content.active, .fb-sub-tab-content.active, .ads-tab-content.active { display: block; }
     .nav-btn svg { margin-right: 0.75rem; flex-shrink: 0; }
     /* Custom scrollbar */
     ::-webkit-scrollbar { width: 8px; }
@@ -48,9 +48,156 @@
     .fb-page-card { transition: transform 0.2s, box-shadow 0.2s; }
     .fb-page-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .fb-page-card.selected { box-shadow: 0 0 0 3px #3b82f6; transform: translateY(-2px); }
+    /* Calendar day specific colors */
     .calendar-day-today { background-color: #fef9c3 !important; } /* yellow-100 */
     .dark .calendar-day-today { background-color: #4338ca !important; } /* indigo-700 */
+    .calendar-day-saturday { background-color: #fee2e2 !important; } /* red-100 */
+    .dark .calendar-day-saturday { background-color: #991b1b !important; } /* red-900 */
+    .calendar-day-sunday { background-color: #ef4444 !important; color: white !important;} /* red-500 */
+    .dark .calendar-day-sunday { background-color: #b91c1c !important; color: white !important;} /* red-700 */
+
     #two-fa-progress-bar { transition: width 0.5s linear; }
+
+    /* For Ad creative pop-up */
+    .creative-modal-overlay {
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        z-index: 100;
+    }
+    /* Styles for campaign status toggle */
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 40px;
+        height: 20px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+        border-radius: 20px;
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+        background-color: #2196F3;
+    }
+
+    input:focus + .toggle-slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .toggle-slider:before {
+        -webkit-transform: translateX(20px);
+        -ms-transform: translateX(20px);
+        transform: translateX(20px);
+    }
+    /* Facebook Post Card Styles */
+    .fb-post-card {
+        background-color: #ffffff;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+        margin-bottom: 1rem;
+        word-wrap: break-word;
+    }
+    .dark .fb-post-card {
+        background-color: #1f2937;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+    .fb-post-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+    .fb-post-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 9999px; /* full rounded */
+        margin-right: 0.75rem;
+    }
+    .fb-post-name {
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+    .dark .fb-post-name {
+        color: #ffffff;
+    }
+    .fb-post-time {
+        font-size: 0.75rem;
+        color: #6b7280;
+    }
+    .fb-post-message {
+        margin-bottom: 0.75rem;
+        color: #374151;
+        white-space: pre-wrap; /* preserve whitespace and line breaks */
+    }
+    .dark .fb-post-message {
+        color: #d1d5db;
+    }
+    .fb-post-media img, .fb-post-media video {
+        width: 100%;
+        border-radius: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    .fb-post-actions {
+        display: flex;
+        justify-content: space-around;
+        padding-top: 0.75rem;
+        border-top: 1px solid #e5e7eb;
+        margin-top: 0.75rem;
+    }
+    .dark .fb-post-actions {
+        border-top: 1px solid #4b5563;
+    }
+    .fb-post-action-btn {
+        display: flex;
+        align-items: center;
+        color: #6b7280;
+        font-weight: 600;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    .fb-post-action-btn:hover {
+        color: #3b82f6;
+    }
+    .fb-post-action-btn svg {
+        margin-right: 0.5rem;
+    }
+    .see-more-link {
+        color: #3b82f6;
+        cursor: pointer;
+        font-weight: 500;
+        margin-left: 0.25rem;
+    }
   </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex h-screen antialiased">
@@ -129,7 +276,7 @@
             <h1 class="text-3xl font-bold mb-4 text-gray-800 dark:text-white">2FA Code Generator</h1>
             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
                 <label for="two-fa-secret" class="block text-sm font-medium">Secret Key</label>
-                <input type="text" id="two-fa-secret" class="w-full mt-1 border p-2 bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Enter your 2FA secret key">
+                <input type="text" id="two-fa-secret" class="w-full mt-1 border p-2 bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Enter your 2FA secret key (e.g., JBSWY3DPEHPK3PXP)">
                 
                 <div class="my-6 text-center">
                     <div id="two-fa-code" class="text-5xl font-bold tracking-widest text-blue-500">------</div>
@@ -143,7 +290,17 @@
       </div>
       
       <!-- Image Download Page -->
-      <div id="page-image-download" class="page-content"><div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"><h1 class="text-2xl font-bold mb-4">Image Downloader</h1><textarea id="imageUrls" class="w-full h-40 border p-2 mb-4 bg-gray-50 dark:bg-gray-700 rounded-md focus:ring-2 focus:ring-blue-500" placeholder="Enter image URLs here (one per line)..."></textarea><div class="flex items-center gap-4 mb-4"><button id="btn-preview" class="bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-600">Preview</button><button id="btn-download" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Download All</button></div><div id="preview" class="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div></div></div>
+      <div id="page-image-download" class="page-content">
+          <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+              <h1 class="text-2xl font-bold mb-4">Image Downloader</h1>
+              <textarea id="imageUrls" class="w-full h-40 border p-2 mb-4 bg-gray-50 dark:bg-gray-700 rounded-md focus:ring-2 focus:ring-blue-500" placeholder="Enter image URLs here (one per line)..."></textarea>
+              <div class="flex items-center gap-4 mb-4">
+                  <button id="btn-preview" class="bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-600">Preview</button>
+                  <button id="btn-download" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Download All</button>
+              </div>
+              <div id="preview" class="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+          </div>
+      </div>
 
       <!-- Upload to ImgBB Page -->
       <div id="page-upload-imgbb" class="page-content"><div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6"><h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2"><svg class="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>Upload to ImgBB</h1><label for="uploadInput" class="block w-full cursor-pointer border-dashed border-2 border-gray-300 dark:border-gray-600 p-6 text-center text-gray-600 dark:text-gray-400 rounded-lg hover:border-indigo-500 hover:text-indigo-500 transition-colors">📁 Click or drag and drop images<input type="file" id="uploadInput" accept="image/*" multiple hidden /></label><div id="previewArea" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6"></div><button id="btn-upload-imgbb" class="mt-6 w-full bg-indigo-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition flex items-center justify-center gap-2"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"></path></svg>Upload Images</button><div id="uploadStatus" class="mt-4 text-sm text-center text-gray-600 dark:text-gray-400"></div><ul id="uploadedUrls" class="mt-6 space-y-4"></ul></div></div>
@@ -152,22 +309,126 @@
       <div id="page-image-tools" class="page-content"><div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><section class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"><h3 class="text-xl font-semibold mb-4">Image Resizer</h3><input type="file" id="resizerInput" multiple accept="image/*" class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"><div class="flex gap-4 mb-4"><input type="number" id="resizerWidth" placeholder="Width (px)" class="w-full border p-2 rounded bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"><input type="number" id="resizerHeight" placeholder="Height (px)" class="w-full border p-2 rounded bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"></div><div class="flex gap-2"><button id="btn-resize" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex-grow">Resize</button><button id="btn-download-resized" class="bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-600">Download All</button></div><div id="resizerOutput" class="mt-6 grid grid-cols-2 gap-4"></div></section><section class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"><h3 class="text-xl font-semibold mb-4">Image Compressor</h3><input type="file" id="compressorInput" multiple accept="image/*" class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"><label class="block text-sm font-medium mb-2">Quality (0.1 to 1.0)</label><input type="number" id="compressorQuality" step="0.1" value="0.7" min="0.1" max="1.0" class="w-full border p-2 rounded mb-4 bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-green-500"><div class="flex gap-2"><button id="btn-compress" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 flex-grow">Compress</button><button id="btn-download-compressed" class="ml-2 bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-600">Download All</button></div><div id="compressorOutput" class="mt-6 grid grid-cols-2 gap-4"></div></section></div></div>
 
       <!-- Facebook Publisher Page -->
-      <div id="page-fb-publisher" class="page-content"><div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6"><div class="flex flex-wrap items-center gap-4"><label for="fb-token-input-publisher" class="font-semibold">Facebook Access Token:</label><input type="password" id="fb-token-input-publisher" class="flex-grow p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Paste your token here..."><button id="fb-token-submit-publisher" class="bg-blue-600 text-white px-5 py-2 rounded-md font-semibold hover:bg-blue-700">Fetch Data</button></div></div><div class="flex space-x-1 mb-[-1px]"><button data-fb-sub-tab="photo" class="fb-sub-tab-btn active">📷 Photo Post</button><button data-fb-sub-tab="video" class="fb-sub-tab-btn">🎬 Video / Reels</button></div><div class="bg-white dark:bg-gray-800 p-6 rounded-b-lg rounded-r-lg shadow-md"><div id="fb-sub-tab-photo" class="fb-sub-tab-content active"><div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div class="space-y-6"><div><h3 class="font-semibold text-lg mb-2">1. Select Pages</h3><div id="fb-page-selection-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-60 overflow-y-auto p-2 bg-gray-50 dark:bg-gray-900 rounded"><span class="text-gray-500 col-span-full text-center p-4">Please submit a token.</span></div></div><div><h3 class="font-semibold text-lg mb-2">2. Compose Post</h3><textarea id="fb-post-message" rows="5" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="What's on your mind?"></textarea><div class="mt-4"><label class="block text-sm font-medium">Image Source</label><div class="flex mt-1"><button id="img-src-upload" class="px-4 py-2 bg-blue-500 text-white rounded-l-md">Upload</button><button id="img-src-url" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded-r-md">URL</button></div></div><label id="fb-media-upload-label" class="mt-2 block w-full cursor-pointer bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-center p-4 rounded-md">🖼️ Upload Images from Computer<input type="file" id="fb-media-upload" accept="image/*" multiple hidden></label><textarea id="fb-media-urls" rows="3" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md mt-2 hidden" placeholder="Enter one image URL per line..."></textarea></div><button id="fb-publish-button" class="w-full bg-green-600 text-white px-5 py-3 rounded-md font-bold text-lg hover:bg-green-700 disabled:bg-gray-400" disabled>Publish to Selected Pages</button></div><div><h3 class="font-semibold text-lg mb-2">3. Live Preview</h3><div class="w-full max-w-lg mx-auto bg-white dark:bg-gray-700 rounded-lg shadow-lg p-4 border border-gray-200 dark:border-gray-600"><div class="flex items-center mb-3"><img id="fb-preview-avatar" src="https://placehold.co/40x40/cbd5e1/475569?text=P" class="w-10 h-10 rounded-full mr-3 bg-gray-200"><div><div id="fb-preview-name" class="font-bold">Page Name</div><div class="text-xs text-gray-500 dark:text-gray-400">Just now · 🌎</div></div></div><div id="fb-preview-message" class="mb-3 whitespace-pre-wrap"></div><div id="fb-preview-media" class="grid grid-cols-2 gap-1 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-600 min-h-[100px]"></div></div><div id="fb-publish-status" class="mt-4 text-sm space-y-2"></div></div></div></div><div id="fb-sub-tab-video" class="fb-sub-tab-content"><div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div><h3 class="font-semibold text-lg mb-2">1. Select Page</h3><select id="fb-video-page-selector" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md"><option>Submit token first</option></select><h3 class="font-semibold text-lg mt-6 mb-2">2. Upload Video</h3><label class="mt-2 block w-full cursor-pointer bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-center p-4 rounded-md">🎬 Upload Video from Computer<input type="file" id="fb-video-upload" accept="video/*" hidden></label><textarea id="fb-video-description" rows="4" class="w-full mt-4 p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Video description..."></textarea><div class="flex items-center mt-4"><input type="checkbox" id="fb-post-as-reel" class="h-4 w-4"><label for="fb-post-as-reel" class="ml-2">Post as Reel</label></div><button id="fb-publish-video-button" class="w-full mt-4 bg-green-600 text-white px-5 py-3 rounded-md font-bold text-lg hover:bg-green-700 disabled:bg-gray-400" disabled>Publish Video</button><div id="fb-video-publish-status" class="mt-4 text-sm"></div></div><div><h3 class="font-semibold text-lg mb-2">Video Preview</h3><video id="fb-video-preview" class="w-full rounded-lg bg-black" controls></video></div></div></div></div></div>
+      <div id="page-fb-publisher" class="page-content"><div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6"><div class="flex flex-wrap items-center gap-4"><label for="fb-token-input-publisher" class="font-semibold">Facebook Access Token:</label><input type="password" id="fb-token-input-publisher" class="flex-grow p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Paste your token here..."><button id="fb-token-submit-publisher" class="bg-blue-600 text-white px-5 py-2 rounded-md font-semibold hover:bg-blue-700">Fetch Data</button></div></div><div class="flex space-x-1 mb-[-1px]"><button data-fb-sub-tab="photo" class="fb-sub-tab-btn active">📷 Photo Post</button><button data-fb-sub-tab="video" class="fb-sub-tab-btn">🎬 Video / Reels</button></div><div class="bg-white dark:bg-gray-800 p-6 rounded-b-lg rounded-r-lg shadow-md"><div id="fb-sub-tab-photo" class="fb-sub-tab-content active"><div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div class="space-y-6"><div><h3 class="font-semibold text-lg mb-2">1. Select Pages</h3><div id="fb-page-selection-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-60 overflow-y-auto p-2 bg-gray-50 dark:bg-gray-900 rounded"><span class="text-gray-500 col-span-full text-center p-4">Please submit a token.</span></div></div><div><h3 class="font-semibold text-lg mb-2">2. Compose Post</h3><textarea id="fb-post-message" rows="5" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="What's on your mind?"></textarea><div class="mt-4"><label class="block text-sm font-medium">Image Source</label><div class="flex mt-1"><button id="img-src-upload" class="px-4 py-2 bg-blue-500 text-white rounded-l-md">Upload</button><button id="img-src-url" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded-r-md">URL</button></div></div><label id="fb-media-upload-label" class="mt-2 block w-full cursor-pointer bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-center p-4 rounded-md">🖼️ Upload Images from Computer<input type="file" id="fb-media-upload" accept="image/*" multiple hidden></label><textarea id="fb-media-urls" rows="3" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md mt-2 hidden" placeholder="Enter one image URL per line..."></textarea></div><button id="fb-publish-button" class="w-full bg-green-600 text-white px-5 py-3 rounded-md font-bold text-lg hover:bg-green-700 disabled:bg-gray-400" disabled>Publish to Selected Pages</button></div><div><h3 class="font-semibold text-lg mb-2">3. Live Preview</h3><div class="w-full max-w-lg mx-auto bg-white dark:bg-gray-700 rounded-lg shadow-lg p-4 border border-gray-200 dark:border-gray-600"><div class="flex items-center mb-3"><img id="fb-preview-avatar" src="https://placehold.co/40x40/cbd5e1/475569?text=P" class="w-10 h-10 rounded-full mr-3 bg-gray-200"><div><div id="fb-preview-name" class="font-bold">Page Name</div><div class="text-xs text-gray-500 dark:text-gray-400">Just now · 🌎</div></div></div><div id="fb-preview-message" class="mb-3 whitespace-pre-wrap"></div><div id="fb-preview-media" class="grid grid-cols-2 gap-1 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-600 min-h-[100px]"></div></div><div id="fb-publish-status" class="mt-4 text-sm space-y-2"></div></div></div></div><div id="fb-sub-tab-video" class="fb-sub-tab-content"><div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div><h3 class="font-semibold text-lg mb-2">1. Select Page</h3><select id="fb-video-page-selector" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md"><option>Submit token first</option></select><h3 class="font-semibold text-lg mt-6 mb-2">2. Upload Video</h3><div class="mt-4"><label class="block text-sm font-medium">Video Source</label><div class="flex mt-1"><button id="video-src-upload" class="px-4 py-2 bg-blue-500 text-white rounded-l-md">Upload</button><button id="video-src-url" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded-r-md">URL</button></div></div><label id="fb-video-upload-label" class="mt-2 block w-full cursor-pointer bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-center p-4 rounded-md">🎬 Upload Video from Computer<input type="file" id="fb-video-upload" accept="video/*" hidden></label><input type="url" id="fb-video-url-input" class="w-full mt-2 p-2 border bg-gray-50 dark:bg-gray-700 rounded-md hidden" placeholder="Enter video URL..."><textarea id="fb-video-description" rows="4" class="w-full mt-4 p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Video description..."></textarea><div class="flex items-center mt-4"><input type="checkbox" id="fb-post-as-reel" class="h-4 w-4"><label for="fb-post-as-reel" class="ml-2">Post as Reel</label></div><button id="fb-publish-video-button" class="w-full mt-4 bg-green-600 text-white px-5 py-3 rounded-md font-bold text-lg hover:bg-green-700 disabled:bg-gray-400" disabled>Publish Video</button><div id="fb-video-publish-status" class="mt-4 text-sm"></div></div><div><h3 class="font-semibold text-lg mb-2">Video Preview</h3><video id="fb-video-preview" class="w-full rounded-lg bg-black" controls></video></div></div></div></div></div>
       
       <!-- Facebook Pages Page -->
-      <div id="page-fb-pages" class="page-content"><h1 class="text-3xl font-bold mb-4">Facebook Page Posts</h1><div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6"><label for="fb-page-post-selector" class="block text-sm font-medium mb-1">Select a Page to view its posts</label><select id="fb-page-post-selector" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md"><option>Submit token in Publisher first</option></select></div><div id="fb-posts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"><p class="text-gray-500 col-span-full text-center p-8">No Page selected.</p></div></div>
+      <div id="page-fb-pages" class="page-content">
+        <h1 class="text-3xl font-bold mb-4">Facebook Page Posts</h1>
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6">
+            <label for="fb-page-post-selector" class="block text-sm font-medium mb-1">Select a Page to view its posts</label>
+            <select id="fb-page-post-selector" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md">
+                <option>Submit token in Publisher first</option>
+            </select>
+        </div>
+        <div id="fb-posts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <p class="text-gray-500 col-span-full text-center p-8">No Page selected.</p>
+        </div>
+        <!-- Pagination controls for page posts -->
+        <div id="fb-posts-pagination" class="flex justify-between items-center mt-6">
+            <button id="fb-posts-prev-btn" class="bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-600 disabled:opacity-50 disabled:pointer-events-none">&larr; Previous</button>
+            <button id="fb-posts-next-btn" class="bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-600 disabled:opacity-50 disabled:pointer-events-none">Next &rarr;</button>
+        </div>
+      </div>
 
       <!-- Facebook Business Manager Page -->
-      <div id="page-fb-bm" class="page-content"><h1 class="text-3xl font-bold mb-4">Business Manager Overview</h1><div id="fb-bm-container" class="space-y-4"><p class="text-gray-500 text-center p-8">Submit token in Publisher first to see Business Managers.</p></div></div>
+      <div id="page-fb-bm" class="page-content">
+        <h1 class="text-3xl font-bold mb-4">Business Manager Overview</h1>
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="bm-filter-status" class="block text-sm font-medium mb-1">Filter by Verification Status</label>
+                    <select id="bm-filter-status" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md">
+                        <option value="">All Statuses</option>
+                        <option value="verified">Verified</option>
+                        <option value="not_verified">Not Verified</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="bm-filter-name" class="block text-sm font-medium mb-1">Filter by Name (contains)</label>
+                    <input type="text" id="bm-filter-name" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Enter name or part of name">
+                </div>
+            </div>
+        </div>
+        <div id="fb-bm-container" class="space-y-4">
+            <p class="text-gray-500 text-center p-8">Submit token in Publisher first to see Business Managers.</p>
+        </div>
+      </div>
 
       <!-- Facebook Ads Manager Page -->
-      <div id="page-fb-ads" class="page-content"><h1 class="text-3xl font-bold mb-4">Ads Manager</h1><div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6"><label for="fb-ad-account-selector" class="block text-sm font-medium mb-1">Select an Ad Account to view campaigns</label><select id="fb-ad-account-selector" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md"><option>Submit token in Publisher first</option></select></div><div id="fb-campaigns-container" class="bg-white dark:bg-gray-800 p-1 rounded-lg shadow-md overflow-x-auto"><p class="text-gray-500 text-center p-8">No Ad Account selected.</p></div></div>
+      <div id="page-fb-ads" class="page-content">
+        <h1 class="text-3xl font-bold mb-4">Ads Manager</h1>
 
-      <!-- Facebook Power Editor Page -->
-      <div id="page-fb-power-editor" class="page-content"><h1 class="text-3xl font-bold mb-4">Power Editor: Instant Experience</h1><div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div class="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"><h3 class="font-semibold text-lg mb-2">1. Select Page & Post Message</h3><select id="fb-canvas-page-selector" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md"><option>Submit token in Publisher first</option></select><textarea id="fb-canvas-message" rows="3" class="w-full mt-4 p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Message for the post that opens the Instant Experience..."></textarea><h3 class="font-semibold text-lg mt-4 mb-2">2. Build Canvas Elements</h3><div id="fb-canvas-elements-container" class="space-y-4 max-h-96 overflow-y-auto p-2 border-t border-b"></div><button id="fb-add-canvas-element" class="mt-4 w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Add Element</button><button id="fb-publish-canvas" class="mt-4 w-full bg-green-600 text-white px-5 py-3 rounded-md font-bold text-lg hover:bg-green-700 disabled:bg-gray-400" disabled>Publish Instant Experience</button></div><div><h3 class="font-semibold text-lg mb-2">3. Preview (Conceptual)</h3><div id="fb-canvas-preview" class="p-4 bg-gray-200 dark:bg-gray-900 rounded-lg min-h-[400px]"></div><div id="fb-canvas-publish-status" class="mt-4 text-sm"></div></div></div></div>
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6">
+            <label for="fb-ad-account-selector" class="block text-sm font-medium mb-1">Select an Ad Account</label>
+            <select id="fb-ad-account-selector" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md">
+                <option value="">Select an Ad Account</option>
+            </select>
+        </div>
+
+        <!-- Tabs for Ads Manager -->
+        <div class="flex space-x-1 mb-[-1px]">
+            <button data-ads-tab="account-summary" class="ads-tab-btn active">📊 Account Summary</button>
+            <button data-ads-tab="campaigns" class="ads-tab-btn">🚀 Campaigns</button>
+            <button data-ads-tab="adsets" class="ads-tab-btn">🎯 Ad Sets</button>
+            <button data-ads-tab="ads" class="ads-tab-btn">🖼️ Ads</button>
+            <button data-ads-tab="audiences" class="ads-tab-btn">👥 Audiences</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-b-lg rounded-r-lg shadow-md">
+            <!-- Account Summary Tab -->
+            <div id="ads-tab-content-account-summary" class="ads-tab-content active">
+                <h3 class="font-semibold text-lg mb-4">Ad Account Details</h3>
+                <div id="fb-ad-account-details" class="p-4 bg-gray-100 dark:bg-gray-700 rounded-md">
+                    <p class="text-gray-500">Select an Ad Account to see details.</p>
+                </div>
+                <!-- Quick Links -->
+                <div class="mt-6">
+                    <h4 class="font-semibold text-md mb-2">Quick Links</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <a id="link-account-overview" href="https://business.facebook.com/ads/manager/account_overview/" target="_blank" class="block bg-blue-500 text-white text-center py-3 rounded-lg hover:bg-blue-600 transition-colors">Account Overview</a>
+                        <a id="link-bill-payment" href="https://business.facebook.com/ads/manager/billing/transactions/" target="_blank" class="block bg-blue-500 text-white text-center py-3 rounded-lg hover:bg-blue-600 transition-colors">Bill Payment</a>
+                        <a id="link-ads-campaigns" href="https://business.facebook.com/ads/manager/campaigns/" target="_blank" class="block bg-blue-500 text-white text-center py-3 rounded-lg hover:bg-blue-600 transition-colors">Ads Campaigns</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campaigns Tab -->
+            <div id="ads-tab-content-campaigns" class="ads-tab-content">
+                <h3 class="font-semibold text-lg mb-4">Campaigns</h3>
+                <div id="fb-campaigns-container" class="bg-white dark:bg-gray-800 p-1 rounded-lg shadow-md overflow-x-auto">
+                    <p class="text-gray-500 text-center p-8">No Ad Account selected.</p>
+                </div>
+            </div>
+
+            <!-- Ad Sets Tab -->
+            <div id="ads-tab-content-adsets" class="ads-tab-content">
+                <h3 class="font-semibold text-lg mb-4">Ad Sets</h3>
+                <div id="fb-adsets-container" class="bg-white dark:bg-gray-800 p-1 rounded-lg shadow-md overflow-x-auto">
+                    <p class="text-gray-500 text-center p-8">Select a Campaign to see Ad Sets.</p>
+                </div>
+            </div>
+
+            <!-- Ads Tab -->
+            <div id="ads-tab-content-ads" class="ads-tab-content">
+                <h3 class="font-semibold text-lg mb-4">Ads</h3>
+                <div id="fb-ads-container" class="bg-white dark:bg-gray-800 p-1 rounded-lg shadow-md overflow-x-auto">
+                    <p class="text-gray-500 text-center p-8">Select an Ad Set to see Ads.</p>
+                </div>
+            </div>
+
+            <!-- Audiences Tab -->
+            <div id="ads-tab-content-audiences" class="ads-tab-content">
+                <h3 class="font-semibold text-lg mb-4">Custom Audiences</h3>
+                <div id="fb-audiences-container" class="bg-white dark:bg-gray-800 p-1 rounded-lg shadow-md overflow-x-auto">
+                    <p class="text-gray-500 text-center p-8">Select an Ad Account to see Audiences.</p>
+                </div>
+            </div>
+        </div>
+      </div>
       
       <!-- Facebook Unified Inbox Page -->
-      <div id="page-fb-inbox" class="page-content"><h1 class="text-3xl font-bold mb-4">Unified Inbox</h1><div class="bg-blue-100 dark:bg-blue-900/30 border-l-4 border-blue-500 text-blue-700 dark:text-blue-300 p-4 rounded-md mb-6" role="alert"><p class="font-bold">Feature Notice</p><p>A fully functional real-time inbox requires a backend server and special permissions from Facebook. This page serves as a UI concept and is not connected to live data.</p></div><div class="h-[75vh] flex bg-white dark:bg-gray-800 rounded-lg shadow-md"><div class="w-1/3 border-r dark:border-gray-700 flex flex-col"><div class="p-4 border-b dark:border-gray-600 font-bold">Conversations</div><div class="flex-grow overflow-y-auto"><div class="p-4 border-b dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"><div><strong>John Doe</strong><span class="text-xs text-gray-500 ml-2">2h</span></div><p class="text-sm text-gray-600 dark:text-gray-400 truncate">Hey, is this item still available?</p></div><div class="p-4 border-b dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 bg-blue-50 dark:bg-blue-900/20"><div><strong>Jane Smith</strong><span class="text-xs text-gray-500 ml-2">1d</span></div><p class="text-sm font-semibold truncate">I'd like to place an order.</p></div></div></div><div class="w-2/3 flex flex-col"><div class="p-4 border-b dark:border-gray-600 font-bold">Jane Smith</div><div class="flex-grow p-4 overflow-y-auto space-y-4"><div class="flex justify-start"><div class="bg-gray-200 dark:bg-gray-600 p-3 rounded-lg max-w-md">I'd like to place an order.</div></div><div class="flex justify-end"><div class="bg-blue-500 text-white p-3 rounded-lg max-w-md">Great! What can I get for you?</div></div></div><div class="p-4 border-t dark:border-gray-600"><input class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Type a message..." disabled></div></div></div></div>
+      <div id="page-fb-inbox" class="page-content"><h1 class="text-3xl font-bold mb-4">Unified Inbox</h1><div class="bg-blue-100 dark:bg-blue-900/30 border-l-4 border-blue-500 text-blue-700 dark:text-blue-300 p-4 rounded-md mb-6" role="alert"><p class="font-bold">Feature Notice</p><p>A fully functional real-time inbox requires a backend server and special permissions from Facebook. This page serves as a UI concept and is not connected to live data. Retrieving messages is complex due to Facebook's privacy policies and API limitations. It typically requires a custom app with 'pages_read_user_content' and 'pages_manage_metadata' permissions, and often a verified business.</p></div><div class="h-[75vh] flex bg-white dark:bg-gray-800 rounded-lg shadow-md"><div class="w-1/3 border-r dark:border-gray-700 flex flex-col"><div class="p-4 border-b dark:border-gray-600 font-bold">Conversations</div><div class="flex-grow overflow-y-auto"><div class="p-4 border-b dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"><div><strong>John Doe</strong><span class="text-xs text-gray-500 ml-2">2h</span></div><p class="text-sm text-gray-600 dark:text-gray-400 truncate">Hey, is this item still available?</p></div><div class="p-4 border-b dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 bg-blue-50 dark:bg-blue-900/20"><div><strong>Jane Smith</strong><span class="text-xs text-gray-500 ml-2">1d</span></div><p class="text-sm font-semibold truncate">I'd like to place an order.</p></div></div></div><div class="w-2/3 flex flex-col"><div class="p-4 border-b dark:border-gray-600 font-bold">Jane Smith</div><div class="flex-grow p-4 overflow-y-auto space-y-4"><div class="flex justify-start"><div class="bg-gray-200 dark:bg-gray-600 p-3 rounded-lg max-w-md">I'd like to place an order.</div></div><div class="flex justify-end"><div class="bg-blue-500 text-white p-3 rounded-lg max-w-md">Great! What can I get for you?</div></div></div><div class="p-4 border-t dark:border-gray-600"><input class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Type a message..." disabled></div></div></div></div>
       
       <!-- Hijri Calendar Page -->
       <div id="page-calendar" class="page-content">
@@ -183,8 +444,50 @@
             </div>
         </div>
       </div>
+
+      <!-- Power Editor Page -->
+      <div id="page-fb-power-editor" class="page-content">
+        <h1 class="text-3xl font-bold mb-4">Power Editor (Instant Experiences Builder)</h1>
+        <div class="bg-blue-100 dark:bg-blue-900/30 border-l-4 border-blue-500 text-blue-700 dark:text-blue-300 p-4 rounded-md mb-6" role="alert">
+            <p class="font-bold">Important Note:</p>
+            <p>This is a conceptual demo for building Instant Experiences (formerly Canvas Ads). Publishing these via the Facebook API is highly complex and requires extensive setup, including domain verification, business verification, and specific advanced permissions from Facebook. This function is for UI demonstration only and does not connect to a live publishing API.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <h3 class="font-semibold text-lg mb-4">Build Your Instant Experience</h3>
+                <div class="mb-4">
+                    <label for="fb-canvas-page-selector" class="block text-sm font-medium mb-1">Select a Page (Required for Publishing Concept)</label>
+                    <select id="fb-canvas-page-selector" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md">
+                        <option value="">Select a Page</option>
+                    </select>
+                </div>
+                <div id="fb-canvas-elements-container" class="space-y-3 p-4 border border-dashed border-gray-300 dark:border-gray-600 rounded-md min-h-[200px] overflow-y-auto">
+                    <!-- Canvas elements will be added here -->
+                    <p class="text-gray-500 text-center p-4">Add elements below to start building.</p>
+                </div>
+                <button id="fb-add-canvas-element" class="mt-4 w-full bg-blue-600 text-white px-5 py-2 rounded-md font-semibold hover:bg-blue-700">Add Element</button>
+                <button id="fb-publish-canvas" class="mt-4 w-full bg-green-600 text-white px-5 py-3 rounded-md font-bold text-lg hover:bg-green-700 disabled:opacity-50 disabled:pointer-events-none" disabled>Publish Instant Experience (Demo)</button>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <h3 class="font-semibold text-lg mb-4">Live Preview</h3>
+                <div id="fb-canvas-preview" class="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md p-4 min-h-[300px] flex flex-col items-center justify-center text-center">
+                    <p class="text-gray-500">Build your Instant Experience here by adding elements.</p>
+                </div>
+            </div>
+        </div>
+      </div>
     </div>
   </main>
+
+  <!-- Modal for zoomed image -->
+  <div id="image-modal" class="fixed inset-0 bg-black bg-opacity-80 hidden flex items-center justify-center z-50">
+    <button id="close-image-modal" class="absolute top-4 right-4 text-white text-4xl">&times;</button>
+    <button id="prev-image" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-4xl p-2 rounded-full bg-gray-800 bg-opacity-50 hover:bg-opacity-75 transition-all duration-200">&larr;</button>
+    <img id="modal-image" class="max-w-screen-lg max-h-screen object-contain p-4">
+    <button id="next-image" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-4xl p-2 rounded-full bg-gray-800 bg-opacity-50 hover:bg-opacity-75 transition-all duration-200">&rarr;</button>
+  </div>
   
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -244,6 +547,8 @@
         
         activePage = pageName;
         if(pageName === 'calendar') renderCalendar();
+        if(pageName === 'fb-ads') renderAdsManager(); // Call renderAdsManager when navigating to the ads page
+        if(pageName === 'fb-power-editor') renderPowerEditor(); // Call renderPowerEditor when navigating to the Power Editor page
         window.location.hash = pageName;
     };
     
@@ -274,7 +579,7 @@
         eventList.innerHTML = '';
 
         const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const startDay = new Date(year, month, 1).getDay();
+        const startDay = new Date(year, month, 1).getDay(); // 0 for Sunday, 6 for Saturday
         
         const header = document.getElementById('calendar-grid-header');
         if(header.children.length === 0) {
@@ -297,9 +602,16 @@
 
             const cell = document.createElement('div');
             let cellClasses = 'p-2 h-24 border dark:border-gray-700 rounded-md flex flex-col';
-            if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+            
+            const currentDayOfWeek = new Date(year, month, day).getDay();
+            if (currentDayOfWeek === 0) { // Sunday
+                cellClasses += ' calendar-day-sunday';
+            } else if (currentDayOfWeek === 6) { // Saturday
+                cellClasses += ' calendar-day-saturday';
+            } else if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
                  cellClasses += ' calendar-day-today';
             }
+            
             cellClasses += eventsOnDay.length > 0 ? ' bg-blue-50 dark:bg-blue-900/30 cursor-pointer' : ' bg-gray-50 dark:bg-gray-900/50';
             cell.className = cellClasses;
 
@@ -414,46 +726,65 @@
     const handle2faCodeGeneration = () => {
         clearInterval(twoFaInterval);
         const secret = document.getElementById('two-fa-secret').value.trim().replace(/\s/g, '');
-        if (secret.length < 8) {
+        
+        // Basic validation for secret key format (Base32 without padding or with padding)
+        // OTPAuth library can parse various formats but a minimal length check and character set check can help.
+        // Base32 characters: A-Z, 2-7
+        const base32Regex = /^[A-Z2-7=]+$/i;
+        if (secret.length === 0) {
             twoFaCodeEl.textContent = '------';
             twoFaProgressEl.style.width = '100%';
-            twoFaErrorEl.textContent = '';
+            twoFaErrorEl.textContent = 'Please enter a secret key.';
             return;
         }
+        if (!base32Regex.test(secret)) {
+            twoFaCodeEl.textContent = '------';
+            twoFaProgressEl.style.width = '100%';
+            twoFaErrorEl.textContent = 'Invalid characters in secret key. Use A-Z and 2-7.';
+            return;
+        }
+        // Minimum length for a usable secret (e.g., 8 characters for a 16-character base32 secret)
+        if (secret.length < 8) { 
+            twoFaCodeEl.textContent = '------';
+            twoFaProgressEl.style.width = '100%';
+            twoFaErrorEl.textContent = 'Secret key too short. Must be at least 8 characters.';
+            return;
+        }
+
 
         try {
             const totp = new otpauth.TOTP({
                 issuer: "ACME",
                 label: "2FA",
-                algorithm: 'SHA1',
-                digits: 6,
-                period: 30,
-                secret: secret
+                algorithm: 'SHA1', // Most common algorithm for TOTP
+                digits: 6,         // 6 digits is standard
+                period: 30,        // 30 seconds is standard
+                secret: secret     // The user's provided secret
             });
 
-            twoFaErrorEl.textContent = '';
-            
+            twoFaErrorEl.textContent = ''; // Clear any previous error
+
             const updateCode = () => {
                 try {
                     const token = totp.generate();
                     const timeRemaining = totp.period - (Math.floor(Date.now() / 1000) % totp.period);
-                    twoFaCodeEl.textContent = token.match(/.{1,3}/g).join(' ');
+                    twoFaCodeEl.textContent = token.match(/.{1,3}/g).join(' '); // Format with space every 3 digits
                     twoFaProgressEl.style.width = `${(timeRemaining / totp.period) * 100}%`;
                 } catch (e) {
                      twoFaCodeEl.textContent = '------';
-                     twoFaErrorEl.textContent = 'Invalid secret key.';
-                     clearInterval(twoFaInterval);
+                     twoFaErrorEl.textContent = 'Failed to generate code. Invalid secret format.';
+                     clearInterval(twoFaInterval); // Stop updating on error
                 }
             };
 
-            updateCode();
-            twoFaInterval = setInterval(updateCode, 1000);
+            updateCode(); // Generate code immediately
+            twoFaInterval = setInterval(updateCode, 1000); // Update every second
 
         } catch (e) {
             twoFaCodeEl.textContent = '------';
             twoFaProgressEl.style.width = '100%';
             twoFaErrorEl.textContent = 'Invalid secret key. Please check the key and try again.';
-            console.error(e);
+            console.error("2FA generation error:", e);
         }
     };
     document.getElementById('two-fa-secret')?.addEventListener('input', handle2faCodeGeneration);
@@ -466,18 +797,70 @@
     // Using a general CORS proxy for downloading the original file.
     const downloadProxy = 'https://corsproxy.io/?';
 
+    let currentImageIndex = 0; // Tracks the current image index for modal
+    const imageList = []; // Stores all image URLs for modal navigation
+
+    const imageModal = document.getElementById('image-modal');
+    const modalImage = document.getElementById('modal-image');
+    const closeModalBtn = document.getElementById('close-image-modal');
+    const prevImageBtn = document.getElementById('prev-image');
+    const nextImageBtn = document.getElementById('next-image');
+
+    const openImageModal = (index) => {
+        currentImageIndex = index;
+        modalImage.src = `${imagePreviewProxy}${imageList[currentImageIndex].replace(/^https?:\/\//, '')}`;
+        imageModal.classList.remove('hidden');
+    };
+
+    const showPreviousImage = () => {
+        if (currentImageIndex > 0) {
+            currentImageIndex--;
+            modalImage.src = `${imagePreviewProxy}${imageList[currentImageIndex].replace(/^https?:\/\//, '')}`;
+        }
+    };
+
+    const showNextImage = () => {
+        if (currentImageIndex < imageList.length - 1) {
+            currentImageIndex++;
+            modalImage.src = `${imagePreviewProxy}${imageList[currentImageIndex].replace(/^https?:\/\//, '')}`;
+        }
+    };
+
+    closeModalBtn.addEventListener('click', () => {
+        imageModal.classList.add('hidden');
+    });
+
+    prevImageBtn.addEventListener('click', showPreviousImage);
+    nextImageBtn.addEventListener('click', showNextImage);
+
+    // Keyboard navigation for modal
+    document.addEventListener('keydown', (event) => {
+        if (!imageModal.classList.contains('hidden')) {
+            if (event.key === 'ArrowLeft') {
+                showPreviousImage();
+            } else if (event.key === 'ArrowRight') {
+                showNextImage();
+            } else if (event.key === 'Escape') {
+                imageModal.classList.add('hidden');
+            }
+        }
+    });
+
     const previewImages = () => {
         const urls = document.getElementById('imageUrls').value.trim().split('\n').filter(Boolean);
         const container = document.getElementById('preview');
         container.innerHTML = ''; // Clear previous previews
-
+        imageList.length = 0; // Clear previous image list for modal
         if (urls.length === 0) {
             container.innerHTML = '<p class="text-gray-500 col-span-full text-center">No URLs entered. Paste URLs and click Preview.</p>';
             return;
         }
 
-        urls.forEach(url => {
+        urls.forEach((url, index) => {
             const trimmedUrl = url.trim();
+            // Store the original URL for actual download and for modal display (which will use the proxy)
+            imageList.push(trimmedUrl); 
+
             // The `images.weserv.nl` proxy requires the URL without the protocol scheme (http:// or https://)
             const urlForPreviewProxy = trimmedUrl.replace(/^https?:\/\//, '');
             const proxiedUrl = `${imagePreviewProxy}${urlForPreviewProxy}`;
@@ -488,13 +871,17 @@
             const img = document.createElement('img');
             img.src = proxiedUrl;
             // Use `object-contain` to ensure the entire image is visible without being cropped.
-            img.className = 'w-full h-48 object-contain rounded';
+            img.className = 'w-full h-48 object-contain rounded cursor-pointer'; // Added cursor-pointer
+            img.dataset.index = index; // Store index for modal opening
             
             img.onerror = function() {
                 this.onerror = null; // Prevent potential infinite loop if the placeholder image also fails
                 this.src = 'https://placehold.co/400x300/ef4444/ffffff?text=Failed+to+Load';
                 this.title = `Error loading: ${trimmedUrl}`;
             };
+
+            // Add click listener for modal
+            img.addEventListener('click', () => openImageModal(index));
             
             imgContainer.appendChild(img);
             container.appendChild(imgContainer);
@@ -660,6 +1047,9 @@
     * FACEBOOK SUITE LOGIC (REFACTORED)
     *******************************************************************/
     let fbData = { token: null, pages: [], businesses: [], adAccounts: [] };
+    let currentAdAccountId = null; // Track currently selected ad account
+    let currentCampaignId = null; // Track currently selected campaign for persistence
+    let currentAdSetId = null; // Track currently selected ad set for persistence
 
     const fbTokenInput = document.getElementById('fb-token-input-publisher');
     const fbTokenSubmitBtn = document.getElementById('fb-token-submit-publisher');
@@ -674,17 +1064,52 @@
     const fbPreviewName = document.getElementById('fb-preview-name');
     const fbPreviewMessage = document.getElementById('fb-preview-message');
     const fbPreviewMedia = document.getElementById('fb-preview-media');
+
+    // Video Publisher elements
+    const videoSrcUploadBtn = document.getElementById('video-src-upload');
+    const videoSrcUrlBtn = document.getElementById('video-src-url');
+    const fbVideoUploadLabel = document.getElementById('fb-video-upload-label');
+    const fbVideoUrlInput = document.getElementById('fb-video-url-input');
+    const fbVideoUpload = document.getElementById('fb-video-upload');
+    const fbVideoDescription = document.getElementById('fb-video-description');
+    const fbPostAsReel = document.getElementById('fb-post-as-reel');
+    const fbPublishVideoButton = document.getElementById('fb-publish-video-button');
+    const fbVideoPublishStatus = document.getElementById('fb-video-publish-status');
+    const fbVideoPreview = document.getElementById('fb-video-preview');
+    let videoSourceType = 'upload'; // 'upload' or 'url'
+
     
     const fbBmContainer = document.getElementById('fb-bm-container');
+    const bmFilterStatus = document.getElementById('bm-filter-status');
+    const bmFilterName = document.getElementById('bm-filter-name');
+
     const fbAdAccountSelector = document.getElementById('fb-ad-account-selector');
+    const fbAdAccountDetails = document.getElementById('fb-ad-account-details');
     const fbCampaignsContainer = document.getElementById('fb-campaigns-container');
+    const fbAdSetsContainer = document.getElementById('fb-adsets-container');
+    const fbAdsContainer = document.getElementById('fb-ads-container');
+    const fbAudiencesContainer = document.getElementById('fb-audiences-container');
+
     const fbPagePostSelector = document.getElementById('fb-page-post-selector');
     const fbPostsContainer = document.getElementById('fb-posts-container');
-    
+    const fbPostsPrevBtn = document.getElementById('fb-posts-prev-btn');
+    const fbPostsNextBtn = document.getElementById('fb-posts-next-btn');
+    let pagePostsPaging = { next: null, previous: null };
+
     const fbCanvasPageSelector = document.getElementById('fb-canvas-page-selector');
     const fbCanvasElementsContainer = document.getElementById('fb-canvas-elements-container');
     const fbAddCanvasElementBtn = document.getElementById('fb-add-canvas-element');
     const fbPublishCanvasBtn = document.getElementById('fb-publish-canvas');
+    const fbCanvasPreview = document.getElementById('fb-canvas-preview');
+
+    // Helper to format numbers with commas
+    const formatNumber = (num) => {
+        if (num === null || num === undefined || isNaN(num)) {
+            return 'N/A';
+        }
+        return parseFloat(num).toLocaleString('en-US');
+    };
+
 
     // --- Event Listeners ---
     fbTokenSubmitBtn.addEventListener('click', fetchFacebookData);
@@ -693,13 +1118,118 @@
     fbMediaUrls.addEventListener('input', updateFbPostPreview);
     fbPublishButton.addEventListener('click', publishToFacebook);
     fbPagePostSelector.addEventListener('change', (e) => fetchPagePosts(e.target.value));
-    fbAdAccountSelector.addEventListener('change', (e) => fetchCampaigns(e.target.value));
     
+    // Video Publisher Source selection
+    videoSrcUploadBtn.addEventListener('click', () => {
+        videoSourceType = 'upload';
+        fbVideoUploadLabel.classList.remove('hidden');
+        fbVideoUrlInput.classList.add('hidden');
+        videoSrcUploadBtn.classList.add('bg-blue-500', 'text-white');
+        videoSrcUrlBtn.classList.remove('bg-blue-500', 'text-white');
+        fbVideoPreview.src = ''; // Clear preview when switching source
+        fbVideoPreview.load();
+    });
+
+    videoSrcUrlBtn.addEventListener('click', () => {
+        videoSourceType = 'url';
+        fbVideoUploadLabel.classList.add('hidden');
+        fbVideoUrlInput.classList.remove('hidden');
+        videoSrcUrlBtn.classList.add('bg-blue-500', 'text-white');
+        videoSrcUploadBtn.classList.remove('bg-blue-500', 'text-white');
+        fbVideoPreview.src = ''; // Clear preview when switching source
+        fbVideoPreview.load();
+    });
+
+    fbVideoUpload.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            fbVideoPreview.src = URL.createObjectURL(file);
+            fbVideoPreview.load();
+        } else {
+            fbVideoPreview.src = '';
+            fbVideoPreview.load();
+        }
+    });
+
+    fbVideoUrlInput.addEventListener('input', (event) => {
+        const url = event.target.value;
+        if (url) {
+            fbVideoPreview.src = url;
+            fbVideoPreview.load();
+        } else {
+            fbVideoPreview.src = '';
+            fbVideoPreview.load();
+        }
+    });
+
+    fbPublishVideoButton.addEventListener('click', publishVideoToFacebook);
+
+    // Ads Manager specific event listeners
+    fbAdAccountSelector.addEventListener('change', (e) => {
+        currentAdAccountId = e.target.value;
+        currentCampaignId = null; // Reset campaign and ad set when account changes
+        currentAdSetId = null;
+        if (currentAdAccountId) {
+            // Load data for the active tab when a new ad account is selected
+            const activeAdsTab = document.querySelector('.ads-tab-btn.active').dataset.adsTab;
+            if (activeAdsTab === 'account-summary') {
+                fetchAdAccountDetails(currentAdAccountId);
+            } else if (activeAdsTab === 'campaigns') {
+                fetchCampaigns(currentAdAccountId);
+            } else if (activeAdsTab === 'audiences') {
+                fetchAudiences(currentAdAccountId);
+            }
+            // Update quick links to be account-specific
+            updateAdsQuickLinks(currentAdAccountId);
+        } else {
+            // Clear all ads manager content if no account is selected
+            fbAdAccountDetails.innerHTML = '<p class="text-gray-500">Select an Ad Account to see details.</p>';
+            fbCampaignsContainer.innerHTML = '<p class="text-gray-500 text-center p-8">No Ad Account selected.</p>';
+            fbAdSetsContainer.innerHTML = '<p class="text-gray-500 text-center p-8">Select a Campaign to see Ad Sets.</p>';
+            fbAdsContainer.innerHTML = '<p class="text-gray-500 text-center p-8">Select an Ad Set to see Ads.</p>';
+            fbAudiencesContainer.innerHTML = '<p class="text-gray-500 text-center p-8">Select an Ad Account to see Audiences.</p>';
+            // Reset quick links to general
+            updateAdsQuickLinks(null);
+        }
+    });
+
     document.querySelectorAll('.fb-sub-tab-btn').forEach(btn => btn.addEventListener('click', (e) => {
         document.querySelector('.fb-sub-tab-btn.active').classList.remove('active');
         e.target.classList.add('active');
         document.querySelector('.fb-sub-tab-content.active').classList.remove('active');
         document.getElementById(`fb-sub-tab-${e.target.dataset.fbSubTab}`).classList.add('active');
+    }));
+
+    // Ads Manager Tab Switching
+    document.querySelectorAll('.ads-tab-btn').forEach(btn => btn.addEventListener('click', (e) => {
+        document.querySelector('.ads-tab-btn.active').classList.remove('active');
+        e.target.classList.add('active');
+        document.querySelector('.ads-tab-content.active').classList.remove('active');
+        const tabName = e.target.dataset.adsTab;
+        document.getElementById(`ads-tab-content-${tabName}`).classList.add('active');
+
+        // Load data specific to the selected tab if an account is selected
+        if (currentAdAccountId) {
+            if (tabName === 'account-summary') {
+                fetchAdAccountDetails(currentAdAccountId);
+            } else if (tabName === 'campaigns') {
+                fetchCampaigns(currentAdAccountId);
+            } else if (tabName === 'adsets') {
+                if (currentCampaignId) {
+                    fetchAdSets(currentCampaignId);
+                } else {
+                    fbAdSetsContainer.innerHTML = '<p class="text-gray-500 text-center p-8">Select a Campaign to see Ad Sets.</p>';
+                }
+            } else if (tabName === 'ads') {
+                if (currentAdSetId) {
+                    fetchAds(currentAdSetId);
+                } else {
+                    fbAdsContainer.innerHTML = '<p class="text-gray-500 text-center p-8">Select an Ad Set to see Ads.</p>';
+                }
+            } else if (tabName === 'audiences') {
+                fetchAudiences(currentAdAccountId);
+            }
+        }
     }));
 
     document.getElementById('img-src-upload').addEventListener('click', () => {
@@ -716,6 +1246,22 @@
         document.getElementById('img-src-upload').classList.remove('bg-blue-500', 'text-white');
     });
 
+    // Business Manager Filters
+    bmFilterStatus.addEventListener('change', () => renderBusinessManager(true));
+    bmFilterName.addEventListener('input', () => renderBusinessManager(true));
+
+    // Page Posts Pagination
+    fbPostsPrevBtn.addEventListener('click', () => {
+        if (pagePostsPaging.previous) {
+            fetchPagePosts(fbPagePostSelector.value, pagePostsPaging.previous);
+        }
+    });
+    fbPostsNextBtn.addEventListener('click', () => {
+        if (pagePostsPaging.next) {
+            fetchPagePosts(fbPagePostSelector.value, pagePostsPaging.next);
+        }
+    });
+
     // --- Core API & Data Handling ---
     async function fetchFacebookData() {
         const token = fbTokenInput.value.trim();
@@ -729,17 +1275,17 @@
         fbTokenSubmitBtn.disabled = true;
 
         try {
-            const fields = 'accounts{name,access_token,picture{url}},adaccounts{name,account_id},businesses{name,verification_status,owned_pages{id},owned_ad_accounts{id}}';
+            const fields = 'accounts{name,access_token,picture{url}},adaccounts{name,account_id,account_status,currency,spend_cap,balance,business{name,id}},businesses{name,verification_status,owned_pages{id},owned_ad_accounts{id}}';
             const response = await fbApiGet(`me?fields=${fields}`);
             
             fbData.pages = response.accounts?.data || [];
             fbData.businesses = response.businesses?.data || [];
             fbData.adAccounts = response.adaccounts?.data || [];
-            
+
             renderPublisherPageSelection();
             renderPagesViewer();
-            renderBusinessManager();
-            renderAdsManager();
+            renderBusinessManager(); // Initial render for Business Manager with potential filters
+            renderAdsManager(); // Re-render Ads Manager on token fetch
             renderPowerEditor();
             showNotification('Facebook data loaded successfully!', 'success');
 
@@ -765,10 +1311,11 @@
         let url = `https://graph.facebook.com/v19.0/${endpoint}`;
         const fetchOptions = { method, body };
         
-        let finalBody = body;
+        // If body is FormData, access_token needs to be appended to it
         if (body instanceof FormData) {
             body.append('access_token', finalToken);
         } else {
+             // For URL-encoded bodies, append token to URL and set Content-Type header
              url += `${endpoint.includes('?') ? '&' : '?'}access_token=${finalToken}`;
              if (body) {
                  fetchOptions.body = body;
@@ -854,6 +1401,11 @@
             fbPublishStatus.appendChild(statusP);
             try {
                 if (files.length === 0 && urls.length === 0) {
+                    if (message.trim() === '') {
+                        statusP.textContent = `❌ Error for ${page.id}: Message or media required.`;
+                        statusP.className = 'text-red-500';
+                        continue;
+                    }
                     await fbApiPost(`${page.id}/feed?message=${encodeURIComponent(message)}`, { method: 'POST', token: page.token });
                 } else {
                     const photoIds = [];
@@ -868,13 +1420,22 @@
                     // Handle URLs
                     for(const [i, url] of urls.entries()) {
                          statusP.textContent = `Processing URL ${i + 1}/${urls.length} for ${page.id}...`;
+                         // For external URLs, Facebook API might prefer a different endpoint or specific parameters
                          const res = await fbApiPost(`${page.id}/photos?url=${encodeURIComponent(url)}&published=false`, { method: 'POST', token: page.token });
                          photoIds.push(res.id);
                     }
                     
-                     statusP.textContent = `Publishing post to ${page.id}...`;
-                     const attachedMedia = photoIds.map((id, i) => `attached_media[${i}]={"media_fbid":"${id}"}`).join('&');
-                     await fbApiPost(`${page.id}/feed?message=${encodeURIComponent(message)}&${attachedMedia}`, { method: 'POST', token: page.token });
+                    if (photoIds.length > 0) {
+                        statusP.textContent = `Publishing post to ${page.id}...`;
+                        const attachedMedia = photoIds.map((id, i) => `attached_media[${i}]={"media_fbid":"${id}"}`).join('&');
+                        await fbApiPost(`${page.id}/feed?message=${encodeURIComponent(message)}&${attachedMedia}`, { method: 'POST', token: page.token });
+                    } else if (message.trim() !== '') {
+                        await fbApiPost(`${page.id}/feed?message=${encodeURIComponent(message)}`, { method: 'POST', token: page.token });
+                    } else {
+                        statusP.textContent = `❌ Error for ${page.id}: Message or media required.`;
+                        statusP.className = 'text-red-500';
+                        continue;
+                    }
                 }
                 statusP.textContent = `✅ Successfully posted to ${page.id}.`;
                 statusP.className = 'text-green-500';
@@ -886,20 +1447,105 @@
         fbPublishButton.disabled = false;
     }
 
+    async function publishVideoToFacebook() {
+        const pageSelector = document.getElementById('fb-video-page-selector');
+        const pageData = pageSelector.value;
+        const [pageId, pageToken] = pageData.split('|');
+        const description = fbVideoDescription.value;
+        const postAsReel = fbPostAsReel.checked;
+
+        fbVideoPublishStatus.innerHTML = '';
+        fbPublishVideoButton.disabled = true;
+
+        if (!pageId || pageId === 'Submit token first') {
+            showNotification('Please select a page first.', 'error');
+            fbPublishVideoButton.disabled = false;
+            return;
+        }
+
+        try {
+            let formData = new FormData();
+            formData.append('description', description);
+            // Append an empty file_url if not explicitly using URL to avoid missing parameter errors
+            formData.append('file_url', ''); 
+
+            if (videoSourceType === 'upload') {
+                const videoFile = fbVideoUpload.files[0];
+                if (!videoFile) {
+                    showNotification('Please select a video file to upload.', 'error');
+                    fbPublishVideoButton.disabled = false;
+                    return;
+                }
+                formData.append('source', videoFile);
+            } else if (videoSourceType === 'url') {
+                const videoUrl = fbVideoUrlInput.value.trim();
+                if (!videoUrl) {
+                    showNotification('Please enter a video URL.', 'error');
+                    fbPublishVideoButton.disabled = false;
+                    return;
+                }
+                formData.set('file_url', videoUrl); // Set or override file_url for external video
+            }
+
+            // For Reels, the endpoint changes and requires is_reel=true
+            const videoEndpoint = postAsReel ? `${pageId}/video_reels` : `${pageId}/videos`;
+            formData.append('is_reel', postAsReel ? 'true' : 'false');
+            
+            fbVideoPublishStatus.textContent = `Uploading video to ${pageId}...`;
+            const response = await fbApiPost(videoEndpoint, { body: formData, token: pageToken });
+
+            fbVideoPublishStatus.textContent = `✅ Successfully published video to ${pageId}. Video ID: ${response.id}`;
+            fbVideoPublishStatus.className = 'text-green-500';
+            showNotification('Video published successfully!', 'success');
+        } catch (error) {
+            fbVideoPublishStatus.textContent = `❌ Error publishing video: ${error.message}`;
+            fbVideoPublishStatus.className = 'text-red-500';
+            showNotification(`Failed to publish video: ${error.message}`, 'error');
+        } finally {
+            fbPublishVideoButton.disabled = false;
+        }
+    }
+
+
     // --- Explorer & Manager Functions ---
     function renderPagesViewer() {
-        fbPagePostSelector.innerHTML = '<option>Select a Page</option>';
+        fbPagePostSelector.innerHTML = '<option value="">Select a Page</option>';
         fbData.pages.forEach(page => {
             fbPagePostSelector.innerHTML += `<option value="${page.id}|${page.access_token}">${page.name}</option>`;
         });
+        const fbVideoPageSelector = document.getElementById('fb-video-page-selector');
+        if (fbVideoPageSelector) {
+            fbVideoPageSelector.innerHTML = fbPagePostSelector.innerHTML; // Also update video page selector
+        }
     }
 
-    function renderBusinessManager() {
+    // Function to filter and render Business Managers
+    function renderBusinessManager(applyFilters = false) {
         fbBmContainer.innerHTML = '';
         if (fbData.businesses.length === 0) {
-            fbBmContainer.innerHTML = '<p class="text-gray-500 text-center">No Business Managers found.</p>'; return;
+            fbBmContainer.innerHTML = '<p class="text-gray-500 text-center">No Business Managers found.</p>';
+            return;
         }
-        fbData.businesses.forEach(bm => {
+
+        let filteredBusinesses = fbData.businesses;
+
+        if (applyFilters) {
+            const statusFilter = bmFilterStatus?.value; // Use optional chaining
+            const nameFilter = bmFilterName?.value.toLowerCase(); // Use optional chaining
+
+            filteredBusinesses = filteredBusinesses.filter(bm => {
+                const matchesStatus = !statusFilter || statusFilter === '' || bm.verification_status === statusFilter;
+                const matchesName = !nameFilter || nameFilter === '' || bm.name.toLowerCase().includes(nameFilter);
+                return matchesStatus && matchesName;
+            });
+        }
+
+        if (filteredBusinesses.length === 0) {
+            fbBmContainer.innerHTML = '<p class="text-gray-500 text-center p-8">No Business Managers match the current filters.</p>';
+            return;
+        }
+
+        filteredBusinesses.forEach(bm => {
             const statusColor = bm.verification_status === 'verified' ? 'text-green-400' : 'text-yellow-400';
             const card = document.createElement('div');
             card.className = 'p-4 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900';
@@ -909,95 +1555,539 @@
     }
     
     function renderAdsManager() {
-        fbAdAccountSelector.innerHTML = '<option>Select an Ad Account</option>';
+        fbAdAccountSelector.innerHTML = '<option value="">Select an Ad Account</option>';
         fbData.adAccounts.forEach(acc => {
-            fbAdAccountSelector.innerHTML += `<option value="${acc.id}">${acc.name} (${acc.id})</option>`;
+            fbAdAccountSelector.innerHTML += `<option value="${acc.id}">${acc.name} (${acc.account_id})</option>`;
         });
+        
+        // Restore previous selection if exists
+        if (currentAdAccountId) {
+            fbAdAccountSelector.value = currentAdAccountId;
+            fetchAdAccountDetails(currentAdAccountId); // Re-fetch details for selected account
+            // Also update quick links for the selected account
+            updateAdsQuickLinks(currentAdAccountId);
+        } else {
+             // Ensure quick links are reset if no account is selected initially
+            updateAdsQuickLinks(null);
+        }
+
+        // Reset content and active tab when Ads Manager is loaded
+        document.querySelectorAll('.ads-tab-content').forEach(tab => tab.classList.remove('active'));
+        document.getElementById('ads-tab-content-account-summary')?.classList.add('active'); // Added optional chaining
+        document.querySelectorAll('.ads-tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector('[data-ads-tab="account-summary"]')?.classList.add('active'); // Added optional chaining
+
+        // Clear all ads manager content
+        if(fbAdAccountDetails) fbAdAccountDetails.innerHTML = '<p class="text-gray-500">Select an Ad Account to see details.</p>';
+        if(fbCampaignsContainer) fbCampaignsContainer.innerHTML = '<p class="text-gray-500 text-center p-8">No Ad Account selected.</p>';
+        if(fbAdSetsContainer) fbAdSetsContainer.innerHTML = '<p class="text-gray-500 text-center p-8">Select a Campaign to see Ad Sets.</p>';
+        if(fbAdsContainer) fbAdsContainer.innerHTML = '<p class="text-gray-500 text-center p-8">Select an Ad Set to see Ads.</p>';
+        if(fbAudiencesContainer) fbAudiencesContainer.innerHTML = '<p class="text-gray-500 text-center p-8">Select an Ad Account to see Audiences.</p>';
+    }
+
+    async function fetchAdAccountDetails(adAccountId) {
+        if (!adAccountId) {
+            if(fbAdAccountDetails) fbAdAccountDetails.innerHTML = '<p class="text-gray-500">Select an Ad Account to see details.</p>';
+            return;
+        }
+        if(fbAdAccountDetails) fbAdAccountDetails.innerHTML = '<p class="text-gray-500">Loading ad account details...</p>';
+        try {
+            // Added 'balance' to fields
+            const fields = 'id,name,account_status,currency,spend_cap,balance,business{id,name}';
+            const response = await fbApiGet(`${adAccountId}?fields=${fields}`);
+            
+            // Adjust balance and spend_cap by dividing by 100
+            const displayBalance = response.balance ? (parseFloat(response.balance) / 100).toFixed(2) : 'N/A';
+            const displaySpendCap = response.spend_cap ? (parseFloat(response.spend_cap) / 100).toFixed(2) : 'N/A';
+
+            if (response && fbAdAccountDetails) {
+                fbAdAccountDetails.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+                            <p class="font-semibold text-gray-400">Account ID</p>
+                            <p>${response.id}</p>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+                            <p class="font-semibold text-gray-400">Account Name</p>
+                            <p>${response.name}</p>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+                            <p class="font-semibold text-gray-400">Status</p>
+                            <p>${response.account_status} (${getAccountStatusMeaning(response.account_status)})</p>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+                            <p class="font-semibold text-gray-400">Currency</p>
+                            <p>${response.currency}</p>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+                            <p class="font-semibold text-gray-400">Spend Cap</p>
+                            <p>${response.spend_cap ? `${response.currency} ${displaySpendCap}` : 'N/A'}</p>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+                            <p class="font-semibold text-gray-400">Current Balance</p>
+                            <p>${response.balance ? `${response.currency} ${displayBalance}` : 'N/A'}</p>
+                        </div>
+                        <div class="md:col-span-2 bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+                            <p class="font-semibold text-gray-400">Associated Business</p>
+                            <p>${response.business ? `${response.business.name} (${response.business.id})` : 'N/A'}</p>
+                        </div>
+                    </div>
+                `;
+            } else if (fbAdAccountDetails) {
+                fbAdAccountDetails.innerHTML = '<p class="text-red-500">Failed to load ad account details.</p>';
+            }
+            // Update quick links after fetching details
+            updateAdsQuickLinks(adAccountId);
+        } catch (error) {
+            if(fbAdAccountDetails) fbAdAccountDetails.innerHTML = `<p class="text-red-500">Error: ${error.message}</p>`;
+        }
+    }
+
+    function updateAdsQuickLinks(adAccountId) {
+        const baseAdManagerUrl = "https://business.facebook.com/ads/manager/";
+        const accountParam = adAccountId ? `?act=${adAccountId.replace('act_', '')}` : ''; // Remove 'act_' prefix for URL
+
+        document.getElementById('link-account-overview').href = `${baseAdManagerUrl}account_overview/${accountParam}`;
+        document.getElementById('link-bill-payment').href = `${baseAdManagerUrl}billing/transactions/${accountParam}`;
+        document.getElementById('link-ads-campaigns').href = `${baseAdManagerUrl}campaigns/${accountParam}`;
+    }
+
+    function getAccountStatusMeaning(status) {
+        const meanings = {
+            1: 'Active',
+            2: 'Disabled',
+            3: 'Unsettled',
+            7: 'Pending Review',
+            8: 'In Dispute',
+            9: 'Temporarily Unavailable',
+            100: 'Pending Close',
+            101: 'Closed',
+        };
+        return meanings[status] || 'Unknown';
     }
 
     async function fetchCampaigns(adAccountId) {
-        if (!adAccountId || adAccountId.startsWith('Select')) {
-            fbCampaignsContainer.innerHTML = '<p class="text-gray-500 text-center p-8">No Ad Account selected.</p>';
+        if (!adAccountId) {
+            if(fbCampaignsContainer) fbCampaignsContainer.innerHTML = '<p class="text-gray-500 text-center p-8">No Ad Account selected.</p>';
             return;
         }
-        fbCampaignsContainer.innerHTML = '<p class="text-gray-500 text-center p-8">Loading campaigns...</p>';
+        if(fbCampaignsContainer) fbCampaignsContainer.innerHTML = '<p class="text-gray-500 text-center p-8">Loading campaigns...</p>';
         try {
-            const fields = 'name,status,objective,daily_budget,lifetime_budget,insights{spend,reach,impressions,frequency,cpc,cpm,ctr,actions,cost_per_action_type}';
+            const fields = 'name,status,objective,daily_budget,lifetime_budget,buying_type,special_ad_categories,insights{spend,reach,impressions,frequency,cpc,cpm,ctr,actions{action_type,value},cost_per_action_type},effective_status,bid_strategy,start_time,stop_time';
             const response = await fbApiGet(`${adAccountId}/campaigns?fields=${fields}`);
             const campaigns = response.data || [];
+
             if(campaigns.length === 0) {
-                 fbCampaignsContainer.innerHTML = '<p class="text-gray-500 text-center p-8">No campaigns found.</p>'; return;
+                 if(fbCampaignsContainer) fbCampaignsContainer.innerHTML = '<p class="text-gray-500 text-center p-8">No campaigns found for this Ad Account.</p>'; return;
             }
-            let tableHTML = '<table class="w-full text-sm text-left whitespace-nowrap"><thead><tr class="border-b dark:border-gray-600"><th class="p-2">Campaign</th><th class="p-2">Status</th><th class="p-2">Budget</th><th class="p-2">Spent</th><th class="p-2">Reach</th><th class="p-2">Impressions</th><th class="p-2">Frequency</th><th class="p-2">Results</th><th class="p-2">Cost/Result</th><th class="p-2">CPC</th><th class="p-2">CPM</th><th class="p-2">CTR</th></tr></thead><tbody>';
+            let tableHTML = '<table class="w-full text-sm text-left whitespace-nowrap"><thead><tr class="border-b dark:border-gray-600"><th class="p-2">Off / On</th><th class="p-2">Campaign</th><th class="p-2">Delivery</th><th class="p-2">Bid Strategy</th><th class="p-2">Budget</th><th class="p-2">Results (Total)</th><th class="p-2">Messaging Results</th><th class="p-2">Engagement Results</th><th class="p-2">Reach</th><th class="p-2">Impressions</th><th class="p-2">Cost per Result</th><th class="p-2">Amount Spent</th><th class="p-2">Ends</th></tr></thead><tbody>';
             campaigns.forEach(c => {
                 const insights = c.insights?.data[0] || {};
-                const budget = c.daily_budget ? `$${(c.daily_budget/100).toFixed(2)}/day` : (c.lifetime_budget ? `$${(c.lifetime_budget/100).toFixed(2)} total` : 'N/A');
-                const resultAction = insights.cost_per_action_type ? insights.cost_per_action_type[0] : null;
+                const budgetValue = c.daily_budget || c.lifetime_budget;
+                const budgetType = c.daily_budget ? '/day' : (c.lifetime_budget ? ' total' : '');
+                // Correct budget display by dividing by 100 if it's not 'N/A'
+                const budget = budgetValue ? `$${(parseFloat(budgetValue) / 100).toFixed(2)}${budgetType}` : 'N/A';
+                
+                let totalResults = 0;
+                let messagingResults = 'N/A';
+                let engagementResults = 'N/A';
+                
+                if (insights.actions) {
+                    const messagingActions = ['messaging_conversation_started_7d', 'onsite_messaging_conversation_started_7d', 'mobile_app_install_messenger', 'leadgen_messaging_conversation_started_7d'];
+                    const engagementActions = ['post_engagement', 'page_engagement', 'link_click', 'comment', 'like', 'share', 'video_view']; // Common engagement types
+                    
+                    let tempMessagingResults = 0;
+                    let tempEngagementResults = 0;
 
-                tableHTML += `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td class="p-2 font-semibold">${c.name}<br><span class="font-normal text-xs text-gray-400">${c.objective}</span></td>
-                    <td class="p-2"><span class="px-2 py-1 text-xs rounded-full ${c.status === 'ACTIVE' ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}">${c.status}</span></td>
+                    insights.actions.forEach(action => {
+                        const value = parseFloat(action.value);
+                        totalResults += value;
+
+                        if (messagingActions.includes(action.action_type)) {
+                            tempMessagingResults += value;
+                        }
+                        if (engagementActions.includes(action.action_type)) {
+                            tempEngagementResults += value;
+                        }
+                    });
+
+                    messagingResults = tempMessagingResults > 0 ? formatNumber(tempMessagingResults) : '0';
+                    engagementResults = tempEngagementResults > 0 ? formatNumber(tempEngagementResults) : '0';
+                }
+
+                const costPerResult = (insights.spend && totalResults > 0) ? `$${(parseFloat(insights.spend) / totalResults).toFixed(2)}` : 'N/A';
+                const amountSpent = insights.spend ? '$' + (parseFloat(insights.spend) / 100).toFixed(2) : 'N/A'; // Divide by 100
+                const endsDate = c.stop_time ? new Date(c.stop_time).toLocaleDateString() : 'N/A';
+
+                tableHTML += `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" data-campaign-id="${c.id}" data-campaign-name="${c.name}">
+                    <td class="p-2">
+                        <label class="toggle-switch">
+                            <input type="checkbox" ${c.status === 'ACTIVE' ? 'checked' : ''} disabled>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </td>
+                    <td class="p-2 font-semibold">${c.name}<br><span class="font-normal text-xs text-gray-400">ID: ${c.id}</span></td>
+                    <td class="p-2"><span class="px-2 py-1 text-xs rounded-full ${c.effective_status === 'ACTIVE' ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}">${c.effective_status || 'N/A'}</span></td>
+                    <td class="p-2">${c.bid_strategy ? c.bid_strategy.replace(/_/g, ' ') : 'N/A'}</td>
                     <td class="p-2">${budget}</td>
-                    <td class="p-2 font-mono">${insights.spend ? '$'+parseFloat(insights.spend).toFixed(2) : 'N/A'}</td>
-                    <td class="p-2 font-mono">${insights.reach || 'N/A'}</td>
-                    <td class="p-2 font-mono">${insights.impressions || 'N/A'}</td>
-                    <td class="p-2 font-mono">${insights.frequency ? parseFloat(insights.frequency).toFixed(2) : 'N/A'}</td>
-                    <td class="p-2">${resultAction ? `${resultAction.action_type.replace(/_/g, ' ')}: ${resultAction.value}` : 'N/A'}</td>
-                    <td class="p-2">${resultAction ? '$' + parseFloat(resultAction.cost).toFixed(2) : 'N/A'}</td>
-                    <td class="p-2 font-mono">${insights.cpc ? '$'+parseFloat(insights.cpc).toFixed(2) : 'N/A'}</td>
-                    <td class="p-2 font-mono">${insights.cpm ? '$'+parseFloat(insights.cpm).toFixed(2) : 'N/A'}</td>
-                    <td class="p-2 font-mono">${insights.ctr ? parseFloat(insights.ctr).toFixed(2) + '%' : 'N/A'}</td>
+                    <td class="p-2 font-mono">${totalResults > 0 ? formatNumber(totalResults) : '0'}</td>
+                    <td class="p-2 font-mono">${messagingResults}</td>
+                    <td class="p-2 font-mono">${engagementResults}</td>
+                    <td class="p-2 font-mono">${formatNumber(insights.reach)}</td>
+                    <td class="p-2 font-mono">${formatNumber(insights.impressions)}</td>
+                    <td class="p-2 font-mono">${costPerResult}</td>
+                    <td class="p-2 font-mono">${amountSpent}</td>
+                    <td class="p-2">${endsDate}</td>
                 </tr>`;
             });
             tableHTML += '</tbody></table>';
-            fbCampaignsContainer.innerHTML = tableHTML;
+            if(fbCampaignsContainer) fbCampaignsContainer.innerHTML = tableHTML;
+
+            // Add click listeners to campaign rows
+            fbCampaignsContainer?.querySelectorAll('tr[data-campaign-id]').forEach(row => {
+                row.addEventListener('click', (e) => {
+                    currentCampaignId = e.currentTarget.dataset.campaignId; // Store selected campaign ID
+                    currentAdSetId = null; // Reset ad set when a new campaign is selected
+                    // Switch to Ad Sets tab and load data
+                    document.querySelector('.ads-tab-btn.active')?.classList.remove('active');
+                    document.querySelector('[data-ads-tab="adsets"]')?.classList.add('active');
+                    document.querySelector('.ads-tab-content.active')?.classList.remove('active');
+                    document.getElementById('ads-tab-content-adsets')?.classList.add('active');
+                    fetchAdSets(currentCampaignId);
+                });
+            });
+
         } catch (error) {
-            fbCampaignsContainer.innerHTML = `<p class="text-red-500 text-center p-8">Error: ${error.message}</p>`;
+            if(fbCampaignsContainer) fbCampaignsContainer.innerHTML = `<p class="text-red-500 text-center p-8">Error loading campaigns: ${error.message}</p>`;
+        }
+    }
+
+    async function fetchAdSets(campaignId) {
+        if (!campaignId) {
+            if(fbAdSetsContainer) fbAdSetsContainer.innerHTML = '<p class="text-gray-500 text-center p-8">Select a Campaign to see Ad Sets.</p>';
+            return;
+        }
+        if(fbAdSetsContainer) fbAdSetsContainer.innerHTML = '<p class="text-gray-500 text-center p-8">Loading ad sets...</p>';
+        try {
+            const fields = 'name,status,daily_budget,start_time,end_time,optimization_goal,targeting,promoted_object{pixel_id,custom_event_type}';
+            const response = await fbApiGet(`${campaignId}/adsets?fields=${fields}`);
+            const adSets = response.data || [];
+
+            if(adSets.length === 0) {
+                if(fbAdSetsContainer) fbAdSetsContainer.innerHTML = '<p class="text-gray-500 text-center p-8">No Ad Sets found for this Campaign.</p>'; return;
+            }
+            let tableHTML = '<table class="w-full text-sm text-left whitespace-nowrap"><thead><tr class="border-b dark:border-gray-600"><th class="p-2">Ad Set</th><th class="p-2">Status</th><th class="p-2">Budget</th><th class="p-2">Schedule</th><th class="p-2">Optimization Goal</th><th class="p-2">Targeting</th><th class="p-2">Promoted Object</th></tr></thead><tbody>';
+            adSets.forEach(as => {
+                const schedule = `${as.start_time ? new Date(as.start_time).toLocaleDateString() : 'N/A'} - ${as.end_time ? new Date(as.end_time).toLocaleDateString() : 'N/A'}`;
+                const targetingSummary = as.targeting ? Object.keys(as.targeting).map(key => `${key}: ${JSON.stringify(as.targeting[key]).substring(0, 50)}...`).join('<br>') : 'N/A';
+                const promotedObject = as.promoted_object ? `Pixel: ${as.promoted_object.pixel_id || 'N/A'}<br>Event: ${as.promoted_object.custom_event_type || 'N/A'}` : 'N/A';
+
+                tableHTML += `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" data-adset-id="${as.id}" data-adset-name="${as.name}">
+                    <td class="p-2 font-semibold">${as.name}<br><span class="font-normal text-xs text-gray-400">ID: ${as.id}</span></td>
+                    <td class="p-2"><span class="px-2 py-1 text-xs rounded-full ${as.status === 'ACTIVE' ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}">${as.status}</span></td>
+                    <td class="p-2">${as.daily_budget ? `$${parseFloat(as.daily_budget).toFixed(2)}/day` : 'N/A'}</td>
+                    <td class="p-2 text-xs">${schedule}</td>
+                    <td class="p-2">${as.optimization_goal || 'N/A'}</td>
+                    <td class="p-2 text-xs max-w-xs overflow-hidden text-ellipsis">${targetingSummary}</td>
+                    <td class="p-2 text-xs">${promotedObject}</td>
+                </tr>`;
+            });
+            tableHTML += '</tbody></table>';
+            if(fbAdSetsContainer) fbAdSetsContainer.innerHTML = tableHTML;
+
+            // Add click listeners to ad set rows
+            fbAdSetsContainer?.querySelectorAll('tr[data-adset-id]').forEach(row => {
+                row.addEventListener('click', (e) => {
+                    currentAdSetId = e.currentTarget.dataset.adsetId; // Store selected ad set ID
+                    // Switch to Ads tab and load data
+                    document.querySelector('.ads-tab-btn.active')?.classList.remove('active');
+                    document.querySelector('[data-ads-tab="ads"]')?.classList.add('active');
+                    document.querySelector('.ads-tab-content.active')?.classList.remove('active');
+                    document.getElementById('ads-tab-content-ads')?.classList.add('active');
+                    fetchAds(currentAdSetId);
+                });
+            });
+
+        } catch (error) {
+            if(fbAdSetsContainer) fbAdSetsContainer.innerHTML = `<p class="text-red-500 text-center p-8">Error loading ad sets: ${error.message}</p>`;
+        }
+    }
+
+    async function fetchAds(adSetId) {
+        if (!adSetId) {
+            if(fbAdsContainer) fbAdsContainer.innerHTML = '<p class="text-gray-500 text-center p-8">Select an Ad Set to see Ads.</p>';
+            return;
+        }
+        if(fbAdsContainer) fbAdsContainer.innerHTML = '<p class="text-gray-500 text-center p-8">Loading ads...</p>';
+        try {
+            // Removed duplicated effective_object_story_id to fix the syntax error
+            const fields = 'name,status,creative{id,name,object_story_spec,image_url,title,body,link_url,video_id,effective_object_story_id,permalink_url},tracking_specs,ad_review_feedback';
+            const response = await fbApiGet(`${adSetId}/ads?fields=${fields}`);
+            const ads = response.data || [];
+
+            if(ads.length === 0) {
+                if(fbAdsContainer) fbAdsContainer.innerHTML = '<p class="text-gray-500 text-center p-8">No Ads found for this Ad Set.</p>'; return;
+            }
+            let tableHTML = '<table class="w-full text-sm text-left whitespace-nowrap"><thead><tr class="border-b dark:border-gray-600"><th class="p-2">Ad Name</th><th class="p-2">Status</th><th class="p-2">Creative</th><th class="p-2">Tracking</th><th class="p-2">Review Feedback</th></tr></thead><tbody>';
+            ads.forEach(ad => {
+                const creative = ad.creative;
+                let previewContent = 'N/A';
+                if (creative) {
+                    if (creative.image_url) {
+                        previewContent = `<img src="${creative.image_url}" class="w-24 h-auto rounded-md mt-1 mb-1">`;
+                    } else if (creative.video_id) {
+                        // Attempt to get a thumbnail for the video if available, otherwise a placeholder
+                        previewContent = `<img src="https://placehold.co/100x75/4a5568/ffffff?text=Video" class="w-24 h-auto rounded-md mt-1 mb-1">`;
+                    } else if (creative.object_story_spec?.link_data?.picture) {
+                         // For link ads, sometimes the picture is in object_story_spec
+                        previewContent = `<img src="${creative.object_story_spec.link_data.picture}" class="w-24 h-auto rounded-md mt-1 mb-1">`;
+                    }
+                    
+                    let permalinkButton = '';
+                    // Prioritize permalink_url from creative or try to construct from effective_object_story_id
+                    const adPermalink = creative.permalink_url || (creative.effective_object_story_id ? `https://facebook.com/${creative.effective_object_story_id}` : null);
+
+                    if (adPermalink) {
+                        permalinkButton = `<a href="${adPermalink}" target="_blank" class="text-blue-500 hover:underline text-xs mt-1 block">View on Facebook</a>`;
+                    } else {
+                        // Fallback: Link to creative ID (less user-friendly but better than nothing)
+                        permalinkButton = `<button class="text-blue-500 hover:underline text-xs mt-1" onclick="showCreativeDetails('${creative.id}')">View Creative Details</button>`;
+                    }
+
+                    previewContent = `
+                        <p class="font-semibold">${creative.name || 'N/A'}</p>
+                        ${previewContent}
+                        <p class="text-xs">Title: ${creative.title || 'N/A'}</p>
+                        <p class="text-xs">Body: ${creative.body ? creative.body.substring(0, 50) + '...' : 'N/A'}</p>
+                        ${permalinkButton}
+                    `;
+                }
+
+
+                const tracking = ad.tracking_specs ? JSON.stringify(ad.tracking_specs).substring(0, 50) + '...' : 'N/A';
+                const reviewFeedback = ad.ad_review_feedback ? Object.keys(ad.ad_review_feedback).map(key => `${key}: ${ad.ad_review_feedback[key]}`).join('<br>') : 'N/A';
+
+                tableHTML += `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td class="p-2 font-semibold">${ad.name}<br><span class="font-normal text-xs text-gray-400">ID: ${ad.id}</span></td>
+                    <td class="p-2"><span class="px-2 py-1 text-xs rounded-full ${ad.status === 'ACTIVE' ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}">${ad.status}</span></td>
+                    <td class="p-2">${previewContent}</td>
+                    <td class="p-2 text-xs">${tracking}</td>
+                    <td class="p-2 text-xs">${reviewFeedback}</td>
+                </tr>`;
+            });
+            tableHTML += '</tbody></table>';
+            if(fbAdsContainer) fbAdsContainer.innerHTML = tableHTML;
+
+        } catch (error) {
+            if(fbAdsContainer) fbAdsContainer.innerHTML = `<p class="text-red-500 text-center p-8">Error loading ads: ${error.message}</p>`;
+        }
+    }
+
+    // This function can be called by the "View Full Creative" button
+    window.showCreativeDetails = async (creativeId) => {
+        showNotification(`Fetching details for Creative ID: ${creativeId}`, 'info');
+        try {
+            const fields = 'id,name,object_story_spec,image_url,title,body,link_url,video_id,effective_object_story_id,permalink_url';
+            const creative = await fbApiGet(`${creativeId}?fields=${fields}`);
+            
+            let creativeHtml = `
+                <h4 class="font-bold text-lg mb-2">Creative Details: ${creative.name || creative.id}</h4>
+                <p><strong>ID:</strong> ${creative.id}</p>
+                <p><strong>Title:</strong> ${creative.title || 'N/A'}</p>
+                <p><strong>Body:</strong> ${creative.body || 'N/A'}</p>
+                <p><strong>Link URL:</strong> ${creative.link_url || 'N/A'}</p>
+            `;
+            if (creative.image_url) {
+                creativeHtml += `<p class="mt-2"><strong>Image:</strong></p><img src="${creative.image_url}" class="w-full max-w-sm h-auto rounded-md mt-1">`;
+            } else if (creative.video_id) {
+                // For video creatives, you might fetch video details or embed a player
+                creativeHtml += `<p class="mt-2"><strong>Video ID:</strong> ${creative.video_id}</p><p>Video preview not directly supported via API.</p>`;
+            }
+            // Add a direct link to the post if available
+            const adPermalink = creative.permalink_url || (creative.effective_object_story_id ? `https://facebook.com/${creative.effective_object_story_id}` : null);
+            if (adPermalink) {
+                creativeHtml += `<p class="mt-2"><a href="${adPermalink}" target="_blank" class="text-blue-500 hover:underline">View Post on Facebook</a></p>`;
+            }
+
+            // You might want to display object_story_spec in a more readable format
+            if (creative.object_story_spec) {
+                creativeHtml += `<p class="mt-2"><strong>Object Story Spec:</strong> <pre class="bg-gray-100 dark:bg-gray-700 p-2 rounded text-xs overflow-auto">${JSON.stringify(creative.object_story_spec, null, 2)}</pre></p>`;
+            }
+
+            // A simple modal-like display for creative details
+            const creativeModal = document.createElement('div');
+            creativeModal.className = 'fixed inset-0 creative-modal-overlay';
+            creativeModal.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
+                    <button class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 text-2xl" onclick="this.parentNode.parentNode.remove()">&times;</button>
+                    ${creativeHtml}
+                </div>
+            `;
+            document.body.appendChild(creativeModal);
+
+        } catch (error) {
+            showNotification(`Error fetching creative details: ${error.message}`, 'error');
+        }
+    };
+
+
+    async function fetchAudiences(adAccountId) {
+        if (!adAccountId) {
+            if(fbAudiencesContainer) fbAudiencesContainer.innerHTML = '<p class="text-gray-500 text-center p-8">Select an Ad Account to see Audiences.</p>';
+            return;
+        }
+        if(fbAudiencesContainer) fbAudiencesContainer.innerHTML = '<p class="text-gray-500 text-center p-8">Loading audiences...</p>';
+        try {
+            const fields = 'name,subtype,retention_days,rule,description';
+            // Fetch custom audiences specifically for the selected ad account
+            const response = await fbApiGet(`${adAccountId}/customaudiences?fields=${fields}`);
+            const audiences = response.data || [];
+
+            if(audiences.length === 0) {
+                if(fbAudiencesContainer) fbAudiencesContainer.innerHTML = '<p class="text-gray-500 text-center p-8">No Custom Audiences found for this Ad Account.</p>'; return;
+            }
+            let tableHTML = '<table class="w-full text-sm text-left whitespace-nowrap"><thead><tr class="border-b dark:border-gray-600"><th class="p-2">Audience Name</th><th class="p-2">Subtype</th><th class="p-2">Retention Days</th><th class="p-2">Rule</th><th class="p-2">Description</th></tr></thead><tbody>';
+            audiences.forEach(aud => {
+                const rule = aud.rule ? JSON.stringify(aud.rule).substring(0, 100) + '...' : 'N/A';
+                tableHTML += `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td class="p-2 font-semibold">${aud.name}<br><span class="font-normal text-xs text-gray-400">ID: ${aud.id}</span></td>
+                    <td class="p-2">${aud.subtype || 'N/A'}</td>
+                    <td class="p-2">${aud.retention_days || 'N/A'}</td>
+                    <td class="p-2 text-xs max-w-xs overflow-hidden text-ellipsis">${rule}</td>
+                    <td class="p-2 text-xs max-w-xs overflow-hidden text-ellipsis">${aud.description || 'N/A'}</td>
+                </tr>`;
+            });
+            tableHTML += '</tbody></table>';
+            if(fbAudiencesContainer) fbAudiencesContainer.innerHTML = tableHTML;
+
+        } catch (error) {
+            if(fbAudiencesContainer) fbAudiencesContainer.innerHTML = `<p class="text-red-500 text-center p-8">Error loading audiences: ${error.message}</p>`;
         }
     }
     
-    async function fetchPagePosts(pageData) {
+    async function fetchPagePosts(pageData, cursor = null) {
         if(!pageData || pageData.startsWith('Select')) {
-            fbPostsContainer.innerHTML = '<p class="text-gray-500 col-span-full text-center p-8">No Page selected.</p>';
+            if(fbPostsContainer) fbPostsContainer.innerHTML = '<p class="text-gray-500 col-span-full text-center p-8">No Page selected.</p>';
             return;
         }
         const [pageId, pageToken] = pageData.split('|');
-        fbPostsContainer.innerHTML = '<p class="text-gray-500 col-span-full text-center p-8">Loading posts...</p>';
+        if(fbPostsContainer) fbPostsContainer.innerHTML = '<p class="text-gray-500 col-span-full text-center p-8">Loading posts...</p>';
+        if(fbPostsPrevBtn) fbPostsPrevBtn.disabled = true;
+        if(fbPostsNextBtn) fbPostsNextBtn.disabled = true;
+
+        let url = `https://graph.facebook.com/v19.0/${pageId}/posts?fields=message,full_picture,created_time,permalink_url,shares.summary(true),reactions.summary(true).limit(0),comments.summary(true).limit(0)&access_token=${pageToken}&limit=18`; // Limit to 18 posts per page
+        if (cursor) {
+            url = cursor; // If a cursor is provided, use it directly as the full URL
+        }
+
         try {
-            const response = await fetch(`https://graph.facebook.com/v19.0/${pageId}/posts?fields=message,full_picture,created_time,permalink_url&access_token=${pageToken}`).then(r=>r.json());
+            const response = await fetch(url).then(r=>r.json());
             if (response.error) throw new Error(response.error.message);
             const posts = response.data || [];
+
+            // Store pagination cursors
+            pagePostsPaging.next = response.paging?.next || null;
+            pagePostsPaging.previous = response.paging?.previous || null;
+
             if(posts.length === 0) {
-                fbPostsContainer.innerHTML = '<p class="text-gray-500 col-span-full text-center p-8">No posts found.</p>';
+                if(fbPostsContainer) fbPostsContainer.innerHTML = '<p class="text-gray-500 col-span-full text-center p-8">No posts found.</p>';
                 return;
             }
-            fbPostsContainer.innerHTML = '';
+            if(fbPostsContainer) fbPostsContainer.innerHTML = '';
             posts.forEach(post => {
-                 const postDiv = document.createElement('div');
-                 postDiv.className = 'p-3 border dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900';
-                 postDiv.innerHTML = `${post.full_picture ? `<img src="${post.full_picture}" class="w-full rounded-md mb-2 max-h-48 object-cover">` : ''}<p class="text-sm max-h-24 overflow-y-auto">${post.message || '<i>No message content</i>'}</p><div class="text-xs text-gray-500 mt-2 flex justify-between items-center pt-2 border-t dark:border-gray-600"><span>${new Date(post.created_time).toLocaleDateString()}</span><a href="${post.permalink_url}" target="_blank" class="text-blue-500 hover:underline">View Post</a></div>`;
-                 fbPostsContainer.appendChild(postDiv);
+                const postDiv = document.createElement('div');
+                postDiv.className = 'fb-post-card';
+                const postDate = new Date(post.created_time).toLocaleString();
+                const likeCount = post.reactions?.summary?.total_count || 0;
+                const commentCount = post.comments?.summary?.total_count || 0;
+                const shareCount = post.shares?.count || 0;
+
+                // Placeholder for page profile picture and name - ideally fetched from page details
+                const pageName = fbData.pages.find(p => p.id === pageId)?.name || 'Page Name';
+                const pagePicture = fbData.pages.find(p => p.id === pageId)?.picture?.data?.url || 'https://placehold.co/40x40/cbd5e1/475569?text=P';
+
+                let messageContent = post.message || '';
+                const maxMessageLength = 150;
+                let displayMessage = messageContent;
+                let seeMoreLink = '';
+
+                if (messageContent.length > maxMessageLength) {
+                    displayMessage = messageContent.substring(0, maxMessageLength) + '...';
+                    seeMoreLink = `<span class="see-more-link" onclick="this.parentNode.innerHTML = \`${messageContent.replace(/`/g, '\\`')}\`; this.remove();">See More</span>`;
+                }
+
+
+                postDiv.innerHTML = `
+                    <div class="fb-post-header">
+                        <img src="${pagePicture}" alt="${pageName}" class="fb-post-avatar">
+                        <div>
+                            <div class="fb-post-name">${pageName}</div>
+                            <div class="fb-post-time">${postDate} · <a href="${post.permalink_url}" target="_blank" class="text-blue-500 hover:underline">View Post</a></div>
+                        </div>
+                    </div>
+                    <div class="fb-post-message">${displayMessage}${seeMoreLink}</div>
+                    ${post.full_picture ? `<div class="fb-post-media"><img src="${post.full_picture}" alt="Post image"></div>` : ''}
+                    <div class="fb-post-actions">
+                        <span class="fb-post-action-btn">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21H3a1 1 0 01-1-1V9.414a1 1 0 01.293-.707l1.414-1.414A1 1 0 015.414 7H15a2 2 0 012 2v1z"></path></svg>
+                            ${likeCount} Likes
+                        </span>
+                        <span class="fb-post-action-btn">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                            ${commentCount} Comments
+                        </span>
+                        <span class="fb-post-action-btn">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6.632L15.316 9.342m0 0a3 3 0 110-2.684m0 2.684a3 3 0 110 2.684m-.632 2.684l-.632 2.684"></path></svg>
+                            ${shareCount} Shares
+                        </span>
+                    </div>
+                `;
+                 if(fbPostsContainer) fbPostsContainer.appendChild(postDiv);
             });
         } catch(error) {
-             fbPostsContainer.innerHTML = `<p class="text-red-500 col-span-full text-center p-8">Error: ${error.message}</p>`;
+             if(fbPostsContainer) fbPostsContainer.innerHTML = `<p class="text-red-500 col-span-full text-center p-8">Error: ${error.message}</p>`;
+        } finally {
+            if(fbPostsPrevBtn) fbPostsPrevBtn.disabled = !pagePostsPaging.previous;
+            if(fbPostsNextBtn) fbPostsNextBtn.disabled = !pagePostsPaging.next;
         }
     }
     
     // --- Power Editor Functions ---
+    // Note: Instant Experiences publishing is a complex API feature requiring specific setups (e.g., owned domain, verified business).
+    // This implementation focuses on the UI building and a conceptual publishing flow.
     function renderPowerEditor() {
-        fbCanvasPageSelector.innerHTML = '<option>Select a Page</option>';
-        fbData.pages.forEach(page => {
-            fbCanvasPageSelector.innerHTML += `<option value="${page.id}|${page.access_token}">${page.name}</option>`;
+        if(fbCanvasPageSelector) {
+            fbCanvasPageSelector.innerHTML = '<option value="">Select a Page</option>';
+            fbData.pages.forEach(page => {
+                fbCanvasPageSelector.innerHTML += `<option value="${page.id}|${page.access_token}">${page.name}</option>`;
+            });
+        }
+        if(fbCanvasElementsContainer) fbCanvasElementsContainer.innerHTML = '';
+        if(fbAddCanvasElementBtn) fbAddCanvasElementBtn.dispatchEvent(new Event('click')); // Add the first element by default
+        
+        // Enable publish button only if a page is selected and elements exist
+        fbCanvasPageSelector?.addEventListener('change', () => {
+            const selectedPage = fbCanvasPageSelector.value;
+            if(fbPublishCanvasBtn) fbPublishCanvasBtn.disabled = !selectedPage || fbCanvasElementsContainer?.children.length === 0;
         });
-        fbCanvasElementsContainer.innerHTML = '';
-        fbAddCanvasElementBtn.dispatchEvent(new Event('click')); // Add the first element
-        fbPublishCanvasBtn.disabled = false;
+
+        // Re-check publish button status when elements are added/removed
+        const observer = new MutationObserver(() => {
+            const selectedPage = fbCanvasPageSelector?.value;
+            if(fbPublishCanvasBtn) fbPublishCanvasBtn.disabled = !selectedPage || fbCanvasElementsContainer?.children.length === 0;
+            updateCanvasPreview();
+        });
+        if(fbCanvasElementsContainer) observer.observe(fbCanvasElementsContainer, { childList: true });
+
+        // Initial preview render
+        updateCanvasPreview();
     }
 
     function addCanvasElement() {
         const element = document.createElement('div');
-        element.className = 'canvas-element border dark:border-gray-700 p-3 rounded-md space-y-2';
+        element.className = 'canvas-element border dark:border-gray-700 p-3 rounded-md space-y-2 relative mb-2'; // Added relative for delete button
         element.innerHTML = `
+            <button class="absolute top-2 right-2 text-gray-400 hover:text-red-500" onclick="this.parentNode.remove(); updateCanvasPreview();">&times;</button>
             <select class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md canvas-element-type">
                 <option value="photo">Image</option>
                 <option value="text">Text Block</option>
@@ -1007,28 +2097,102 @@
                  <input type="text" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Image URL">
             </div>
         `;
-        element.querySelector('.canvas-element-type').addEventListener('change', (e) => {
+        element.querySelector('.canvas-element-type')?.addEventListener('change', (e) => {
             const fieldsContainer = element.querySelector('.canvas-element-fields');
-            switch(e.target.value) {
+            if (fieldsContainer) { // Ensure fieldsContainer exists
+                switch(e.target.value) {
+                    case 'photo':
+                        fieldsContainer.innerHTML = '<input type="text" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Image URL">';
+                        break;
+                    case 'text':
+                        fieldsContainer.innerHTML = '<textarea class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" rows="3" placeholder="Enter text content..."></textarea>';
+                        break;
+                    case 'button':
+                        fieldsContainer.innerHTML = '<input type="text" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md mb-2" placeholder="Button Text"><input type="text" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Destination URL">';
+                        break;
+                }
+                // Add input event listeners to trigger preview update for new fields
+                fieldsContainer.querySelectorAll('input, textarea').forEach(input => {
+                    input.addEventListener('input', updateCanvasPreview);
+                });
+            }
+            updateCanvasPreview(); // Update preview after changing element type
+        });
+
+        // Add input event listeners to newly created fields
+        element.querySelector('.canvas-element-fields')?.querySelectorAll('input, textarea').forEach(input => {
+            input.addEventListener('input', updateCanvasPreview);
+        });
+
+        if(fbCanvasElementsContainer) fbCanvasElementsContainer.appendChild(element);
+        updateCanvasPreview(); // Update preview after adding new element
+    }
+    fbAddCanvasElementBtn?.addEventListener('click', addCanvasElement);
+
+    function updateCanvasPreview() {
+        if(!fbCanvasPreview) return; // Ensure preview element exists
+        fbCanvasPreview.innerHTML = '';
+        const elements = fbCanvasElementsContainer?.querySelectorAll('.canvas-element') || [];
+        elements.forEach(element => {
+            const typeSelect = element.querySelector('.canvas-element-type');
+            const fieldsContainer = element.querySelector('.canvas-element-fields');
+            
+            if (!typeSelect || !fieldsContainer) return; // Ensure elements exist
+
+            const type = typeSelect.value;
+            
+            let previewElement = document.createElement('div');
+            previewElement.className = 'mb-2 p-2 rounded-md border border-gray-300 dark:border-gray-600';
+
+            switch(type) {
                 case 'photo':
-                    fieldsContainer.innerHTML = '<input type="text" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Image URL">';
+                    const imageUrlInput = fieldsContainer.querySelector('input');
+                    const imageUrl = imageUrlInput ? imageUrlInput.value : '';
+                    if (imageUrl) {
+                        previewElement.innerHTML = `<img src="${imageUrl}" class="w-full h-auto object-cover rounded max-h-48">`;
+                    } else {
+                        previewElement.textContent = 'Image Preview (Enter URL)';
+                        previewElement.className += ' text-gray-500 text-center py-4';
+                    }
                     break;
                 case 'text':
-                    fieldsContainer.innerHTML = '<textarea class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" rows="3" placeholder="Enter text content..."></textarea>';
+                    const textContentInput = fieldsContainer.querySelector('textarea');
+                    const textContent = textContentInput ? textContentInput.value : '';
+                    if (textContent) {
+                        previewElement.textContent = textContent;
+                        previewElement.className += ' whitespace-pre-wrap';
+                    } else {
+                        previewElement.textContent = 'Text Block Preview (Enter Text)';
+                        previewElement.className += ' text-gray-500 text-center py-4';
+                    }
                     break;
                 case 'button':
-                    fieldsContainer.innerHTML = '<input type="text" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md mb-2" placeholder="Button Text"><input type="text" class="w-full p-2 border bg-gray-50 dark:bg-gray-700 rounded-md" placeholder="Destination URL">';
+                    const buttonTextInput = fieldsContainer.querySelectorAll('input')[0];
+                    const buttonUrlInput = fieldsContainer.querySelectorAll('input')[1];
+                    const buttonText = buttonTextInput ? buttonTextInput.value : '';
+                    const buttonUrl = buttonUrlInput ? buttonUrlInput.value : '';
+
+                    if (buttonText && buttonUrl) {
+                        previewElement.innerHTML = `<a href="${buttonUrl}" target="_blank" class="block w-full bg-blue-500 text-white text-center py-2 rounded-md hover:bg-blue-600">${buttonText}</a>`;
+                    } else {
+                        previewElement.textContent = 'Button Preview (Enter Text and URL)';
+                        previewElement.className += ' text-gray-500 text-center py-4';
+                    }
                     break;
             }
+            fbCanvasPreview.appendChild(previewElement);
         });
-        fbCanvasElementsContainer.appendChild(element);
+
+        // If no elements, show a placeholder
+        if (elements.length === 0) {
+            fbCanvasPreview.innerHTML = '<p class="text-gray-500 text-center p-8">Build your Instant Experience here by adding elements.</p>';
+        }
     }
-    fbAddCanvasElementBtn.addEventListener('click', addCanvasElement);
 
     async function publishCanvas() {
-        showNotification("This is a conceptual demo. Publishing Instant Experiences via the API is complex and not fully implemented here.", "info");
+        showNotification("This is a conceptual demo. Publishing Instant Experiences via the API is complex and requires advanced Facebook app permissions and setup (e.g., domain verification, business verification). This function is for UI demonstration only.", "info", 8000);
     }
-    fbPublishCanvasBtn.addEventListener('click', publishCanvas);
+    fbPublishCanvasBtn?.addEventListener('click', publishCanvas);
     }); // End of DOMContentLoaded
   </script>
 
