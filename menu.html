@@ -46,8 +46,19 @@
 </head>
 <body class="text-gray-800">
 
+    <!-- Loading Indicator -->
+    <div id="loading-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-white">
+        <div class="flex flex-col items-center">
+             <svg class="animate-spin h-8 w-8 text-blue-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <p id="loading-text" class="mt-4 text-lg font-medium text-gray-600">Loading Products...</p>
+        </div>
+    </div>
+
     <!-- Main Container -->
-    <div class="container mx-auto p-4 md:p-6">
+    <div class="container mx-auto p-4 md:p-6 opacity-0 transition-opacity duration-500" id="main-container">
 
         <!-- Sticky Header Wrapper -->
         <div id="sticky-header" class="sticky top-0 z-40 bg-gray-50/95 backdrop-blur-sm -mx-4 md:-mx-6 px-4 md:px-6">
@@ -115,9 +126,25 @@
                 <p class="text-gray-400 mt-2">Try adjusting your filters.</p>
             </div>
         </main>
+        
+        <!-- Footer Section -->
+        <footer class="mt-16 py-8 border-t border-gray-200">
+            <div class="text-center text-gray-600">
+                <p class="text-sm mb-2">Powered by</p>
+                <!-- IMPORTANT: Replace this placeholder with your actual logo URL -->
+                <img src="https://placehold.co/150x50/cccccc/333333?text=ZAFA+TOOLS+Logo" alt="ZAFA TOOLS Logo" class="mx-auto h-10 mb-4" title="Replace this with your actual logo URL">
+                <p class="font-semibold text-lg">+855 69 556 444</p>
+                <a href="https://t.me/fadolladam" target="_blank" rel="noopener noreferrer" class="inline-block mt-2 text-blue-500 hover:text-blue-700 transition-colors">
+                     <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-1.37.2-1.64l16.14-5.7c.73-.27 1.36.17 1.15.99l-2.28 10.57c-.23.87-1.03 1.08-1.74.59L12.6 16.3l-1.99 1.92c-.22.21-.4.32-.67.32z"></path>
+                    </svg>
+                </a>
+            </div>
+        </footer>
     </div>
 
-    <!-- Product Detail Modal (same as before) -->
+
+    <!-- Product Detail Modal -->
     <div id="product-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
         <div id="modal-content" class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col md:flex-row overflow-hidden transform transition-all duration-300 scale-95 opacity-0">
             <div class="w-full md:w-1/2 bg-gray-100 relative">
@@ -155,26 +182,21 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // --- CONFIGURATION ---
+            // The Google Sheet "Publish to web" CSV URL is pasted here.
+            const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRUeik-V5sxMW6UHZnxWBTDPdczjo8ktQ_y2QGBwK3oRv4LAyJbRmBCRY9jLht5hTbRrjFOcISjNVMT/pub?gid=0&single=true&output=csv';
+            
             // --- DATA ---
-            const products = [
-                 { id: 'elec-001', name: 'Wireless Headphones', price: 99, category: 'Electronics', images: ['https://placehold.co/600x600/3b82f6/ffffff?text=Headphones+1', 'https://placehold.co/600x600/3b82f6/ffffff?text=Headphones+2', 'https://placehold.co/600x600/3b82f6/ffffff?text=Headphones+3'], description: 'High-fidelity wireless headphones with noise-cancelling feature.', contact: 'seller1@example.com' },
-                { id: 'cloth-001', name: 'Men\'s Denim Jacket', price: 75, category: 'Clothing', images: ['https://placehold.co/600x600/16a34a/ffffff?text=Jacket+1', 'https://placehold.co/600x600/16a34a/ffffff?text=Jacket+2'], description: 'A classic denim jacket for all seasons. Made with 100% cotton.', contact: 'seller1@example.com' },
-                { id: 'home-001', name: 'Ceramic Coffee Mug', price: 15, category: 'Home Goods', images: ['https://placehold.co/600x600/f97316/ffffff?text=Mug'], description: 'A beautiful, handcrafted ceramic mug. Perfect for your morning coffee.', contact: 'seller1@example.com' },
-                { id: 'elec-002', name: 'Smartwatch V2', price: 250, category: 'Electronics', images: ['https://placehold.co/600x600/3b82f6/ffffff?text=Watch+1', 'https://placehold.co/600x600/3b82f6/ffffff?text=Watch+2'], description: 'Stay connected and track your fitness with this sleek smartwatch.', contact: 'seller1@example.com' },
-                { id: 'books-001', name: 'The Art of Code', price: 45, category: 'Books', images: ['https://placehold.co/600x600/9333ea/ffffff?text=Book'], description: 'A deep dive into writing clean, efficient, and beautiful code.', contact: 'seller1@example.com' },
-                { id: 'cloth-002', name: 'Summer T-Shirt', price: 25, category: 'Clothing', images: ['https://placehold.co/600x600/16a34a/ffffff?text=T-Shirt'], description: 'Lightweight and comfortable t-shirt, perfect for warm weather.', contact: 'seller1@example.com' },
-                { id: 'elec-003', name: 'Portable Speaker', price: 60, category: 'Electronics', images: ['https://placehold.co/600x600/3b82f6/ffffff?text=Speaker+1', 'https://placehold.co/600x600/3b82f6/ffffff?text=Speaker+2'], description: 'Compact and powerful Bluetooth speaker with 12-hour battery life.', contact: 'seller1@example.com' },
-                { id: 'home-002', name: 'Scented Candle', price: 20, category: 'Home Goods', images: ['https://placehold.co/600x600/f97316/ffffff?text=Candle'], description: 'Relaxing lavender-scented candle. Made from natural soy wax.', contact: 'seller1@example.com' }
-            ];
+            let products = [];
             const carouselImages = [
                 { src: 'https://placehold.co/1200x600/0ea5e9/ffffff?text=Summer+Sale', alt: 'Summer Sale' },
                 { src: 'https://placehold.co/1200x600/db2777/ffffff?text=New+Arrivals', alt: 'New Arrivals' },
                 { src: 'https://placehold.co/1200x600/eab308/ffffff?text=Free+Shipping', alt: 'Free Shipping' }
             ];
             const translations = {
-                en: { websiteName: "My Shop", categoryTitle: "Categories", searchPlaceholder: "Search products...", maxPrice: "Max Price", all: "All", contactSeller: "Contact Seller", noProducts: "No Products Found", noProductsDesc: "Try adjusting your filters." },
-                km: { websiteName: "ហាងរបស់ខ្ញុំ", categoryTitle: "ប្រភេទ", searchPlaceholder: "ស្វែងរក​ផលិតផល...", maxPrice: "តម្លៃអតិបរមា", all: "ទាំងអស់", contactSeller: "ទំនាក់ទំនងអ្នកលក់", noProducts: "រកមិនឃើញផលិតផល", noProductsDesc: "ព្យាយាមកែតម្រងរបស់អ្នក។" }
+                en: { websiteName: "My Shop", categoryTitle: "Categories", searchPlaceholder: "Search products...", maxPrice: "Max Price", all: "All", contactSeller: "Contact Seller", noProducts: "No Products Found", noProductsDesc: "Try adjusting your filters.", loading: "Loading Products...", loadError: "Failed to load products. Please check the sheet URL." },
+                km: { websiteName: "ហាងរបស់ខ្ញុំ", categoryTitle: "ប្រភេទ", searchPlaceholder: "ស្វែងរក​ផលិតផល...", maxPrice: "តម្លៃអតិបរមា", all: "ទាំងអស់", contactSeller: "ទំនាក់ទំនងអ្នកលក់", noProducts: "រកមិនឃើញផលិតផល", noProductsDesc: "ព្យាយាមកែតម្រងរបស់អ្នក។", loading: "កំពុងទាញយកផលិតផល...", loadError: "បរាជ័យក្នុងការទាញយកផលិតផល. សូមពិនិត្យ URL របស់អ្នក។" }
             };
 
             // --- STATE ---
@@ -187,6 +209,9 @@
             let clickTimeout;
 
             // --- DOM ELEMENTS ---
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const loadingText = document.getElementById('loading-text');
+            const mainContainer = document.getElementById('main-container');
             const productSectionsContainer = document.getElementById('product-sections-container');
             const noResultsDiv = document.getElementById('no-results');
             const categoryFiltersContainer = document.getElementById('category-filters');
@@ -194,10 +219,65 @@
             const priceFilter = document.getElementById('price-filter');
             const carouselContainer = document.getElementById('carousel-container');
             const carouselDots = document.getElementById('carousel-dots');
-            // Modal elements
             const modal = document.getElementById('product-modal'), modalContent = document.getElementById('modal-content'), modalCloseBtn = document.getElementById('modal-close-btn'), modalImg = document.getElementById('modal-img'), modalName = document.getElementById('modal-name'), modalPrice = document.getElementById('modal-price'), modalId = document.getElementById('modal-id'), modalDescription = document.getElementById('modal-description'), modalContact = document.getElementById('modal-contact'), modalPrevBtn = document.getElementById('modal-prev-btn'), modalNextBtn = document.getElementById('modal-next-btn'), modalSliderControls = document.getElementById('modal-slider-controls'), modalImageDots = document.getElementById('modal-image-dots');
 
-            // --- FUNCTIONS ---
+            // --- DATA FETCHING ---
+            async function fetchProducts() {
+                if (!GOOGLE_SHEET_URL) {
+                    loadingText.textContent = translations[currentLang].loadError;
+                    loadingText.previousElementSibling.classList.add('hidden'); // Hide spinner
+                    console.error("Google Sheet URL is not set.");
+                    return;
+                }
+
+                try {
+                    const response = await fetch(GOOGLE_SHEET_URL);
+                    if (!response.ok) throw new Error('Network response failed.');
+                    const csvText = await response.text();
+                    
+                    // Parse CSV data
+                    const lines = csvText.trim().split(/\r?\n/);
+                    const headers = lines[0].split(',');
+                    const data = lines.slice(1).map(line => {
+                        // This regex handles commas inside quoted fields
+                        const values = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
+                        const obj = {};
+                        headers.forEach((header, i) => {
+                            let value = values[i] || ''; // Use empty string for missing values
+                            if (value.startsWith('"') && value.endsWith('"')) {
+                                value = value.slice(1, -1).replace(/""/g, '"'); // Unescape double quotes
+                            }
+                            obj[header.trim()] = value;
+                        });
+                        return obj;
+                    });
+                    
+                    products = data.map(p => ({
+                        ...p,
+                        price: parseFloat(p.price) || 0,
+                        images: p.images ? p.images.split(',').map(url => url.trim()) : []
+                    }));
+                    
+                    initializeApp();
+
+                } catch (error) {
+                    console.error('Failed to fetch or parse product data:', error);
+                    loadingText.textContent = translations[currentLang].loadError;
+                    loadingText.previousElementSibling.classList.add('hidden');
+                }
+            }
+            
+            // --- INITIALIZATION ---
+            function initializeApp() {
+                loadingOverlay.classList.add('opacity-0');
+                setTimeout(() => loadingOverlay.classList.add('hidden'), 500);
+                mainContainer.classList.remove('opacity-0');
+                
+                setLanguage(currentLang);
+                setupCarousel();
+            }
+
+            // --- UI FUNCTIONS ---
             function setLanguage(lang) {
                 currentLang = lang;
                 const t = translations[lang];
@@ -208,15 +288,20 @@
                 document.getElementById('contact-seller-text').textContent = t.contactSeller;
                 document.querySelector('#no-results h3').textContent = t.noProducts;
                 document.querySelector('#no-results p').textContent = t.noProductsDesc;
-                renderCategoryButtons();
-                applyFilters();
+                document.getElementById('loading-text').textContent = t.loading;
+
+                if (products.length > 0) {
+                     renderCategoryButtons();
+                     applyFilters();
+                }
+
                 document.getElementById('lang-en').classList.toggle('opacity-50', lang !== 'en');
                 document.getElementById('lang-km').classList.toggle('opacity-50', lang !== 'km');
             }
             
             function renderProductSections(productsToRender) {
                 productSectionsContainer.innerHTML = '';
-                const categoriesInProducts = [...new Set(productsToRender.map(p => p.category))];
+                const categoriesInProducts = [...new Set(products.map(p => p.category))].filter(Boolean); // Filter out empty/undefined categories
                 let hasResults = false;
                 
                 categoriesInProducts.forEach(category => {
@@ -226,12 +311,12 @@
                     hasResults = true;
                     const section = document.createElement('section');
                     section.id = `category-section-${category}`;
-                    section.className = 'py-4 scroll-mt-48'; // scroll-mt accounts for sticky header height
+                    section.className = 'py-4 scroll-mt-48';
 
                     const grid = categoryProducts.map(product => `
                         <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer group" data-product-id="${product.id}">
                             <div class="relative aspect-square w-full overflow-hidden">
-                                <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="${product.images[0]}" alt="${product.name}" onerror="this.onerror=null;this.src='https://placehold.co/600x600/cccccc/ffffff?text=Image+Not+Found';">
+                                <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="${product.images[0] || 'https://placehold.co/600x600/cccccc/ffffff?text=No+Image'}" alt="${product.name}" onerror="this.onerror=null;this.src='https://placehold.co/600x600/cccccc/ffffff?text=Image+Error';">
                             </div>
                             <div class="p-4">
                                 <h3 class="text-lg font-semibold text-gray-800 truncate">${product.name}</h3>
@@ -249,7 +334,7 @@
                     productSectionsContainer.appendChild(section);
                 });
 
-                noResultsDiv.classList.toggle('hidden', hasResults);
+                noResultsDiv.classList.toggle('hidden', !hasResults);
                 
                 document.querySelectorAll('[data-product-id]').forEach(card => {
                     card.addEventListener('click', () => openModal(card.dataset.productId));
@@ -259,7 +344,7 @@
             }
 
             function renderCategoryButtons() {
-                const categories = ['All', ...new Set(products.map(p => p.category))];
+                const categories = ['All', ...new Set(products.map(p => p.category))].filter(Boolean);
                 categoryFiltersContainer.innerHTML = '';
                 categories.forEach(category => {
                     const button = document.createElement('button');
@@ -308,7 +393,7 @@
                 let filteredProducts = products.filter(p => p.price <= maxPrice);
                 
                 if (searchTerm) {
-                    filteredProducts = filteredProducts.filter(p => p.name.toLowerCase().includes(searchTerm));
+                    filteredProducts = filteredProducts.filter(p => p.name && p.name.toLowerCase().includes(searchTerm));
                 }
                 renderProductSections(filteredProducts);
             }
@@ -330,7 +415,7 @@
                 });
             }
 
-            // --- Carousel & Modal Functions (unchanged from previous version, with minor fixes) ---
+            // --- Other UI Functions (Carousel, Modal) ---
             function setupCarousel() {
                 carouselContainer.innerHTML = carouselImages.map((img, index) => `<div class="carousel-item absolute w-full h-full ${index === 0 ? 'opacity-100' : 'opacity-0'}"><img src="${img.src}" alt="${img.alt}" class="w-full h-full object-cover"></div>`).join('');
                 updateCarouselDots();
@@ -372,15 +457,15 @@
             }
             function updateModalImage() {
                 const images = currentModalProduct.images;
-                modalImg.src = images[currentModalImageIndex];
-                modalSliderControls.classList.toggle('hidden', images.length <= 1);
-                modalImageDots.innerHTML = images.map((_, index) => `<div class="w-2 h-2 rounded-full ${index === currentModalImageIndex ? 'bg-white' : 'bg-white/50'}"></div>`).join('');
+                modalImg.src = (images && images.length > 0) ? images[currentModalImageIndex] : 'https://placehold.co/600x600/cccccc/ffffff?text=No+Image';
+                modalSliderControls.classList.toggle('hidden', !images || images.length <= 1);
+                modalImageDots.innerHTML = images ? images.map((_, index) => `<div class="w-2 h-2 rounded-full ${index === currentModalImageIndex ? 'bg-white' : 'bg-white/50'}"></div>`).join('') : '';
             }
             function showNextModalImage() {
-                const images = currentModalProduct.images; if (images.length > 1) { currentModalImageIndex = (currentModalImageIndex + 1) % images.length; updateModalImage(); }
+                const images = currentModalProduct.images; if (images && images.length > 1) { currentModalImageIndex = (currentModalImageIndex + 1) % images.length; updateModalImage(); }
             }
             function showPrevModalImage() {
-                 const images = currentModalProduct.images; if (images.length > 1) { currentModalImageIndex = (currentModalImageIndex - 1 + images.length) % images.length; updateModalImage(); }
+                 const images = currentModalProduct.images; if (images && images.length > 1) { currentModalImageIndex = (currentModalImageIndex - 1 + images.length) % images.length; updateModalImage(); }
             }
 
             // --- EVENT LISTENERS ---
@@ -401,9 +486,8 @@
             modalPrevBtn.addEventListener('click', showPrevModalImage);
             modalNextBtn.addEventListener('click', showNextModalImage);
 
-            // --- INITIALIZATION ---
-            setLanguage(currentLang);
-            setupCarousel();
+            // --- START THE APP ---
+            await fetchProducts();
         });
     </script>
 </body>
