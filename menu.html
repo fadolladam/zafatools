@@ -168,11 +168,12 @@
                     <p id="modal-id" class="text-xs text-gray-400 mb-4"></p>
                     <p id="modal-description" class="text-gray-600 mb-6"></p>
                 </div>
+                <!-- UPDATED CONTACT SECTION -->
                 <div class="mt-auto pt-4 border-t border-gray-200">
-                    <a id="modal-contact" href="#" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center hover:bg-green-700 transition">
-                        <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 6.75Z" /></svg>
-                        <span id="contact-seller-text">Contact Seller</span>
-                    </a>
+                    <p id="contact-seller-title" class="text-sm font-medium text-gray-500 mb-3 text-center"></p>
+                    <div id="modal-contact-container" class="flex justify-center items-center flex-wrap gap-x-6 gap-y-4">
+                        <!-- Contact icons will be injected here by JS -->
+                    </div>
                 </div>
             </div>
             <button id="modal-close-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800">
@@ -184,7 +185,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             // --- CONFIGURATION ---
-            // The Google Sheet "Publish to web" CSV URL is pasted here.
             const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRUeik-V5sxMW6UHZnxWBTDPdczjo8ktQ_y2QGBwK3oRv4LAyJbRmBCRY9jLht5hTbRrjFOcISjNVMT/pub?gid=0&single=true&output=csv';
             
             // --- DATA ---
@@ -219,47 +219,40 @@
             const priceFilter = document.getElementById('price-filter');
             const carouselContainer = document.getElementById('carousel-container');
             const carouselDots = document.getElementById('carousel-dots');
-            const modal = document.getElementById('product-modal'), modalContent = document.getElementById('modal-content'), modalCloseBtn = document.getElementById('modal-close-btn'), modalImg = document.getElementById('modal-img'), modalName = document.getElementById('modal-name'), modalPrice = document.getElementById('modal-price'), modalId = document.getElementById('modal-id'), modalDescription = document.getElementById('modal-description'), modalContact = document.getElementById('modal-contact'), modalPrevBtn = document.getElementById('modal-prev-btn'), modalNextBtn = document.getElementById('modal-next-btn'), modalSliderControls = document.getElementById('modal-slider-controls'), modalImageDots = document.getElementById('modal-image-dots');
+            const modal = document.getElementById('product-modal'), modalContent = document.getElementById('modal-content'), modalCloseBtn = document.getElementById('modal-close-btn'), modalImg = document.getElementById('modal-img'), modalName = document.getElementById('modal-name'), modalPrice = document.getElementById('modal-price'), modalId = document.getElementById('modal-id'), modalDescription = document.getElementById('modal-description'), modalContactContainer = document.getElementById('modal-contact-container'), modalContactTitle = document.getElementById('contact-seller-title'), modalPrevBtn = document.getElementById('modal-prev-btn'), modalNextBtn = document.getElementById('modal-next-btn'), modalSliderControls = document.getElementById('modal-slider-controls'), modalImageDots = document.getElementById('modal-image-dots');
 
             // --- DATA FETCHING ---
             async function fetchProducts() {
                 if (!GOOGLE_SHEET_URL) {
                     loadingText.textContent = translations[currentLang].loadError;
-                    loadingText.previousElementSibling.classList.add('hidden'); // Hide spinner
+                    loadingText.previousElementSibling.classList.add('hidden');
                     console.error("Google Sheet URL is not set.");
                     return;
                 }
-
                 try {
                     const response = await fetch(GOOGLE_SHEET_URL);
                     if (!response.ok) throw new Error('Network response failed.');
                     const csvText = await response.text();
-                    
-                    // Parse CSV data
                     const lines = csvText.trim().split(/\r?\n/);
                     const headers = lines[0].split(',');
                     const data = lines.slice(1).map(line => {
-                        // This regex handles commas inside quoted fields
                         const values = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
                         const obj = {};
                         headers.forEach((header, i) => {
-                            let value = values[i] || ''; // Use empty string for missing values
+                            let value = values[i] || '';
                             if (value.startsWith('"') && value.endsWith('"')) {
-                                value = value.slice(1, -1).replace(/""/g, '"'); // Unescape double quotes
+                                value = value.slice(1, -1).replace(/""/g, '"');
                             }
                             obj[header.trim()] = value;
                         });
                         return obj;
                     });
-                    
                     products = data.map(p => ({
                         ...p,
                         price: parseFloat(p.price) || 0,
                         images: p.images ? p.images.split(',').map(url => url.trim()) : []
                     }));
-                    
                     initializeApp();
-
                 } catch (error) {
                     console.error('Failed to fetch or parse product data:', error);
                     loadingText.textContent = translations[currentLang].loadError;
@@ -272,7 +265,6 @@
                 loadingOverlay.classList.add('opacity-0');
                 setTimeout(() => loadingOverlay.classList.add('hidden'), 500);
                 mainContainer.classList.remove('opacity-0');
-                
                 setLanguage(currentLang);
                 setupCarousel();
             }
@@ -285,34 +277,29 @@
                 document.getElementById('category-title').textContent = t.categoryTitle;
                 document.getElementById('search-box').placeholder = t.searchPlaceholder;
                 document.querySelector('label[for="price-filter"]').innerHTML = `${t.maxPrice}: $<span id="price-value">${priceFilter.value}</span>`;
-                document.getElementById('contact-seller-text').textContent = t.contactSeller;
+                document.getElementById('contact-seller-title').textContent = t.contactSeller;
                 document.querySelector('#no-results h3').textContent = t.noProducts;
                 document.querySelector('#no-results p').textContent = t.noProductsDesc;
                 document.getElementById('loading-text').textContent = t.loading;
-
                 if (products.length > 0) {
                      renderCategoryButtons();
                      applyFilters();
                 }
-
                 document.getElementById('lang-en').classList.toggle('opacity-50', lang !== 'en');
                 document.getElementById('lang-km').classList.toggle('opacity-50', lang !== 'km');
             }
             
             function renderProductSections(productsToRender) {
                 productSectionsContainer.innerHTML = '';
-                const categoriesInProducts = [...new Set(products.map(p => p.category))].filter(Boolean); // Filter out empty/undefined categories
+                const categoriesInProducts = [...new Set(products.map(p => p.category))].filter(Boolean);
                 let hasResults = false;
-                
                 categoriesInProducts.forEach(category => {
                     const categoryProducts = productsToRender.filter(p => p.category === category);
                     if (categoryProducts.length === 0) return;
-                    
                     hasResults = true;
                     const section = document.createElement('section');
                     section.id = `category-section-${category}`;
                     section.className = 'py-4 scroll-mt-48';
-
                     const grid = categoryProducts.map(product => `
                         <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer group" data-product-id="${product.id}">
                             <div class="relative aspect-square w-full overflow-hidden">
@@ -322,24 +309,14 @@
                                 <h3 class="text-lg font-semibold text-gray-800 truncate">${product.name}</h3>
                                 <p class="mt-2 text-xl font-bold text-blue-600">$${product.price}</p>
                             </div>
-                        </div>
-                    `).join('');
-
-                    section.innerHTML = `
-                        <h2 class="text-2xl font-bold mb-4">${category}</h2>
-                        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                            ${grid}
-                        </div>
-                    `;
+                        </div>`).join('');
+                    section.innerHTML = `<h2 class="text-2xl font-bold mb-4">${category}</h2><div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">${grid}</div>`;
                     productSectionsContainer.appendChild(section);
                 });
-
-                noResultsDiv.classList.toggle('hidden', !hasResults);
-                
+                noResultsDiv.classList.toggle('hidden', hasResults);
                 document.querySelectorAll('[data-product-id]').forEach(card => {
                     card.addEventListener('click', () => openModal(card.dataset.productId));
                 });
-
                 setupIntersectionObserver();
             }
 
@@ -361,17 +338,13 @@
                 isUserClicking = true;
                 activeCategory = category;
                 updateActiveCategoryButtonUI();
-                
                 if (category !== 'All') {
                     const section = document.getElementById(`category-section-${category}`);
-                    if (section) {
-                        section.scrollIntoView({ behavior: 'smooth' });
-                    }
+                    if (section) section.scrollIntoView({ behavior: 'smooth' });
                 } else {
                      applyFilters();
                      window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
-
                 clearTimeout(clickTimeout);
                 clickTimeout = setTimeout(() => { isUserClicking = false; }, 1000); 
             }
@@ -381,17 +354,13 @@
                     btn.classList.toggle('filter-btn-active', btn.dataset.category === activeCategory);
                 });
                 const activeButton = document.querySelector(`#category-filters .filter-btn[data-category="${activeCategory}"]`);
-                if(activeButton) {
-                    activeButton.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                }
+                if(activeButton) activeButton.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             }
             
             function applyFilters() {
                 const searchTerm = searchBox.value.toLowerCase();
                 const maxPrice = parseInt(priceFilter.value);
-                
                 let filteredProducts = products.filter(p => p.price <= maxPrice);
-                
                 if (searchTerm) {
                     filteredProducts = filteredProducts.filter(p => p.name && p.name.toLowerCase().includes(searchTerm));
                 }
@@ -409,13 +378,9 @@
                         }
                     });
                 }, { rootMargin: '-40% 0px -55% 0px' });
-                
-                document.querySelectorAll('[id^="category-section-"]').forEach(section => {
-                    observer.observe(section);
-                });
+                document.querySelectorAll('[id^="category-section-"]').forEach(section => observer.observe(section));
             }
 
-            // --- Other UI Functions (Carousel, Modal) ---
             function setupCarousel() {
                 carouselContainer.innerHTML = carouselImages.map((img, index) => `<div class="carousel-item absolute w-full h-full ${index === 0 ? 'opacity-100' : 'opacity-0'}"><img src="${img.src}" alt="${img.alt}" class="w-full h-full object-cover"></div>`).join('');
                 updateCarouselDots();
@@ -452,9 +417,46 @@
                 modalPrice.textContent = `$${currentModalProduct.price}`;
                 modalId.textContent = `Product ID: ${currentModalProduct.id}`;
                 modalDescription.textContent = currentModalProduct.description;
-                modalContact.href = `mailto:${currentModalProduct.contact}`;
                 updateModalImage();
+                updateContactIcons();
             }
+            
+            function updateContactIcons() {
+                modalContactContainer.innerHTML = ''; // Clear previous icons
+                const contactInfo = currentModalProduct.contact;
+                if (!contactInfo) {
+                    modalContactTitle.classList.add('hidden');
+                    return;
+                }
+                
+                modalContactTitle.classList.remove('hidden');
+                const contacts = contactInfo.split(';').map(c => c.trim()).filter(Boolean);
+
+                contacts.forEach(contact => {
+                    const [type, value] = contact.split(':').map(s => s.trim());
+                    if (!type || !value) return;
+
+                    let iconHtml = '';
+                    const baseLinkClasses = "text-gray-500 hover:text-gray-800 transition-colors";
+
+                    switch (type.toLowerCase()) {
+                        case 'telegram':
+                            iconHtml = `<a href="https://t.me/${value}" target="_blank" rel="noopener noreferrer" class="${baseLinkClasses}" title="Telegram"><svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-1.37.2-1.64l16.14-5.7c.73-.27 1.36.17 1.15.99l-2.28 10.57c-.23.87-1.03 1.08-1.74.59L12.6 16.3l-1.99 1.92c-.22.21-.4.32-.67.32z"></path></svg></a>`;
+                            break;
+                        case 'facebook':
+                            iconHtml = `<a href="https://facebook.com/${value}" target="_blank" rel="noopener noreferrer" class="${baseLinkClasses}" title="Facebook"><svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"></path></svg></a>`;
+                            break;
+                        case 'tiktok':
+                            iconHtml = `<a href="https://tiktok.com/@${value}" target="_blank" rel="noopener noreferrer" class="${baseLinkClasses}" title="TikTok"><svg class="w-7 h-7" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M168.1 48.4c-8.6-9.3-14-21.4-14-34.9h-36.4v163.1c0 11.3-9.2 20.5-20.5 20.5s-20.5-9.2-20.5-20.5 9.2-20.5 20.5-20.5c3.5 0 6.8 0.9 9.7 2.4v-38.2c-3.2-0.4-6.4-0.7-9.7-0.7-32.7 0-59.3 26.6-59.3 59.3s26.6 59.3 59.3 59.3 59.3-26.6 59.3-59.3V98.1c12.1 8.6 27 13.6 42.9 13.6v-36.4c-15.3 0-29.2-6.2-39.9-16.9z"/></svg></a>`;
+                            break;
+                        case 'phone':
+                            iconHtml = `<a href="tel:${value}" class="flex items-center gap-2 font-semibold text-lg text-gray-700 hover:text-black transition-colors" title="Phone"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 6.75Z"></path></svg><span>${value}</span></a>`;
+                            break;
+                    }
+                     if (iconHtml) modalContactContainer.innerHTML += iconHtml;
+                });
+            }
+
             function updateModalImage() {
                 const images = currentModalProduct.images;
                 modalImg.src = (images && images.length > 0) ? images[currentModalImageIndex] : 'https://placehold.co/600x600/cccccc/ffffff?text=No+Image';
