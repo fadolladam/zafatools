@@ -4,10 +4,17 @@
 const TelegramBot = require('node-telegram-bot-api');
 const axios = require('axios');
 
+// --- Configuration ---
+// SECURITY WARNING: Hardcoding tokens is risky. It's safer to use Vercel Environment Variables.
+// This code will use the hardcoded tokens below if they are not found in Vercel's settings.
+
 const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN || '8469761825:AAEWqHvpgJ_nx8Ah18Y9hYy9Iw6YXSy1RBQ';
 const facebookAccessToken = process.env.FACEBOOK_ACCESS_TOKEN || 'EAAJ7CYH7R7ABPAv4XcFeIYC89azmf5bVcxtDJZAe9VPSnp8HpaJ7B4l8wEOdrA8eVcCJ8CZBU1MZCCVwe9mBQCfZBdFUunllNWgYyslbL87BjakoUuu8nMibyjCh8VXQpWkzZBjfvlYlyUotOFfsCmWxLvu6Od2pMTzb8zS5Bepf8QLUnTw45VrTqZC1NF0Kbf6frbuVbSXyIVgEzkF1nKACWIzFwpLNkvbqCoNhfQAI4sRS2MqaZBi';
+
 const adAccountId = 'act_243431363942629';
 
+// Initialize the Telegram Bot
+// A check is added to prevent the bot from crashing if tokens are missing.
 let bot;
 if (telegramBotToken) {
     bot = new TelegramBot(telegramBotToken);
@@ -45,46 +52,41 @@ module.exports = async (req, res) => {
         return res.status(500).send('Bot not initialized');
     }
 
-    // --- Bot Command Handlers (defined inside the main function) ---
-    bot.onText(/\/balance/, async (msg) => {
-        const chatId = msg.chat.id;
-        bot.sendMessage(chatId, 'Hold on, fetching your ad account balance... ⏳');
+    try {
+        const message = req.body.message;
 
-        try {
-            const accountDetails = await fetchAccountDetails();
-            const formattedBalance = (parseFloat(accountDetails.balance) / 100).toFixed(2);
-            const replyMessage = `
+        // Check if there is a message and text to process
+        if (message && message.text) {
+            const chatId = message.chat.id;
+            const text = message.text;
+
+            // Handle commands directly instead of using listeners
+            if (text === '/start') {
+                await bot.sendMessage(chatId, "I'm alive! Send /balance to get your ad account details.");
+            } else if (text === '/balance') {
+                await bot.sendMessage(chatId, 'Hold on, fetching your ad account balance... ⏳');
+                try {
+                    const accountDetails = await fetchAccountDetails();
+                    const formattedBalance = (parseFloat(accountDetails.balance) / 100).toFixed(2);
+                    const replyMessage = `
 ✅ **Ad Account Details** ✅
 
 **Account Name:** ${accountDetails.name}
 **Current Balance:** ${formattedBalance} ${accountDetails.currency}
-            `;
-            bot.sendMessage(chatId, replyMessage, { parse_mode: 'Markdown' });
-        } catch (error) {
-            bot.sendMessage(chatId, `❌ Oops! Something went wrong.\n\n**Error:** ${error.message}`);
+                    `;
+                    await bot.sendMessage(chatId, replyMessage, { parse_mode: 'Markdown' });
+                } catch (error) {
+                    await bot.sendMessage(chatId, `❌ Oops! Something went wrong.\n\n**Error:** ${error.message}`);
+                }
+            } else {
+                // Default message for any other text
+                await bot.sendMessage(chatId, "Hi! I'm your Ad Balance Bot. Send /balance to get the latest update.");
+            }
         }
-    });
-
-    bot.on('message', (msg) => {
-        if (msg.text && (msg.text.startsWith('/balance') || msg.text.startsWith('/start'))) {
-            return; // Ignore commands handled by onText
-        }
-        bot.sendMessage(msg.chat.id, "Hi! I'm your Ad Balance Bot. Send /balance to get the latest update.");
-    });
-    
-    // This command is useful for checking if the bot is alive.
-    bot.onText(/\/start/, (msg) => {
-        bot.sendMessage(msg.chat.id, "I'm alive! Send /balance to get your ad account details.");
-    });
-
-
-    try {
-        // We need to process the update and then remove all listeners to prevent them from stacking up on Vercel
-        await bot.processUpdate(req.body);
-        bot.removeAllListeners();
     } catch (error) {
         console.error('Error processing update:', error);
     }
     
+    // Always respond to Telegram to acknowledge the webhook
     res.status(200).send('OK');
 };
