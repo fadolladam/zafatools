@@ -13,7 +13,7 @@ const adAccountId = 'act_243431363942629';
 // --- IMPORTANT ---
 // Replace 'YOUR_CHAT_ID' with your personal Telegram User ID.
 // The bot will send the automated messages to this ID.
-const MY_CHAT_ID = 'YOUR_CHAT_ID'; 
+const MY_CHAT_ID = '8469761825';
 
 // Initialize the Telegram Bot
 const bot = new TelegramBot(telegramBotToken);
