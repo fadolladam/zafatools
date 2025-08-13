@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/bot",
+      "destination": "/fb-balance/api/bot"
+    }
+  ]
+}
