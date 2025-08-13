@@ -1,0 +1,10 @@
+{
+  "name": "zafaads-bot-server",
+  "version": "1.0.0",
+  "description": "Telegram bot to check FB Ad Account balance for zafaads_bot.",
+  "main": "api/bot.js",
+  "type": "module",
+  "dependencies": {
+    "node-fetch": "^3.3.0"
+  }
+}
