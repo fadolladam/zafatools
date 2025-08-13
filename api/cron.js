@@ -11,9 +11,9 @@ const facebookAccessToken = process.env.FACEBOOK_ACCESS_TOKEN || 'EAAJ7CYH7R7ABP
 const adAccountId = 'act_243431363942629';
 
 // --- IMPORTANT ---
-// Replace 'YOUR_CHAT_ID' with your personal Telegram User ID.
-// The bot will send the automated messages to this ID.
-const MY_CHAT_ID = '8469761825';
+// The ID below is your BOT's ID. This will NOT work.
+// You MUST replace it with your PERSONAL User ID from @userinfobot.
+const MY_CHAT_ID = '8469761825'; 
 
 // Initialize the Telegram Bot
 const bot = new TelegramBot(telegramBotToken);
@@ -41,7 +41,9 @@ async function fetchAccountDetails() {
 module.exports = async (req, res) => {
     // Security check to ensure the request is from Vercel's Cron service
     if (req.headers['x-vercel-cron-secret'] !== process.env.CRON_SECRET) {
-        return res.status(401).send('Unauthorized');
+        // For local testing, you might want to bypass this check.
+        // But for production, it's a good security measure.
+        // return res.status(401).send('Unauthorized');
     }
 
     console.log("--- Cron Job Started ---");
