@@ -10,6 +10,10 @@
     {
       "source": "/api/bot",
       "destination": "/api/bot.js"
+    },
+    {
+      "source": "/api/cron",
+      "destination": "/api/cron.js"
     }
   ],
   "crons": [
@@ -19,4 +23,3 @@
     }
   ]
 }
-
