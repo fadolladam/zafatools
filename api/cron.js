@@ -11,7 +11,7 @@ const adAccountId = 'act_243431363942629';
 
 // --- Your Personal Telegram User ID ---
 // This is the correct ID to receive automated messages.
-const MY_CHAT_ID = '8469761825'; 
+const MY_CHAT_ID = '-1002884568379'; 
 
 // Initialize the Telegram Bot
 const bot = new TelegramBot(telegramBotToken);
