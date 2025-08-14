@@ -6,7 +6,7 @@ const axios = require('axios');
 
 // --- Configuration ---
 const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN || '8469761825:AAEWqHvpgJ_nx8Ah18Y9hYy9Iw6YXSy1RBQ';
-const facebookAccessToken = process.env.FACEBOOK_ACCESS_TOKEN || 'EAAJ7CYH7R7ABPAv4XcFeIYC89azmf5bVcxtDJZAe9VPSnp8HpaJ7B4l8wEOdrA8eVcCJ8CZBU1MZCCVwe9mBQCfZBdFUunllNWgYyslbL87BjakoUuu8nMibyjCh8VXQpWkzZBjfvlYlyUotOFfsCmWxLvu6Od2pMTzb8zS5Bepf8QLUnTw45VrTqZC1NF0Kbf6frbuVbSXyIVgEzkF1nKACWIzFwpLNkvbqCoNhfQAI4sRS2MqaZBi';
+const facebookAccessToken = process.env.FACEBOOK_ACCESS_TOKEN || 'EAAJ7CYH7R7ABPOXZAu2NVdXkh9OYYLi8PucbaMvXBSDOvMmkiLrxnIY8wzJnp3FKySTNvJLwxTDZABnMd6CREfniDC2OhOYG2U7XVjf2GBkR0xQicIAr7FzsqbdxxCjQTx98G4ElVE4hfaPTwai2ACctxVRRH4oAflatPbPUZBHmbkRziY2osVJe6ZBavTr2jOIMgTLvWSUx';
 const adAccountId = 'act_243431363942629';
 
 // --- Your Personal Telegram User ID ---
