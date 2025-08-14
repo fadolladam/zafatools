@@ -61,7 +61,7 @@ module.exports = async (req, res) => {
 
         // --- 1. Send the Daily 7 AM Report ---
         const dailyReportMessage = `
-☀️ **Good Morning! Here is your 7 AM Report** ☀️
+☀️ **Good Morning! Here is your 9AM Report** ☀️
 
 **Account Name:** ${accountDetails.name}
 **Current Balance:** $${formattedBalance} ${accountDetails.currency}
