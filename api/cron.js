@@ -14,7 +14,12 @@ const adAccountId = 'act_243431363942629';
 const MY_CHAT_ID = '-1002884568379'; 
 
 // Initialize the Telegram Bot
-const bot = new TelegramBot(telegramBotToken);
+let bot;
+try {
+    bot = new TelegramBot(telegramBotToken);
+} catch (error) {
+    console.error("Error initializing Telegram bot:", error.message);
+}
 
 /**
  * Fetches data from the Facebook Graph API.
@@ -41,6 +46,12 @@ async function fetchAccountDetails() {
 // --- Vercel Serverless Function (for Cron Job) ---
 module.exports = async (req, res) => {
     console.log("--- CRON JOB STARTED ---");
+    console.log("Request method:", req.method);
+    
+    // Handle GET requests for health checks
+    if (req.method === 'GET') {
+        return res.status(200).json({ status: 'Cron endpoint active' });
+    }
 
     // This security check is good practice but can sometimes cause issues during setup.
     // It's safe to proceed as Vercel's infrastructure provides a secure context for cron jobs.
@@ -49,9 +60,14 @@ module.exports = async (req, res) => {
     //     return res.status(401).send('Unauthorized');
     // }
 
+    if (!bot) {
+        console.error("CRON FATAL: Bot not initialized.");
+        return res.status(500).json({ error: 'Bot not initialized' });
+    }
+
     if (!MY_CHAT_ID) {
         console.error("CRON FATAL: Telegram Chat ID is not set in the code.");
-        return res.status(500).send("Chat ID not configured.");
+        return res.status(500).json({ error: 'Chat ID not configured' });
     }
 
     try {
@@ -91,5 +107,5 @@ The ad account balance is **$${formattedBalance}**, which is over the $600 thres
     }
 
     console.log("--- CRON JOB FINISHED ---");
-    res.status(200).send('OK');
+    res.status(200).json({ status: 'OK' });
 };
