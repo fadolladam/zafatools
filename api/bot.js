@@ -8,7 +8,7 @@ try {
 
     // --- Configuration ---
     const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN || '8469761825:AAEWqHvpgJ_nx8Ah18Y9hYy9Iw6YXSy1RBQ';
-    const facebookAccessToken = process.env.FACEBOOK_ACCESS_TOKEN || 'EAAJ7CYH7R7ABPOXZAu2NVdXkh9OYYLi8PucbaMvXBSDOvMmkiLrxnIY8wzJnp3FKySTNvJLwxTDZABnMd6CREfniDC2OhOYG2U7XVjf2GBkR0xQicIAr7FzsqbdxxCjQTx98G4ElVE4hfaPTwai2ACctxVRRH4oAflatPbPUZBHmbkRziY2osVJe6ZBavTr2jOIMgTLvWSUx';
+    const facebookAccessToken = process.env.FACEBOOK_ACCESS_TOKEN || 'EAATGRDWf4ZBgBPeBjRKJVq0bDQHq03IO5utySt6JCgm6P7wQw0vqhlc2S5aqZCMLwWFB2GzZAPwZB4OsAQOFzZCAKyJt0NPLq1GPXKuQ5Uv9WmqYofZCntjRhDKb3qLE6edAkGVt2UFcv4zwV3DoXwbMygXZBqGG2VfEcXKevOoZB8On8w7wa4xz8xn71uwtgnDeSXZAgrzS4RXIphnFD';
     const adAccountId = 'act_243431363942629';
 
     // Initialize the Telegram Bot
