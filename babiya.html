@@ -19,22 +19,6 @@
 <body
     class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 antialiased flex items-center justify-center min-h-screen">
 
-<<<<<<< Updated upstream
-  <!-- Main Content -->
-   
-  <main class="p-6 lg:p-8">
-    <!-- Ad Account Details Display -->
-    <div class="max-w-md mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl">
-        <h1 class="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-gray-200">Ad Account Details</h1>
-        <div id="fb-ad-account-details" class="space-y-4">
-            <!-- Content will be loaded by JavaScript -->
-            <div class="text-center text-gray-500 dark:text-gray-400">
-                <svg class="animate-spin h-8 w-8 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <p class="mt-3">Fetching details...</p>
-=======
     <!-- Notification Container -->
     <div id="notification-container" class="fixed top-5 right-5 z-50 space-y-3"></div>
 
@@ -56,7 +40,6 @@
                     </svg>
                     <p class="mt-3">Fetching details...</p>
                 </div>
->>>>>>> Stashed changes
             </div>
         </div>
     </main>
@@ -89,27 +72,10 @@
                 notif.setAttribute('role', 'alert');
                 container.appendChild(notif);
 
-<<<<<<< Updated upstream
-        // Animate out and remove after a delay
-        setTimeout(() => {
-            notif.classList.add('opacity-0');
-            notif.addEventListener('transitionend', () => notif.remove());
-        }, duration);
-    }
-    
-    /*******************************************************************
-    * FACEBOOK AD ACCOUNT DETAILS FETCHER
-    *******************************************************************/
-    
-    // --- Hardcoded values ---
-    const adAccountId = 'act_243431363942629';
-    const accessToken = 'EAATGRDWf4ZBgBPeBjRKJVq0bDQHq03IO5utySt6JCgm6P7wQw0vqhlc2S5aqZCMLwWFB2GzZAPwZB4OsAQOFzZCAKyJt0NPLq1GPXKuQ5Uv9WmqYofZCntjRhDKb3qLE6edAkGVt2UFcv4zwV3DoXwbMygXZBqGG2VfEcXKevOoZB8On8w7wa4xz8xn71uwtgnDeSXZAgrzS4RXIphnFD';
-=======
                 // Animate in
                 setTimeout(() => {
                     notif.classList.remove('opacity-0', 'translate-x-10');
                 }, 10);
->>>>>>> Stashed changes
 
                 // Animate out and remove after a delay
                 setTimeout(() => {
