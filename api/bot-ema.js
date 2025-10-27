@@ -56,6 +56,16 @@ module.exports = async (req, res) => {
   console.log('--- EMA Bot Function Started ---');
   console.log('Request method:', req.method);
 
+  // Enable CORS for all requests
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Handle OPTIONS request
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   try {
     // Handle GET requests - return account details for web UI
     if (req.method === 'GET') {
@@ -125,11 +135,16 @@ module.exports = async (req, res) => {
       }
     } else {
       console.log('EMA: Received a request without a message body, ignoring.');
+      return res.status(200).json({ status: 'OK', message: 'No message body' });
     }
   } catch (error) {
     console.error('EMA: A critical error occurred in the main handler:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 
   console.log('--- EMA Bot Function Finished ---');
-  res.status(200).json({ status: 'OK' });
+  // Only send response if no response was sent yet
+  if (!res.headersSent) {
+    return res.status(200).json({ status: 'OK' });
+  }
 };
