@@ -88,56 +88,38 @@
             * FACEBOOK AD ACCOUNT DETAILS FETCHER
             *******************************************************************/
 
-            // --- Hardcoded values ---
-            const adAccountId = 'act_243431363942629';
-            const accessToken = 'EAATGRDWf4ZBgBPeBjRKJVq0bDQHq03IO5utySt6JCgm6P7wQw0vqhlc2S5aqZCMLwWFB2GzZAPwZB4OsAQOFzZCAKyJt0NPLq1GPXKuQ5Uv9WmqYofZCntjRhDKb3qLE6edAkGVt2UFcv4zwV3DoXwbMygXZBqGG2VfEcXKevOoZB8On8w7wa4xz8xn71uwtgnDeSXZAgrzS4RXIphnFD';
+            // --- API Configuration ---
             const apiEndpoint = '/api/bot-babiya'; // API endpoint for Babiya
 
             // --- Element Selector ---
             const fbAdAccountDetails = document.getElementById('fb-ad-account-details');
 
             /**
-             * Fetches data from the Facebook Graph API.
-             * @param {string} endpoint The API endpoint to call (e.g., the ad account ID).
-             * @returns {Promise<object>} A promise that resolves with the JSON response data.
-             */
-            async function fbApiGet(endpoint) {
-                const url = `https://graph.facebook.com/v19.0/${endpoint}${endpoint.includes('?') ? '&' : '?'}access_token=${accessToken}`;
-                const response = await fetch(url);
-                const data = await response.json();
-                if (data.error) {
-                    throw new Error(data.error.message);
-                }
-                return data;
-            }
-
-            /**
              * Fetches and displays the details for the hardcoded ad account.
              */
             async function fetchAccountDetails() {
-                if (!adAccountId || !accessToken) {
-                    showNotification('Ad Account ID or Access Token is missing.', 'error');
-                    return;
-                }
-
                 try {
-                    // Request only the fields we need: name, balance, and currency
-                    const fields = 'name,balance,currency';
-                    const response = await fbApiGet(`${adAccountId}?fields=${fields}`);
+                    // Call the local API endpoint
+                    const response = await fetch(apiEndpoint);
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
 
                     // The balance is returned in cents, so we divide by 100.
-                    const displayBalance = response.balance ? (parseFloat(response.balance) / 100).toFixed(2) : '0.00';
+                    const displayBalance = data.balance ? (parseFloat(data.balance) / 100).toFixed(2) : '0.00';
 
-                    if (response) {
+                    if (data) {
                         // Populate the div with the simplified details.
                         fbAdAccountDetails.innerHTML = `
                     <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Account Name</p>
-                        <p class="text-xl font-semibold text-gray-800 dark:text-gray-200">${response.name}</p>
+                        <p class="text-xl font-semibold text-gray-800 dark:text-gray-200">${data.name}</p>
                     </div>
                     <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Current Balance</p>
-                        <p class="text-xl font-semibold text-green-600 dark:text-green-400">${response.currency} ${displayBalance}</p>
+                        <p class="text-xl font-semibold text-green-600 dark:text-green-400">${data.currency} ${displayBalance}</p>
                     </div>
                 `;
                         showNotification('Details loaded successfully!', 'success');

@@ -56,15 +56,22 @@ module.exports = async (req, res) => {
   console.log('--- BABIYA Bot Function Started ---');
   console.log('Request method:', req.method);
 
-  if (!bot) {
-    console.error('BABIYA: Bot not initialized.');
-    return res.status(500).json({ error: 'Bot not initialized' });
-  }
-
   try {
-    // Handle webhook verification from Telegram
+    // Handle GET requests - return account details for web UI
     if (req.method === 'GET') {
-      return res.status(200).send('BABIYA: Telegram Bot Webhook Endpoint');
+      try {
+        const accountDetails = await fetchAccountDetails();
+        return res.status(200).json(accountDetails);
+      } catch (error) {
+        console.error('BABIYA: Error fetching account details:', error.message);
+        return res.status(500).json({ error: error.message });
+      }
+    }
+
+    // Handle POST requests - Telegram bot webhook
+    if (!bot) {
+      console.error('BABIYA: Bot not initialized.');
+      return res.status(500).json({ error: 'Bot not initialized' });
     }
 
     const message = req.body?.message;
