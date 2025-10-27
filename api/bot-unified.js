@@ -24,13 +24,11 @@ const CUSTOMERS = {
     name: 'Babiya',
     adAccountId: 'act_243431363942629',
   },
-  // Ema's Chat ID - TO BE CONFIGURED
-  // TODO: Get Ema's chat ID by having her send a message to the bot
-  // and check the logs, then uncomment and update the line below:
-  // 'EMA_CHAT_ID_HERE': {
-  //   name: 'Ema',
-  //   adAccountId: 'act_2976599279147919'
-  // }
+  // Ema's Chat ID
+  '-4870481368': {
+    name: 'Ema',
+    adAccountId: 'act_2976599279147919'
+  }
 };
 
 // Initialize the Telegram Bot
