@@ -12,12 +12,16 @@
   ],
   "routes": [
     {
-      "src": "/api/bot-babiya",
-      "dest": "/api/bot-babiya.js"
+      "src": "/api/bot-unified",
+      "dest": "/api/bot-unified.js"
     },
     {
-      "src": "/api/bot-ema",
-      "dest": "/api/bot-ema.js"
+      "src": "/api/babiya",
+      "dest": "/api/babiya.js"
+    },
+    {
+      "src": "/api/ema",
+      "dest": "/api/ema.js"
     },
     {
       "src": "/(.*)",

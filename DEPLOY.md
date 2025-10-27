@@ -39,25 +39,45 @@
 ## 🌐 Your URLs
 
 After deployment, you'll get:
-- **Babiya Page**: `https://your-project.vercel.app/babiya.html`
-- **Ema Page**: `https://your-project.vercel.app/ema.html`
-- **Babiya API**: `https://your-project.vercel.app/api/bot-babiya`
-- **Ema API**: `https://your-project.vercel.app/api/bot-ema`
+- **Babiya Page**: `https://zafatools.vercel.app/babiya.html`
+- **Ema Page**: `https://zafatools.vercel.app/ema.html`
+- **Babiya API**: `https://zafatools.vercel.app/api/babiya`
+- **Ema API**: `https://zafatools.vercel.app/api/ema`
+- **Unified Bot**: `https://zafatools.vercel.app/api/bot-unified`
 
-## 🤖 Setup Telegram Bot
+## 🤖 Setup Telegram Bot (UNIFIED)
 
-1. **Get your Vercel URL** (replace `your-project` below)
-
-2. **Set webhook for Babiya:**
+1. **Set webhook for the Unified Bot:**
    ```
-   https://api.telegram.org/bot8469761825:AAEWqHvpgJ_nx8Ah18Y9hYy9Iw6YXSy1RBQ/setWebhook?url=https://your-project.vercel.app/api/bot-babiya
+   https://api.telegram.org/bot8469761825:AAEWqHvpgJ_nx8Ah18Y9hYy9Iw6YXSy1RBQ/setWebhook?url=https://zafatools.vercel.app/api/bot-unified
    ```
+
+2. **Configure Multiple Groups:**
+   - Add the bot to both groups (Babiya's and Ema's)
+   - Send a message from each group
+   - Check the logs to get the chat IDs
+   - Update `api/bot-unified.js` with the chat IDs
 
 3. **Test in Telegram:**
-   - Send `/start`
-   - Send `/balance`
+   - From Babiya's group: Send `/start` or `/balance`
+   - From Ema's group: Send `/start` or `/balance`
+
+## 📝 Adding Ema's Chat ID
+
+To add Ema's chat ID:
+1. Add the bot to Ema's Telegram group
+2. Send a message like `/start` from that group
+3. Check Vercel logs to see the chat ID (it will appear in the logs)
+4. Edit `api/bot-unified.js` and uncomment/update Ema's configuration:
+   ```javascript
+   'EMA_CHAT_ID_HERE': {
+     name: 'Ema',
+     adAccountId: 'act_2976599279147919'
+   }
+   ```
+5. Redeploy to Vercel
 
 ## ✅ That's It!
 
-Your pages and bot will work on Vercel!
+Your unified bot will work with multiple groups!
 

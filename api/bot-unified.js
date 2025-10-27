@@ -12,15 +12,22 @@ const facebookAccessToken =
   'EAATGRDWf4ZBgBPeBjRKJVq0bDQHq03IO5utySt6JCgm6P7wQw0vqhlc2S5aqZCMLwWFB2GzZAPwZB4OsAQOFzZCAKyJt0NPLq1GPXKuQ5Uv9WmqYofZCntjRhDKb3qLE6edAkGVt2UFcv4zwV3DoXwbMygXZBqGG2VfEcXKevOoZB8On8w7wa4xz8xn71uwtgnDeSXZAgrzS4RXIphnFD';
 
 // --- Customer Configuration ---
+// To add a new customer:
+// 1. Add the bot to their Telegram group
+// 2. Send a message to the bot from that group
+// 3. Check the logs to see the chat ID that appears
+// 4. Add the chat ID and their ad account details below
+
 const CUSTOMERS = {
-  // Babiya's Chat ID
+  // Babiya's Chat ID (already configured)
   '-1002884568379': {
     name: 'Babiya',
     adAccountId: 'act_243431363942629',
   },
-  // Add Ema's Chat ID here when you know it
-  // Replace 'EMA_CHAT_ID_HERE' with Ema's actual Telegram Chat ID
-  // Example: '-1001234567890': {
+  // Ema's Chat ID - TO BE CONFIGURED
+  // TODO: Get Ema's chat ID by having her send a message to the bot
+  // and check the logs, then uncomment and update the line below:
+  // 'EMA_CHAT_ID_HERE': {
   //   name: 'Ema',
   //   adAccountId: 'act_2976599279147919'
   // }
