@@ -1,4 +1,4 @@
-// File: api/bot.js
+// File: api/bot-unified.js - Single bot that routes based on chat ID
 
 // Import the necessary libraries
 const TelegramBot = require('node-telegram-bot-api');
@@ -11,7 +11,21 @@ const telegramBotToken =
 const facebookAccessToken =
   process.env.FACEBOOK_ACCESS_TOKEN ||
   'EAATGRDWf4ZBgBPeBjRKJVq0bDQHq03IO5utySt6JCgm6P7wQw0vqhlc2S5aqZCMLwWFB2GzZAPwZB4OsAQOFzZCAKyJt0NPLq1GPXKuQ5Uv9WmqYofZCntjRhDKb3qLE6edAkGVt2UFcv4zwV3DoXwbMygXZBqGG2VfEcXKevOoZB8On8w7wa4xz8xn71uwtgnDeSXZAgrzS4RXIphnFD';
-const adAccountId = 'act_243431363942629';
+
+// --- Customer Configuration ---
+const CUSTOMERS = {
+  // Babiya's Chat ID
+  '-1002884568379': {
+    name: 'Babiya',
+    adAccountId: 'act_243431363942629',
+  },
+  // Add Ema's Chat ID here when you know it
+  // Replace 'EMA_CHAT_ID_HERE' with Ema's actual Telegram Chat ID
+  // Example: '-1001234567890': {
+  //   name: 'Ema',
+  //   adAccountId: 'act_2976599279147919'
+  // }
+};
 
 // Initialize the Telegram Bot
 let bot;
@@ -24,10 +38,12 @@ try {
 }
 
 /**
- * Fetches data from the Facebook Graph API.
+ * Fetches data from the Facebook Graph API for a specific ad account.
  */
-async function fetchAccountDetails() {
-  console.log('Attempting to fetch Facebook account details...');
+async function fetchAccountDetails(adAccountId) {
+  console.log(
+    `Attempting to fetch Facebook account details for: ${adAccountId}`
+  );
   if (!facebookAccessToken) {
     console.error('Facebook Access Token is missing!');
     throw new Error('Facebook Access Token is not configured.');
@@ -38,7 +54,7 @@ async function fetchAccountDetails() {
 
   try {
     const response = await axios.get(url);
-    console.log('Successfully fetched details from Facebook.');
+    console.log(`Successfully fetched details for account: ${adAccountId}`);
     return response.data;
   } catch (error) {
     const errorMessage = error.response
@@ -53,21 +69,18 @@ async function fetchAccountDetails() {
 
 // --- Vercel Serverless Function ---
 module.exports = async (req, res) => {
-  console.log('--- Vercel Function Started ---');
+  console.log('--- Unified Bot Function Started ---');
   console.log('Request method:', req.method);
-  console.log('Request URL:', req.url);
 
   if (!bot) {
-    console.error(
-      'FATAL: Bot not initialized. Telegram Token is likely missing.'
-    );
+    console.error('FATAL: Bot not initialized.');
     return res.status(500).json({ error: 'Bot not initialized' });
   }
 
   try {
     // Handle webhook verification from Telegram
     if (req.method === 'GET') {
-      return res.status(200).send('Telegram Bot Webhook Endpoint');
+      return res.status(200).send('Unified Telegram Bot Webhook Endpoint');
     }
 
     const message = req.body?.message;
@@ -77,26 +90,40 @@ module.exports = async (req, res) => {
       const text = message.text;
       console.log(`Received message from chat ID ${chatId}: "${text}"`);
 
-      if (text === '/start') {
-        console.log('Processing /start command.');
+      // Check if this chat ID belongs to a known customer
+      const customer = CUSTOMERS[chatId.toString()];
+
+      if (!customer) {
+        console.log(`Unknown chat ID: ${chatId}. Ignoring message.`);
         await bot.sendMessage(
           chatId,
-          "I'm alive! Send /balance to get your ad account details."
+          "⚠️ Sorry, you're not authorized to use this bot."
+        );
+        return res.status(200).json({ status: 'OK' });
+      }
+
+      if (text === '/start') {
+        console.log(`Processing /start command for ${customer.name}.`);
+        await bot.sendMessage(
+          chatId,
+          `Hi ${customer.name}! I'm alive! Send /balance to get your ad account details.`
         );
       } else if (text === '/balance') {
-        console.log('Processing /balance command.');
+        console.log(`Processing /balance command for ${customer.name}.`);
         await bot.sendMessage(
           chatId,
           'Hold on, fetching your ad account balance... ⏳'
         );
 
         try {
-          const accountDetails = await fetchAccountDetails();
+          const accountDetails = await fetchAccountDetails(
+            customer.adAccountId
+          );
           const formattedBalance = (
             parseFloat(accountDetails.balance) / 100
           ).toFixed(2);
           const replyMessage = `
-✅ **Ad Account Details** ✅
+✅ **${customer.name}'s Ad Account Details** ✅
 
 **Account Name:** ${accountDetails.name}
 **Current Balance:** ${formattedBalance} ${accountDetails.currency}
@@ -104,19 +131,22 @@ module.exports = async (req, res) => {
           await bot.sendMessage(chatId, replyMessage, {
             parse_mode: 'Markdown',
           });
-          console.log('Successfully sent balance details.');
+          console.log(`Successfully sent balance details to ${customer.name}.`);
         } catch (error) {
-          console.error('Error in /balance handler:', error.message);
+          console.error(
+            `Error in /balance handler for ${customer.name}:`,
+            error.message
+          );
           await bot.sendMessage(
             chatId,
             `❌ Oops! Something went wrong.\n\n**Error:** ${error.message}`
           );
         }
       } else {
-        console.log('Processing default message.');
+        console.log(`Processing default message for ${customer.name}.`);
         await bot.sendMessage(
           chatId,
-          "Hi! I'm your Ad Balance Bot. Send /balance to get the latest update."
+          `Hi ${customer.name}! I'm your Ad Balance Bot. Send /balance to get the latest update.`
         );
       }
     } else {
@@ -126,6 +156,6 @@ module.exports = async (req, res) => {
     console.error('A critical error occurred in the main handler:', error);
   }
 
-  console.log('--- Vercel Function Finished ---');
+  console.log('--- Unified Bot Function Finished ---');
   res.status(200).json({ status: 'OK' });
 };

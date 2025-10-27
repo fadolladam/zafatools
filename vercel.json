@@ -14,12 +14,40 @@
     {
       "source": "/api/cron",
       "destination": "/api/cron.js"
+    },
+    {
+      "source": "/api/bot-unified",
+      "destination": "/api/bot-unified.js"
+    },
+    {
+      "source": "/api/bot-babiya",
+      "destination": "/api/bot-babiya.js"
+    },
+    {
+      "source": "/api/bot-ema",
+      "destination": "/api/bot-ema.js"
+    },
+    {
+      "source": "/api/cron-babiya",
+      "destination": "/api/cron-babiya.js"
+    },
+    {
+      "source": "/api/cron-ema",
+      "destination": "/api/cron-ema.js"
     }
   ],
   "crons": [
     {
       "path": "/api/cron",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron-babiya",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron-ema",
+      "schedule": "0 9 * * *"
     }
   ]
 }
