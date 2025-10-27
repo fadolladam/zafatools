@@ -1,0 +1,17 @@
+{
+  "name": "zafatools",
+  "version": "1.0.0",
+  "description": "Facebook Ad Account Balance Viewer with Telegram Bot",
+  "main": "index.html",
+  "scripts": {
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "node-telegram-bot-api": "^0.64.0",
+    "axios": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=14.x"
+  }
+}
+
