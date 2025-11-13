@@ -38,6 +38,19 @@ const ADS_DATE_PRESETS = {
   maximum: 'lifetime',
 };
 
+const MESSAGING_ACTION_TYPES = new Set([
+  'messaging_conversation_started_7d',
+  'onsite_messaging_conversation_started_7d',
+  'leadgen_messaging_conversation_started_7d',
+]);
+
+const PRESET_LABELS = {
+  today: 'Today',
+  yesterday: 'Yesterday',
+  '7day': 'Last 7 days',
+  maximum: 'Lifetime',
+};
+
 // Initialize the Telegram Bot
 let bot;
 try {
