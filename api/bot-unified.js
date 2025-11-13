@@ -240,12 +240,21 @@ module.exports = async (req, res) => {
         return res.status(200).json({ status: 'OK' });
       }
 
+      const commandHelpMessage = `Hi ${customer.name}! 👋
+
+Here are the commands you can use:
+
+• /balance — Show the current ad-account balance
+• /ads today — Active ads for today
+• /ads yesterday — Active ads for yesterday
+• /ads 7day — Active ads for the last 7 days
+• /ads maximum — Active ads for lifetime
+
+Need something else? Let me know!`;
+
       if (text === '/start') {
         console.log(`Processing /start command for ${customer.name}.`);
-        await bot.sendMessage(
-          chatId,
-          `Hi ${customer.name}! I'm alive! Send /balance to get your ad account details.`
-        );
+        await bot.sendMessage(chatId, commandHelpMessage);
       } else if (text === '/balance') {
         console.log(`Processing /balance command for ${customer.name}.`);
         await bot.sendMessage(
@@ -309,10 +318,7 @@ module.exports = async (req, res) => {
         }
       } else {
         console.log(`Processing default message for ${customer.name}.`);
-        await bot.sendMessage(
-          chatId,
-          `Hi ${customer.name}! I'm your Ad Balance Bot. Send /balance to get the latest update.`
-        );
+        await bot.sendMessage(chatId, commandHelpMessage);
       }
     } else {
       console.log('Received a request without a message body, ignoring.');
