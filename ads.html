@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unified Ads Snapshot</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(180deg, #0f172a 0%, #1f2937 40%, #111827 100%);
+      min-height: 100vh;
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      box-shadow: 0 20px 45px -30px rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(18px);
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border-radius: 9999px;
+      padding: 0.35rem 0.9rem;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .chip.active {
+      background-color: rgba(59, 130, 246, 0.18);
+      border-color: rgba(96, 165, 250, 0.35);
+      color: #93c5fd;
+      box-shadow: 0 8px 20px -12px rgba(59, 130, 246, 0.8);
+    }
+    .chip:hover {
+      border-color: rgba(96, 165, 250, 0.3);
+      color: #bfdbfe;
+    }
+    .table-container::-webkit-scrollbar {
+      height: 8px;
+    }
+    .table-container::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.4);
+      border-radius: 999px;
+    }
+  </style>
+</head>
+<body class="text-slate-100">
+  <div id="notification-container" class="fixed top-6 right-6 z-50 space-y-3"></div>
+
+  <header class="max-w-5xl mx-auto px-6 pt-14 pb-10 text-center">
+    <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium tracking-wide uppercase bg-sky-500/10 text-sky-200 border border-sky-400/30">
+      Unified Bot · Ads Manager
+    </span>
+    <h1 class="mt-6 text-4xl sm:text-5xl font-bold leading-tight text-slate-50">
+      Active Facebook Ads at a Glance
+    </h1>
+    <p class="mt-4 text-slate-300 max-w-3xl mx-auto">
+      Review the campaigns that are live right now, focus on the metrics that matter, and forward a curated snapshot straight into Telegram with one click.
+    </p>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 pb-20 space-y-8">
+    <section class="glass-card rounded-2xl p-8 space-y-6">
+      <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-semibold text-slate-100">Connections</h2>
+          <p class="text-sm text-slate-400">Credentials are pulled automatically from the Unified Bot service.</p>
+        </div>
+        <button id="refreshConfigBtn"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-600/60 bg-slate-900/60 text-sm font-medium hover:bg-slate-800/80 transition">
+          Refresh Config
+        </button>
+      </header>
+
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div class="space-y-3">
+          <h3 class="text-xs tracking-wide uppercase text-slate-400">Facebook</h3>
+          <div class="rounded-xl border border-slate-700/60 bg-slate-900/60 px-4 py-3 space-y-2">
+            <p class="text-sm text-slate-200">Token Status:
+              <span id="facebookTokenStatus" class="font-semibold text-slate-300">Waiting for config…</span>
+            </p>
+            <p class="text-xs text-slate-400">Loaded from <code class="bg-slate-800/80 px-2 py-0.5 rounded">bot-unified.js</code></p>
+            <p class="text-xs text-slate-500">Active Ad Account:
+              <span id="facebookAccountSummary" class="text-slate-300">Not selected</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <h3 class="text-xs tracking-wide uppercase text-slate-400">Telegram</h3>
+          <div class="rounded-xl border border-slate-700/60 bg-slate-900/60 px-4 py-3 space-y-2">
+            <p class="text-sm text-slate-200">Bot Status:
+              <span id="telegramTokenStatus" class="font-semibold text-slate-300">Waiting for config…</span>
+            </p>
+            <p class="text-xs text-slate-400">Telegram Chat:
+              <span id="telegramChatSummary" class="text-slate-300">Not selected</span>
+            </p>
+          </div>
+
+            <label class="block text-sm font-medium text-slate-200 pt-2">Linked Customer</label>
+            <select id="customerSelect"
+              class="w-full rounded-xl bg-slate-900/60 border border-slate-700/60 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400">
+              <option value="">No customers available</option>
+            </select>
+            <p class="text-xs text-slate-500">Customer selection sets both the Telegram chat and preferred ad account.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="glass-card rounded-2xl p-8 space-y-6">
+      <header class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h2 class="text-xl font-semibold text-slate-100">Filter</h2>
+          <p class="text-sm text-slate-400">Only ads with effective status <span class="font-semibold text-slate-200">ACTIVE</span> are shown.</p>
+        </div>
+      </header>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="space-y-3">
+          <label class="block text-sm font-medium text-slate-200">Ad Account</label>
+          <select id="adAccountSelect"
+            class="w-full rounded-xl bg-slate-900/60 border border-slate-700/60 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
+            <option value="">Connect your Facebook token first</option>
+          </select>
+        </div>
+        <div class="space-y-3">
+          <label class="block text-sm font-medium text-slate-200">Date Range</label>
+          <div class="flex flex-wrap gap-2">
+            <button class="chip active" data-range="today">Today</button>
+            <button class="chip" data-range="yesterday">Yesterday</button>
+            <button class="chip" data-range="last_7_days">Last 7 Days</button>
+            <button class="chip" data-range="lifetime">Maximum</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3 pt-2">
+        <button id="fetchAdsBtn"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-slate-900">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h2a1 1 0 011 1v1h10V4a1 1 0 011-1h2a1 1 0 011 1v1h1a1 1 0 011 1v3a1 1 0 01-1 1h-1v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9H2a1 1 0 01-1-1V6a1 1 0 011-1h1V4z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 13a4 4 0 11-8 0" />
+          </svg>
+          Refresh Ads
+        </button>
+        <div class="text-xs text-slate-400" id="lastUpdatedLabel">No data loaded yet.</div>
+      </div>
+    </section>
+
+    <section class="glass-card rounded-2xl p-6 space-y-4">
+      <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-semibold text-slate-100">Active Ads</h2>
+          <p class="text-xs text-slate-400">Metrics are returned directly from the Facebook Graph API at the chosen date preset.</p>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button id="selectAllAdsBtn"
+            class="px-4 py-2 text-xs font-medium rounded-xl border border-slate-600/60 bg-slate-900/60 hover:bg-slate-800/80 transition">
+            Select All
+          </button>
+          <button id="sendTelegramBtn"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/90 hover:bg-amber-400 text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-400 focus:ring-offset-slate-900 disabled:opacity-40 disabled:cursor-not-allowed">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2.94 2.94a1.5 1.5 0 012.12 0L10 7.879l4.94-4.94a1.5 1.5 0 112.12 2.122L12.12 10l4.94 4.94a1.5 1.5 0 01-2.12 2.12L10 12.121l-4.94 4.94a1.5 1.5 0 11-2.12-2.121L7.879 10l-4.94-4.94a1.5 1.5 0 010-2.12z" />
+            </svg>
+            Send Selected to Telegram
+          </button>
+        </div>
+      </header>
+
+      <div id="adsEmptyState" class="rounded-xl border border-dashed border-slate-600/60 bg-slate-900/40 p-10 text-center text-sm text-slate-400">
+        Load an account to see its active ads.
+      </div>
+
+      <div id="adsTableWrapper" class="hidden table-container overflow-x-auto rounded-xl border border-slate-700/60 bg-slate-900/40">
+        <table class="min-w-full text-left text-xs md:text-sm">
+          <thead class="text-slate-300/80 uppercase tracking-wide text-[0.7rem]">
+            <tr class="border-b border-slate-700/70 bg-slate-900/70">
+              <th class="px-4 py-3 w-10">
+                <span class="sr-only">Select</span>
+              </th>
+              <th class="px-4 py-3">Ad</th>
+              <th class="px-4 py-3">Campaign · Ad Set</th>
+              <th class="px-4 py-3">Impressions</th>
+              <th class="px-4 py-3">Clicks</th>
+              <th class="px-4 py-3">Results</th>
+              <th class="px-4 py-3">Spend</th>
+            </tr>
+          </thead>
+          <tbody id="adsTableBody" class="divide-y divide-slate-800/80 text-slate-200/90">
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <template id="adsRowTemplate">
+    <tr class="hover:bg-slate-800/70 transition-colors">
+      <td class="px-4 py-4 align-top">
+        <input type="checkbox" class="ad-row-checkbox rounded border-slate-600/80 bg-slate-900/60 text-sky-400 focus:ring-sky-500" />
+      </td>
+      <td class="px-4 py-4 align-top">
+        <div class="font-medium text-slate-100 text-sm ad-name"></div>
+        <div class="text-[0.7rem] text-slate-400 ad-id"></div>
+      </td>
+      <td class="px-4 py-4 align-top">
+        <div class="text-sm text-slate-200 ad-campaign"></div>
+        <div class="text-[0.7rem] text-slate-400 ad-adset"></div>
+      </td>
+      <td class="px-4 py-4 align-top font-mono text-xs ad-impressions"></td>
+      <td class="px-4 py-4 align-top font-mono text-xs ad-clicks"></td>
+      <td class="px-4 py-4 align-top text-xs space-y-1 ad-results"></td>
+      <td class="px-4 py-4 align-top font-mono text-xs ad-spend"></td>
+    </tr>
+  </template>
+
+  <script>
+    const state = {
+      facebookToken: '',
+      telegramToken: '',
+      telegramChatId: '',
+      adAccounts: [],
+      selectedAdAccount: '',
+      selectedDateRange: 'today',
+      adsData: [],
+      accountLookup: {},
+      customers: {},
+      selectedCustomer: '',
+      pendingAdAccountSelection: ''
+    };
+
+    const datePresetMap = {
+      today: 'today',
+      yesterday: 'yesterday',
+      last_7_days: 'last_7d',
+      lifetime: 'lifetime'
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      bindEvents();
+      loadConfigFromServer();
+    });
+
+    function bindEvents() {
+      document.getElementById('refreshConfigBtn').addEventListener('click', loadConfigFromServer);
+      document.getElementById('adAccountSelect').addEventListener('change', handleAccountChange);
+      document.querySelectorAll('.chip').forEach(chip => chip.addEventListener('click', handleDatePresetClick));
+      document.getElementById('fetchAdsBtn').addEventListener('click', handleFetchAds);
+      document.getElementById('selectAllAdsBtn').addEventListener('click', toggleSelectAllAds);
+      document.getElementById('sendTelegramBtn').addEventListener('click', sendSelectedAdsToTelegram);
+      document.getElementById('customerSelect').addEventListener('change', (event) => {
+        applyCustomerSelection(event.target.value || '');
+      });
+    }
+
+    async function loadConfigFromServer() {
+      setFacebookStatus('Loading configuration…');
+      setTelegramStatus('Loading configuration…');
+
+      try {
+        const response = await fetch('api/bot-unified?mode=config', { cache: 'no-store' });
+        if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+        const data = await response.json();
+
+        state.facebookToken = data.facebookAccessToken || '';
+        state.telegramToken = data.telegramBotToken || '';
+
+        if (state.facebookToken) {
+          await loadAdAccounts();
+        } else {
+          setFacebookStatus('Missing access token');
+        }
+
+        if (data.customers && typeof data.customers === 'object') {
+          state.customers = data.customers;
+          populateCustomerSelect();
+        } else {
+          state.customers = {};
+          populateCustomerSelect();
+        }
+
+        if (!state.telegramToken) {
+          setTelegramStatus('Missing bot token');
+        } else {
+          setTelegramStatus('Ready');
+        }
+
+        updateFacebookAccountSummary();
+        updateTelegramSummary();
+      } catch (error) {
+        console.warn('Unable to load configuration from Unified Bot:', error.message);
+        setFacebookStatus('Failed to load configuration');
+        setTelegramStatus('Failed to load configuration');
+        showNotification(`Unable to load Unified Bot config: ${error.message}`, 'error');
+      }
+    }
+
+    function populateCustomerSelect() {
+      const select = document.getElementById('customerSelect');
+      if (!select) return;
+
+      const entries = Object.entries(state.customers);
+      select.innerHTML = '';
+
+      if (entries.length === 0) {
+        select.innerHTML = '<option value="">No customers available</option>';
+        state.selectedCustomer = '';
+        state.telegramChatId = '';
+        updateTelegramSummary();
+        return;
+      }
+
+      select.innerHTML = '<option value="">Select customer</option>';
+      entries.forEach(([chatId, details]) => {
+        const option = document.createElement('option');
+        option.value = chatId;
+        option.textContent = `${details.name} (${chatId})`;
+        select.appendChild(option);
+      });
+
+      let initialChatId = '';
+      if (state.selectedCustomer && state.customers[state.selectedCustomer]) {
+        initialChatId = state.selectedCustomer;
+      } else if (state.telegramChatId && state.customers[state.telegramChatId]) {
+        initialChatId = state.telegramChatId;
+      } else {
+        initialChatId = entries[0][0];
+      }
+
+      if (initialChatId) {
+        select.value = initialChatId;
+        applyCustomerSelection(initialChatId);
+      } else {
+        updateTelegramSummary();
+      }
+    }
+
+    function applyCustomerSelection(chatId) {
+      state.selectedCustomer = chatId;
+      if (!chatId) {
+        state.telegramChatId = '';
+        setTelegramStatus(state.telegramToken ? 'Ready (select customer)' : 'Missing bot token');
+        updateTelegramSummary();
+        return;
+      }
+
+      const customer = state.customers[chatId];
+      if (!customer) {
+        state.telegramChatId = '';
+        setTelegramStatus(state.telegramToken ? 'Ready (select customer)' : 'Missing bot token');
+        updateTelegramSummary();
+        return;
+      }
+
+      state.telegramChatId = chatId;
+      setTelegramStatus(`Ready · ${customer.name || chatId}`);
+      updateTelegramSummary(customer.name, chatId);
+
+      const select = document.getElementById('customerSelect');
+      if (select && select.value !== chatId) {
+        select.value = chatId;
+      }
+
+      if (customer.adAccountId) {
+        state.pendingAdAccountSelection = customer.adAccountId;
+        applyPendingAdAccountSelection();
+      }
+    }
+
+    async function loadAdAccounts() {
+      if (!state.facebookToken) {
+        setFacebookStatus('Missing access token');
+        return;
+      }
+
+      setFacebookStatus('Fetching ad accounts…');
+
+      try {
+        const response = await fetch(`https://graph.facebook.com/v19.0/me?fields=adaccounts{name,account_id,account_status,currency}&access_token=${state.facebookToken}`);
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message);
+
+        state.adAccounts = data.adaccounts?.data || [];
+        state.accountLookup = {};
+        state.adAccounts.forEach(acc => {
+          state.accountLookup[acc.id || acc.account_id] = acc;
+        });
+
+        populateAdAccountSelect();
+        setFacebookStatus(`Connected · ${state.adAccounts.length} ad account(s)`);
+      } catch (error) {
+        setFacebookStatus('Failed to load ad accounts');
+        showNotification(`Facebook error: ${error.message}`, 'error');
+      }
+    }
+
+    function setFacebookStatus(message) {
+      const el = document.getElementById('facebookTokenStatus');
+      if (el) el.textContent = message;
+    }
+
+    function setTelegramStatus(message) {
+      const el = document.getElementById('telegramTokenStatus');
+      if (el) el.textContent = message;
+    }
+
+    function updateFacebookAccountSummary() {
+      const summaryEl = document.getElementById('facebookAccountSummary');
+      if (!summaryEl) return;
+
+      if (!state.selectedAdAccount) {
+        summaryEl.textContent = 'Not selected';
+        return;
+      }
+
+      const account = state.accountLookup[state.selectedAdAccount];
+      if (!account) {
+        summaryEl.textContent = state.selectedAdAccount;
+        return;
+      }
+
+      const accountId = account.account_id || account.id || state.selectedAdAccount;
+      summaryEl.textContent = `${account.name} (${accountId.replace('act_', '')})`;
+    }
+
+    function updateTelegramSummary(name, chatId) {
+      const summaryEl = document.getElementById('telegramChatSummary');
+      if (!summaryEl) return;
+
+      if (!state.telegramChatId) {
+        summaryEl.textContent = 'Not selected';
+        return;
+      }
+
+      const chat = chatId || state.telegramChatId;
+      const customer = state.customers[chat] || {};
+      const displayName = name || customer.name;
+      summaryEl.textContent = displayName ? `${displayName} (${chat})` : chat;
+    }
+
+    function populateAdAccountSelect() {
+      const select = document.getElementById('adAccountSelect');
+      if (!select) return;
+
+      select.innerHTML = '';
+      if (state.adAccounts.length === 0) {
+        select.innerHTML = '<option value="">No ad accounts found for this token</option>';
+        state.selectedAdAccount = '';
+        updateFacebookAccountSummary();
+        return;
+      }
+      select.innerHTML = '<option value="">Choose an ad account</option>';
+      state.adAccounts.forEach(acc => {
+        const option = document.createElement('option');
+        const optionValue = acc.id || acc.account_id;
+        option.value = optionValue;
+        option.textContent = `${acc.name} (${acc.account_id.replace('act_', '')})`;
+        select.appendChild(option);
+      });
+
+      if (state.selectedAdAccount && select.querySelector(`option[value="${state.selectedAdAccount}"]`)) {
+        select.value = state.selectedAdAccount;
+      }
+
+      applyPendingAdAccountSelection();
+
+      if (!state.selectedAdAccount && select.value) {
+        state.selectedAdAccount = select.value;
+      }
+
+      updateFacebookAccountSummary();
+    }
+
+    function applyPendingAdAccountSelection() {
+      if (!state.pendingAdAccountSelection) return;
+      const select = document.getElementById('adAccountSelect');
+      if (!select) return;
+
+      select.value = state.pendingAdAccountSelection;
+      if (select.value !== state.pendingAdAccountSelection) {
+        // Option not yet available – keep pending for later.
+        return;
+      }
+
+      const shouldFetch = state.selectedAdAccount !== state.pendingAdAccountSelection;
+      state.selectedAdAccount = state.pendingAdAccountSelection;
+      state.pendingAdAccountSelection = '';
+
+      updateFacebookAccountSummary();
+
+      if (shouldFetch) {
+        handleFetchAds();
+      }
+    }
+
+    function handleAccountChange(event) {
+      state.selectedAdAccount = event.target.value;
+      updateFacebookAccountSummary();
+      if (state.selectedAdAccount) {
+        handleFetchAds();
+      } else {
+        clearAdsTable();
+      }
+    }
+
+    function handleDatePresetClick(event) {
+      document.querySelectorAll('.chip').forEach(chip => chip.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      state.selectedDateRange = event.currentTarget.dataset.range;
+      if (state.selectedAdAccount) {
+        handleFetchAds();
+      }
+    }
+
+    async function handleFetchAds() {
+      if (!state.selectedAdAccount) {
+        showNotification('Select an ad account first.', 'error');
+        return;
+      }
+      const fetchBtn = document.getElementById('fetchAdsBtn');
+      fetchBtn.disabled = true;
+      fetchBtn.textContent = 'Refreshing...';
+      clearAdsTable(true);
+
+      try {
+        const preset = datePresetMap[state.selectedDateRange] || 'TODAY';
+        const params = new URLSearchParams({
+          level: 'ad',
+          fields: [
+            'ad_name',
+            'ad_id',
+            'campaign_name',
+            'adset_name',
+            'impressions',
+            'clicks',
+            'spend',
+            'ctr',
+            'inline_link_clicks',
+            'actions'
+          ].join(','),
+          date_preset: preset,
+          effective_status: "['ACTIVE']",
+          limit: '200'
+        });
+
+        const url = `https://graph.facebook.com/v19.0/${state.selectedAdAccount}/insights?${params.toString()}&access_token=${state.facebookToken}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message);
+
+        state.adsData = mapInsightsToAds(data.data || []);
+        renderAdsTable();
+        updateLastUpdated();
+        showNotification(`Loaded ${state.adsData.length} active ad(s).`, 'success');
+      } catch (error) {
+        showNotification(`Unable to fetch ads: ${error.message}`, 'error');
+      } finally {
+        fetchBtn.disabled = false;
+        fetchBtn.textContent = 'Refresh Ads';
+      }
+    }
+
+    function mapInsightsToAds(insights) {
+      return insights.map(item => {
+        const spend = parseFloat(item.spend || '0');
+        const clicks = parseInt(item.clicks || '0', 10);
+        const impressions = parseInt(item.impressions || '0', 10);
+        const resultsSummary = extractResults(item.actions);
+
+        return {
+          id: item.ad_id,
+          name: item.ad_name || 'Unnamed Ad',
+          campaign: item.campaign_name || '—',
+          adset: item.adset_name || '—',
+          spend,
+          clicks,
+          impressions,
+          ctr: parseFloat(item.ctr || '0'),
+          results: resultsSummary,
+          inlineLinkClicks: parseInt(item.inline_link_clicks || '0', 10)
+        };
+      });
+    }
+
+    function extractResults(actions = []) {
+      if (!Array.isArray(actions) || actions.length === 0) return [];
+      const preferredTypes = [
+        'leads',
+        'purchase',
+        'offsite_conversion.fb_pixel_purchase',
+        'offsite_conversion.fb_pixel_lead',
+        'link_click',
+        'landing_page_view',
+        'view_content'
+      ];
+      const resultMap = {};
+      actions.forEach(action => {
+        if (!action.action_type) return;
+        if (!preferredTypes.includes(action.action_type)) return;
+        resultMap[action.action_type] = (resultMap[action.action_type] || 0) + parseFloat(action.value || '0');
+      });
+
+      return Object.keys(resultMap).map(type => ({
+        type,
+        value: resultMap[type]
+      }));
+    }
+
+    function renderAdsTable() {
+      const emptyState = document.getElementById('adsEmptyState');
+      const tableWrapper = document.getElementById('adsTableWrapper');
+      const tableBody = document.getElementById('adsTableBody');
+      const template = document.getElementById('adsRowTemplate');
+
+      if (state.adsData.length === 0) {
+        emptyState.textContent = 'No active ads found for this range.';
+        emptyState.classList.remove('hidden');
+        tableWrapper.classList.add('hidden');
+        document.getElementById('sendTelegramBtn').disabled = true;
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      tableWrapper.classList.remove('hidden');
+
+      tableBody.innerHTML = '';
+      state.adsData.forEach((ad, index) => {
+        const clone = template.content.cloneNode(true);
+        clone.querySelector('.ad-name').textContent = ad.name;
+        clone.querySelector('.ad-id').textContent = `ID: ${ad.id}`;
+        clone.querySelector('.ad-campaign').textContent = ad.campaign;
+        clone.querySelector('.ad-adset').textContent = ad.adset;
+        clone.querySelector('.ad-impressions').textContent = formatNumber(ad.impressions);
+        clone.querySelector('.ad-clicks').textContent = `${formatNumber(ad.clicks)} (${ad.ctr.toFixed(2)}% CTR)`;
+        clone.querySelector('.ad-spend').textContent = formatCurrency(ad.spend);
+        const resultsContainer = clone.querySelector('.ad-results');
+        if (ad.results.length === 0 && !ad.inlineLinkClicks) {
+          resultsContainer.innerHTML = '<span class="text-slate-500">—</span>';
+        } else {
+          ad.results.forEach(result => {
+            const pill = document.createElement('div');
+            pill.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-800/80 border border-slate-700/70';
+            pill.textContent = `${translateAction(result.type)} · ${formatNumber(result.value)}`;
+            resultsContainer.appendChild(pill);
+          });
+          if (ad.inlineLinkClicks) {
+            const pill = document.createElement('div');
+            pill.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-800/80 border border-slate-700/70';
+            pill.textContent = `Inline Clicks · ${formatNumber(ad.inlineLinkClicks)}`;
+            resultsContainer.appendChild(pill);
+          }
+        }
+
+        const checkbox = clone.querySelector('.ad-row-checkbox');
+        checkbox.dataset.adIndex = index;
+        checkbox.addEventListener('change', updateSendButtonState);
+        tableBody.appendChild(clone);
+      });
+
+      updateSendButtonState();
+    }
+
+    function clearAdsTable(showLoading = false) {
+      state.adsData = [];
+      document.getElementById('adsTableBody').innerHTML = '';
+      document.getElementById('adsTableWrapper').classList.add('hidden');
+      const emptyState = document.getElementById('adsEmptyState');
+      emptyState.textContent = showLoading ? 'Fetching active ads...' : 'Load an account to see its active ads.';
+      emptyState.classList.remove('hidden');
+      document.getElementById('sendTelegramBtn').disabled = true;
+      document.getElementById('lastUpdatedLabel').textContent = 'No data loaded yet.';
+    }
+
+    function updateLastUpdated() {
+      const now = new Date();
+      const rangeLabel = {
+        today: 'Today',
+        yesterday: 'Yesterday',
+        last_7_days: 'Last 7 days',
+        lifetime: 'Lifetime'
+      }[state.selectedDateRange] || 'Custom';
+      const accountName = state.accountLookup[state.selectedAdAccount]?.name || state.selectedAdAccount;
+      document.getElementById('lastUpdatedLabel').textContent =
+        `Showing active ads for ${accountName} (${rangeLabel}) · Updated ${now.toLocaleTimeString()}`;
+    }
+
+    function toggleSelectAllAds() {
+      const checkboxes = Array.from(document.querySelectorAll('.ad-row-checkbox'));
+      if (checkboxes.length === 0) return;
+      const shouldSelectAll = checkboxes.some(cb => !cb.checked);
+      checkboxes.forEach(cb => cb.checked = shouldSelectAll);
+      updateSendButtonState();
+    }
+
+    function updateSendButtonState() {
+      const anySelected = Array.from(document.querySelectorAll('.ad-row-checkbox')).some(cb => cb.checked);
+      document.getElementById('sendTelegramBtn').disabled = !anySelected;
+    }
+
+    function formatNumber(value) {
+      if (!value) return '0';
+      return Number(value).toLocaleString();
+    }
+
+    function formatCurrency(value) {
+      if (!value) return '$0.00';
+      const account = state.accountLookup[state.selectedAdAccount];
+      const currency = account?.currency || 'USD';
+      return `${currency} ${Number(value).toFixed(2)}`;
+    }
+
+    function translateAction(actionType) {
+      const dictionary = {
+        'leads': 'Leads',
+        'purchase': 'Purchases',
+        'offsite_conversion.fb_pixel_purchase': 'Pixel Purchases',
+        'offsite_conversion.fb_pixel_lead': 'Pixel Leads',
+        'link_click': 'Link Clicks',
+        'landing_page_view': 'Landing Views',
+        'view_content': 'View Content'
+      };
+      return dictionary[actionType] || actionType.replace(/_/g, ' ');
+    }
+
+    function getSelectedAds() {
+      const selectedIndexes = Array.from(document.querySelectorAll('.ad-row-checkbox'))
+        .filter(cb => cb.checked)
+        .map(cb => Number(cb.dataset.adIndex));
+      return selectedIndexes.map(index => state.adsData[index]);
+    }
+
+    async function sendSelectedAdsToTelegram() {
+      const telegramToken = state.telegramToken;
+      const telegramChatId = state.telegramChatId;
+
+      if (!telegramToken) {
+        showNotification('Telegram bot token is missing from Unified Bot configuration.', 'error');
+        return;
+      }
+
+      if (!telegramChatId) {
+        showNotification('Select a customer to choose the Telegram chat before sending.', 'error');
+        return;
+      }
+
+      const selectedAds = getSelectedAds();
+      if (selectedAds.length === 0) {
+        showNotification('Select at least one ad to send.', 'error');
+        return;
+      }
+
+      const accountName = state.accountLookup[state.selectedAdAccount]?.name || state.selectedAdAccount;
+      const rangeLabel = {
+        today: 'Today',
+        yesterday: 'Yesterday',
+        last_7_days: 'Last 7 days',
+        lifetime: 'Lifetime'
+      }[state.selectedDateRange] || 'Custom';
+      const customerName = state.customers[telegramChatId]?.name || '';
+
+      const messageLines = [
+        `📊 *Active Ads Snapshot*`,
+        `Account: *${accountName}*`,
+        customerName ? `Customer: *${escapeMarkdown(customerName)}*` : null,
+        `Range: *${rangeLabel}*`,
+        `Ads Selected: *${selectedAds.length}*`,
+        '',
+      ].filter(Boolean);
+
+      selectedAds.forEach((ad, idx) => {
+        messageLines.push(
+          `*${idx + 1}. ${escapeMarkdown(ad.name)}*`,
+          `Campaign · Ad Set: ${escapeMarkdown(`${ad.campaign} · ${ad.adset}`)}`,
+          `Impr: ${formatNumber(ad.impressions)} · Clicks: ${formatNumber(ad.clicks)} (${ad.ctr.toFixed(2)}%)`,
+          `Spend: ${formatCurrency(ad.spend)}`
+        );
+        if (ad.results.length) {
+          const resultText = ad.results
+            .map(result => `${translateAction(result.type)} ${formatNumber(result.value)}`)
+            .join(' · ');
+          messageLines.push(`Results: ${escapeMarkdown(resultText)}`);
+        }
+        if (ad.inlineLinkClicks) {
+          messageLines.push(`Inline Clicks: ${formatNumber(ad.inlineLinkClicks)}`);
+        }
+        messageLines.push('');
+      });
+
+      const payload = {
+        chat_id: telegramChatId,
+        text: messageLines.join('\n'),
+        parse_mode: 'Markdown'
+      };
+
+      const sendBtn = document.getElementById('sendTelegramBtn');
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'Sending...';
+      try {
+        const telegramResponse = await fetch(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const telegramData = await telegramResponse.json();
+        if (!telegramData.ok) {
+          throw new Error(telegramData.description || 'Unknown Telegram error');
+        }
+        showNotification(`Sent ${selectedAds.length} ad(s) to Telegram.`, 'success');
+      } catch (error) {
+        showNotification(`Telegram error: ${error.message}`, 'error');
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Send Selected to Telegram';
+      }
+    }
+
+    function escapeMarkdown(text = '') {
+      return text.replace(/([_*[\]()~`>#+\-=|{}.!])/g, '\\$1');
+    }
+
+    function showNotification(message, type = 'info') {
+      const container = document.getElementById('notification-container');
+      const notif = document.createElement('div');
+      const baseClasses = 'max-w-sm px-4 py-3 rounded-xl shadow-lg border border-opacity-20 text-sm transition-all duration-500 transform';
+      const palettes = {
+        success: 'bg-emerald-500/15 border-emerald-400/40 text-emerald-200 ring-1 ring-emerald-500/30 backdrop-blur',
+        error: 'bg-rose-500/15 border-rose-400/35 text-rose-200 ring-1 ring-rose-500/30 backdrop-blur',
+        info: 'bg-sky-500/15 border-sky-400/35 text-sky-200 ring-1 ring-sky-500/30 backdrop-blur'
+      };
+      notif.className = `${baseClasses} ${palettes[type] || palettes.info} opacity-0 translate-y-2`;
+      notif.textContent = message;
+      container.appendChild(notif);
+      requestAnimationFrame(() => {
+        notif.classList.remove('opacity-0', 'translate-y-2');
+      });
+      setTimeout(() => {
+        notif.classList.add('opacity-0', 'translate-y-2');
+        notif.addEventListener('transitionend', () => notif.remove(), { once: true });
+      }, 4200);
+    }
+  </script>
+</body>
+</html>
+

@@ -76,15 +76,25 @@ module.exports = async (req, res) => {
   console.log('--- Unified Bot Function Started ---');
   console.log('Request method:', req.method);
 
-  if (!bot) {
-    console.error('FATAL: Bot not initialized.');
-    return res.status(500).json({ error: 'Bot not initialized' });
-  }
-
   try {
     // Handle webhook verification from Telegram
     if (req.method === 'GET') {
+      const mode = req.query?.mode;
+      if (mode === 'config') {
+        console.log('Serving configuration payload for frontend client.');
+        return res.status(200).json({
+          telegramBotToken,
+          facebookAccessToken,
+          customers: CUSTOMERS,
+        });
+      }
+
       return res.status(200).send('Unified Telegram Bot Webhook Endpoint');
+    }
+
+    if (!bot) {
+      console.error('FATAL: Bot not initialized.');
+      return res.status(500).json({ error: 'Bot not initialized' });
     }
 
     const message = req.body?.message;
