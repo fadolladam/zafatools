@@ -185,9 +185,16 @@ function formatAdsMessage(customerName, presetLabel, ads) {
     const costText =
       ad.costPerMessaging != null ? ad.costPerMessaging.toFixed(2) : 'N/A';
 
-    lines.push(`*${index + 1}. ${escapeMarkdown(ad.adName)}*`);
-    if (ad.id) {
-      lines.push(`Link: https://facebook.com/${ad.id}`);
+    const campaignIdMatch = ad.campaignName
+      ? ad.campaignName.match(/\b\d{6,}\b/)
+      : null;
+    const campaignLinkId = campaignIdMatch ? campaignIdMatch[0] : null;
+    const linkTarget = campaignLinkId || ad.id || '';
+
+    if (linkTarget) {
+      lines.push(`${index + 1}. https://facebook.com/${linkTarget}`);
+    } else {
+      lines.push(`*${index + 1}. ${escapeMarkdown(ad.adName)}*`);
     }
     lines.push(`Campaign: ${escapeMarkdown(ad.campaignName)}`);
     lines.push(`Messaging Conversations: ${messagingText}`);
