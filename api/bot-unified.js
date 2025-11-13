@@ -32,10 +32,10 @@ const CUSTOMERS = {
 };
 
 const ADS_DATE_PRESETS = {
-  today: 'today',
-  yesterday: 'yesterday',
-  '7day': 'last_7d',
-  maximum: 'lifetime',
+  adstoday: 'today',
+  adsyesterday: 'yesterday',
+  ads7days: 'last_7d',
+  adsmaximum: 'lifetime',
 };
 
 const MESSAGING_ACTION_TYPES = new Set([
@@ -45,10 +45,10 @@ const MESSAGING_ACTION_TYPES = new Set([
 ]);
 
 const PRESET_LABELS = {
-  today: 'Today',
-  yesterday: 'Yesterday',
-  '7day': 'Last 7 days',
-  maximum: 'Lifetime',
+  adstoday: 'Today',
+  adsyesterday: 'Yesterday',
+  ads7days: 'Last 7 days',
+  adsmaximum: 'Lifetime',
 };
 
 // Initialize the Telegram Bot
@@ -91,12 +91,12 @@ async function fetchAccountDetails(adAccountId) {
   }
 }
 
-async function fetchActiveAds(adAccountId, presetKey = 'today', limit = 5) {
+async function fetchActiveAds(adAccountId, presetKey = 'adsmaximum', limit = 5) {
   if (!facebookAccessToken) {
     throw new Error('Facebook Access Token is not configured.');
   }
 
-  const datePreset = ADS_DATE_PRESETS[presetKey] || ADS_DATE_PRESETS.today;
+  const datePreset = ADS_DATE_PRESETS[presetKey] || ADS_DATE_PRESETS.adsmaximum;
   const url = `https://graph.facebook.com/v19.0/${adAccountId}/insights`;
   const params = {
     access_token: facebookAccessToken,
@@ -106,6 +106,7 @@ async function fetchActiveAds(adAccountId, presetKey = 'today', limit = 5) {
       'ad_name',
       'campaign_name',
       'spend',
+      'ad_id',
       'actions',
       'cost_per_action_type',
       'impressions',
@@ -142,6 +143,7 @@ async function fetchActiveAds(adAccountId, presetKey = 'today', limit = 5) {
         costPerMessaging: messagingCostEntry
           ? parseFloat(messagingCostEntry.value || 0)
           : null,
+        id: entry.ad_id,
       };
     });
   } catch (error) {
@@ -153,11 +155,11 @@ async function fetchActiveAds(adAccountId, presetKey = 'today', limit = 5) {
 
 function normalisePresetKey(rawPreset = '') {
   const value = rawPreset.toLowerCase();
-  if (value === 'today') return 'today';
-  if (value === 'yesterday') return 'yesterday';
-  if (['7day', '7days', 'last7', 'week', '7d'].includes(value)) return '7day';
-  if (['maximum', 'max', 'lifetime', 'all'].includes(value)) return 'maximum';
-  return 'today';
+  if (value === '/adstoday' || value === 'adstoday') return 'adstoday';
+  if (value === '/adsyesterday' || value === 'adsyesterday') return 'adsyesterday';
+  if (value === '/ads7days' || value === 'ads7days') return 'ads7days';
+  if (value === '/adsmaximum' || value === 'adsmaximum') return 'adsmaximum';
+  return 'adsmaximum';
 }
 
 function escapeMarkdown(text = '') {
@@ -184,6 +186,9 @@ function formatAdsMessage(customerName, presetLabel, ads) {
       ad.costPerMessaging != null ? ad.costPerMessaging.toFixed(2) : 'N/A';
 
     lines.push(`*${index + 1}. ${escapeMarkdown(ad.adName)}*`);
+    if (ad.id) {
+      lines.push(`Link: https://facebook.com/${ad.id}`);
+    }
     lines.push(`Campaign: ${escapeMarkdown(ad.campaignName)}`);
     lines.push(`Messaging Conversations: ${messagingText}`);
     lines.push(`Cost per Messaging Conversation: ${costText}`);
@@ -245,10 +250,10 @@ module.exports = async (req, res) => {
 Here are the commands you can use:
 
 • /balance — Show the current ad-account balance
-• /ads today — Active ads for today
-• /ads yesterday — Active ads for yesterday
-• /ads 7day — Active ads for the last 7 days
-• /ads maximum — Active ads for lifetime
+• /adstoday — Active ads for today
+• /adsyesterday — Active ads for yesterday
+• /ads7days — Active ads for the last 7 days
+• /adsmaximum — Active ads for lifetime
 
 Need something else? Let me know!`;
 
@@ -292,9 +297,7 @@ Need something else? Let me know!`;
       } else if (text.startsWith('/ads')) {
         console.log(`Processing /ads command for ${customer.name}: "${text}"`);
 
-        const parts = text.trim().split(/\s+/);
-        const requestedPreset = parts[1] || 'today';
-        const presetKey = normalisePresetKey(requestedPreset);
+        const presetKey = normalisePresetKey(text.trim());
         const presetLabel = PRESET_LABELS[presetKey] || PRESET_LABELS.today;
 
         await bot.sendMessage(
