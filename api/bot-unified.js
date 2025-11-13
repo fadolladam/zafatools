@@ -31,6 +31,13 @@ const CUSTOMERS = {
   }
 };
 
+const ADS_DATE_PRESETS = {
+  today: 'today',
+  yesterday: 'yesterday',
+  '7day': 'last_7d',
+  maximum: 'lifetime',
+};
+
 // Initialize the Telegram Bot
 let bot;
 try {
@@ -69,6 +76,110 @@ async function fetchAccountDetails(adAccountId) {
       'Failed to fetch details from Facebook. The token might be invalid or expired.'
     );
   }
+}
+
+async function fetchActiveAds(adAccountId, presetKey = 'today', limit = 5) {
+  if (!facebookAccessToken) {
+    throw new Error('Facebook Access Token is not configured.');
+  }
+
+  const datePreset = ADS_DATE_PRESETS[presetKey] || ADS_DATE_PRESETS.today;
+  const url = `https://graph.facebook.com/v19.0/${adAccountId}/insights`;
+  const params = {
+    access_token: facebookAccessToken,
+    level: 'ad',
+    date_preset: datePreset,
+    fields: [
+      'ad_name',
+      'campaign_name',
+      'spend',
+      'actions',
+      'cost_per_action_type',
+      'impressions',
+      'clicks',
+    ].join(','),
+    effective_status: '["ACTIVE"]',
+    limit,
+  };
+
+  try {
+    const response = await axios.get(url, { params });
+    const records = response.data?.data || [];
+
+    return records.map((entry) => {
+      const actions = entry.actions || [];
+      const costPer = entry.cost_per_action_type || [];
+
+      let messagingResults = 0;
+      actions.forEach((action) => {
+        if (action.action_type && MESSAGING_ACTION_TYPES.has(action.action_type)) {
+          messagingResults += parseFloat(action.value || 0);
+        }
+      });
+
+      const messagingCostEntry = costPer.find(
+        (action) => action.action_type && MESSAGING_ACTION_TYPES.has(action.action_type)
+      );
+
+      return {
+        adName: entry.ad_name || 'Unnamed Ad',
+        campaignName: entry.campaign_name || '—',
+        spend: parseFloat(entry.spend || 0),
+        messagingResults,
+        costPerMessaging: messagingCostEntry
+          ? parseFloat(messagingCostEntry.value || 0)
+          : null,
+      };
+    });
+  } catch (error) {
+    const errorMessage =
+      error.response?.data?.error?.message || error.message || 'Unknown error';
+    throw new Error(errorMessage);
+  }
+}
+
+function normalisePresetKey(rawPreset = '') {
+  const value = rawPreset.toLowerCase();
+  if (value === 'today') return 'today';
+  if (value === 'yesterday') return 'yesterday';
+  if (['7day', '7days', 'last7', 'week', '7d'].includes(value)) return '7day';
+  if (['maximum', 'max', 'lifetime', 'all'].includes(value)) return 'maximum';
+  return 'today';
+}
+
+function escapeMarkdown(text = '') {
+  return String(text).replace(/([_*[\]()~`>#+\-=|{}.!])/g, '\\$1');
+}
+
+function formatAdsMessage(customerName, presetLabel, ads) {
+  if (!ads.length) {
+    return `⚠️ No active ads found for *${escapeMarkdown(customerName)}* (${escapeMarkdown(
+      presetLabel
+    )}).`;
+  }
+
+  const lines = [
+    `📊 *${escapeMarkdown(customerName)} — Active Ads (${escapeMarkdown(presetLabel)})*`,
+    '',
+  ];
+
+  ads.forEach((ad, index) => {
+    const spendText = ad.spend != null ? ad.spend.toFixed(2) : '0.00';
+    const messagingText =
+      ad.messagingResults != null ? ad.messagingResults.toFixed(0) : '0';
+    const costText =
+      ad.costPerMessaging != null ? ad.costPerMessaging.toFixed(2) : 'N/A';
+
+    lines.push(`*${index + 1}. ${escapeMarkdown(ad.adName)}*`);
+    lines.push(`Campaign: ${escapeMarkdown(ad.campaignName)}`);
+    lines.push(`Messaging Conversations: ${messagingText}`);
+    lines.push(`Cost per Messaging Conversation: ${costText}`);
+    lines.push(`Amount Spent: ${spendText}`);
+    lines.push('');
+  });
+
+  lines.push('_Messaging metrics include supported conversation action types._');
+  return lines.join('\n');
 }
 
 // --- Vercel Serverless Function ---
@@ -154,6 +265,33 @@ module.exports = async (req, res) => {
           await bot.sendMessage(
             chatId,
             `❌ Oops! Something went wrong.\n\n**Error:** ${error.message}`
+          );
+        }
+      } else if (text.startsWith('/ads')) {
+        console.log(`Processing /ads command for ${customer.name}: "${text}"`);
+
+        const parts = text.trim().split(/\s+/);
+        const requestedPreset = parts[1] || 'today';
+        const presetKey = normalisePresetKey(requestedPreset);
+        const presetLabel = PRESET_LABELS[presetKey] || PRESET_LABELS.today;
+
+        await bot.sendMessage(
+          chatId,
+          `Fetching active ads for ${presetLabel}... ⏳`
+        );
+
+        try {
+          const ads = await fetchActiveAds(customer.adAccountId, presetKey);
+          const replyMessage = formatAdsMessage(customer.name, presetLabel, ads);
+          await bot.sendMessage(chatId, replyMessage, { parse_mode: 'Markdown' });
+        } catch (error) {
+          console.error(
+            `Error in /ads handler for ${customer.name}:`,
+            error.message
+          );
+          await bot.sendMessage(
+            chatId,
+            `❌ Failed to fetch ads.\n\n**Error:** ${error.message}`
           );
         }
       } else {
