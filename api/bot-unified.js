@@ -1,5 +1,4 @@
 // File: api/bot-unified.js - Single bot that routes based on chat ID
-// Import the necessary libraries
 const TelegramBot = require('node-telegram-bot-api');
 const axios = require('axios');
 
@@ -29,35 +28,6 @@ const CUSTOMERS = {
     name: 'Ema',
     adAccountId: 'act_2976599279147919'
   }
-};
-
-const ADS_DATE_PRESETS = {
-  adstoday: 'today',
-  adsyesterday: 'yesterday',
-  ads7days: 'last_7d',
-  adsmaximum: 'lifetime',
-};
-
-const MESSAGING_ACTION_TYPES = new Set([
-  'messaging_conversation_started_7d',
-  'onsite_messaging_conversation_started_7d',
-  'leadgen_messaging_conversation_started_7d',
-  'messaging_conversation_started',
-  'onsite_messaging_conversation_started',
-  'leadgen_messaging_conversation_started',
-  'onsite_conversion.messaging_conversation_started_7d',
-  'onsite_conversion.messaging_conversation_started',
-  'onsite_conversion.messaging_first_reply',
-  'onsite_conversion.messaging_first_reply_converted_7d',
-  'onsite_conversion.messaging_first_reply_converted',
-  'onsite_conversion.messaging_reply',
-]);
-
-const PRESET_LABELS = {
-  adstoday: 'Today',
-  adsyesterday: 'Yesterday',
-  ads7days: 'Last 7 days',
-  adsmaximum: 'Lifetime',
 };
 
 // Initialize the Telegram Bot
@@ -100,146 +70,20 @@ async function fetchAccountDetails(adAccountId) {
   }
 }
 
-async function fetchActiveAds(adAccountId, presetKey = 'adsmaximum', limit = 5) {
-  if (!facebookAccessToken) {
-    throw new Error('Facebook Access Token is not configured.');
-  }
-
-  const datePreset = ADS_DATE_PRESETS[presetKey] || ADS_DATE_PRESETS.adsmaximum;
-  const url = `https://graph.facebook.com/v19.0/${adAccountId}/insights`;
-  const params = {
-    access_token: facebookAccessToken,
-    level: 'ad',
-    date_preset: datePreset,
-    fields: [
-      'ad_name',
-      'campaign_name',
-      'spend',
-      'ad_id',
-      'actions',
-      'cost_per_action_type',
-      'impressions',
-      'clicks',
-    ].join(','),
-    effective_status: '["ACTIVE"]',
-    limit,
-  };
-
-  try {
-    const response = await axios.get(url, { params });
-    const records = response.data?.data || [];
-
-    return records.map((entry) => {
-      const actions = entry.actions || [];
-      const costPer = entry.cost_per_action_type || [];
-
-      let messagingResults = 0;
-      actions.forEach((action) => {
-        if (action.action_type && MESSAGING_ACTION_TYPES.has(action.action_type)) {
-          messagingResults += parseFloat(action.value || 0);
-        }
-      });
-
-      const messagingCostEntry = costPer.find(
-        (action) => action.action_type && MESSAGING_ACTION_TYPES.has(action.action_type)
-      );
-
-      return {
-        adName: entry.ad_name || 'Unnamed Ad',
-        campaignName: entry.campaign_name || '—',
-        spend: parseFloat(entry.spend || 0),
-        messagingResults,
-        costPerMessaging: messagingCostEntry
-          ? parseFloat(messagingCostEntry.value || 0)
-          : null,
-        id: entry.ad_id,
-      };
-    });
-  } catch (error) {
-    const errorMessage =
-      error.response?.data?.error?.message || error.message || 'Unknown error';
-    throw new Error(errorMessage);
-  }
-}
-
-function normalisePresetKey(rawPreset = '') {
-  const value = rawPreset.toLowerCase();
-  if (value === '/adstoday' || value === 'adstoday') return 'adstoday';
-  if (value === '/adsyesterday' || value === 'adsyesterday') return 'adsyesterday';
-  if (value === '/ads7days' || value === 'ads7days') return 'ads7days';
-  if (value === '/adsmaximum' || value === 'adsmaximum') return 'adsmaximum';
-  return 'adsmaximum';
-}
-
-function escapeMarkdown(text = '') {
-  return String(text).replace(/([_*[\]()~`>#+\-=|{}.!])/g, '\\$1');
-}
-
-function formatAdsMessage(customerName, presetLabel, ads) {
-  if (!ads.length) {
-    return `⚠️ No active ads found for *${escapeMarkdown(customerName)}* (${escapeMarkdown(
-      presetLabel
-    )}).`;
-  }
-
-  const lines = [
-    `📊 *${escapeMarkdown(customerName)} — Active Ads (${escapeMarkdown(presetLabel)})*`,
-    '',
-  ];
-
-  ads.forEach((ad, index) => {
-    const spendText = ad.spend != null ? ad.spend.toFixed(2) : '0.00';
-    const messagingText =
-      ad.messagingResults != null ? ad.messagingResults.toFixed(0) : '0';
-    const costText =
-      ad.costPerMessaging != null ? ad.costPerMessaging.toFixed(2) : 'N/A';
-
-    const campaignIdMatch = ad.campaignName
-      ? ad.campaignName.match(/\b\d{6,}\b/)
-      : null;
-    const campaignLinkId = campaignIdMatch ? campaignIdMatch[0] : null;
-    const linkTarget = campaignLinkId || ad.id || '';
-
-    if (linkTarget) {
-      lines.push(`${index + 1}. https://facebook.com/${linkTarget}`);
-    } else {
-      lines.push(`*${index + 1}. ${escapeMarkdown(ad.adName)}*`);
-    }
-    lines.push(`Campaign: ${escapeMarkdown(ad.campaignName)}`);
-    lines.push(`Messaging Conversations: ${messagingText}`);
-    lines.push(`Cost per Messaging Conversation: ${costText}`);
-    lines.push(`Amount Spent: ${spendText}`);
-    lines.push('');
-  });
-
-  lines.push('_Messaging metrics include supported conversation action types._');
-  return lines.join('\n');
-}
-
 // --- Vercel Serverless Function ---
 module.exports = async (req, res) => {
   console.log('--- Unified Bot Function Started ---');
   console.log('Request method:', req.method);
 
+  if (!bot) {
+    console.error('FATAL: Bot not initialized.');
+    return res.status(500).json({ error: 'Bot not initialized' });
+  }
+
   try {
     // Handle webhook verification from Telegram
     if (req.method === 'GET') {
-      const mode = req.query?.mode;
-      if (mode === 'config') {
-        console.log('Serving configuration payload for frontend client.');
-        return res.status(200).json({
-          telegramBotToken,
-          facebookAccessToken,
-          customers: CUSTOMERS,
-        });
-      }
-
       return res.status(200).send('Unified Telegram Bot Webhook Endpoint');
-    }
-
-    if (!bot) {
-      console.error('FATAL: Bot not initialized.');
-      return res.status(500).json({ error: 'Bot not initialized' });
     }
 
     const message = req.body?.message;
@@ -261,21 +105,12 @@ module.exports = async (req, res) => {
         return res.status(200).json({ status: 'OK' });
       }
 
-      const commandHelpMessage = `Hi ${customer.name}! 👋
-
-Here are the commands you can use:
-
-• /balance — Show the current ad-account balance
-• /adstoday — Active ads for today
-• /adsyesterday — Active ads for yesterday
-• /ads7days — Active ads for the last 7 days
-• /adsmaximum — Active ads for lifetime
-
-Need something else? Let me know!`;
-
       if (text === '/start') {
         console.log(`Processing /start command for ${customer.name}.`);
-        await bot.sendMessage(chatId, commandHelpMessage);
+        await bot.sendMessage(
+          chatId,
+          `Hi ${customer.name}! I'm alive! Send /balance to get your ad account details.`
+        );
       } else if (text === '/balance') {
         console.log(`Processing /balance command for ${customer.name}.`);
         await bot.sendMessage(
@@ -310,34 +145,12 @@ Need something else? Let me know!`;
             `❌ Oops! Something went wrong.\n\n**Error:** ${error.message}`
           );
         }
-      } else if (text.startsWith('/ads')) {
-        console.log(`Processing /ads command for ${customer.name}: "${text}"`);
-
-        const presetKey = normalisePresetKey(text.trim());
-        const presetLabel = PRESET_LABELS[presetKey] || PRESET_LABELS.today;
-
-        await bot.sendMessage(
-          chatId,
-          `Fetching active ads for ${presetLabel}... ⏳`
-        );
-
-        try {
-          const ads = await fetchActiveAds(customer.adAccountId, presetKey);
-          const replyMessage = formatAdsMessage(customer.name, presetLabel, ads);
-          await bot.sendMessage(chatId, replyMessage, { parse_mode: 'Markdown' });
-        } catch (error) {
-          console.error(
-            `Error in /ads handler for ${customer.name}:`,
-            error.message
-          );
-          await bot.sendMessage(
-            chatId,
-            `❌ Failed to fetch ads.\n\n**Error:** ${error.message}`
-          );
-        }
       } else {
         console.log(`Processing default message for ${customer.name}.`);
-        await bot.sendMessage(chatId, commandHelpMessage);
+        await bot.sendMessage(
+          chatId,
+          `Hi ${customer.name}! I'm your Ad Balance Bot. Send /balance to get the latest update.`
+        );
       }
     } else {
       console.log('Received a request without a message body, ignoring.');
