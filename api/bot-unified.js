@@ -120,7 +120,6 @@ async function fetchActiveAds(adAccountId, presetKey = 'adsmaximum', limit = 5) 
       'cost_per_action_type',
       'impressions',
       'clicks',
-      'effective_status',
     ].join(','),
     effective_status: '["ACTIVE"]',
     limit,
@@ -130,9 +129,7 @@ async function fetchActiveAds(adAccountId, presetKey = 'adsmaximum', limit = 5) 
     const response = await axios.get(url, { params });
     const records = response.data?.data || [];
 
-    return records
-      .filter((entry) => entry.effective_status === 'ACTIVE')
-      .map((entry) => {
+    return records.map((entry) => {
       const actions = entry.actions || [];
       const costPer = entry.cost_per_action_type || [];
 
@@ -147,17 +144,17 @@ async function fetchActiveAds(adAccountId, presetKey = 'adsmaximum', limit = 5) 
         (action) => action.action_type && MESSAGING_ACTION_TYPES.has(action.action_type)
       );
 
-        return {
-          adName: entry.ad_name || 'Unnamed Ad',
-          campaignName: entry.campaign_name || '—',
-          spend: parseFloat(entry.spend || 0),
-          messagingResults,
-          costPerMessaging: messagingCostEntry
-            ? parseFloat(messagingCostEntry.value || 0)
-            : null,
-          id: entry.ad_id,
-        };
-      });
+      return {
+        adName: entry.ad_name || 'Unnamed Ad',
+        campaignName: entry.campaign_name || '—',
+        spend: parseFloat(entry.spend || 0),
+        messagingResults,
+        costPerMessaging: messagingCostEntry
+          ? parseFloat(messagingCostEntry.value || 0)
+          : null,
+        id: entry.ad_id,
+      };
+    });
   } catch (error) {
     const errorMessage =
       error.response?.data?.error?.message || error.message || 'Unknown error';
