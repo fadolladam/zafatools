@@ -115,8 +115,9 @@ module.exports = async (req, res) => {
       const text = message.text;
       console.log(`Received message from chat ID ${chatId}: "${text}"`);
 
-      // Check if this chat ID belongs to a known customer
-      const customer = db.getUser(chatId);
+      // Fetch all accounts for this chat ID
+      const accounts = await db.getAccountsForChat(chatId);
+      const isRegistered = accounts.length > 0;
 
       // Registration Flow
       if (text.startsWith('/register')) {
@@ -212,7 +213,7 @@ Available at: <code>https://${req.headers.host || 'your-app'}/ads.html</code>
       }
 
       // --- Registered Commands Only ---
-      if (!customer && !text.startsWith('/register')) {
+      if (!isRegistered && !text.startsWith('/register')) {
         console.log(`Unknown chat ID: ${chatId}. Sending unauthorized message.`);
         await bot.sendMessage(
           chatId,
@@ -222,7 +223,7 @@ Available at: <code>https://${req.headers.host || 'your-app'}/ads.html</code>
         return res.status(200).json({ status: 'OK' });
       }
 
-      const accounts = await db.getAccountsForChat(chatId);
+      // We already fetched accounts at the top
 
       if (text === '/balance') {
         console.log(`Processing /balance command for chat ${chatId}.`);
