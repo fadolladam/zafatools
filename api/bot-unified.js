@@ -12,6 +12,17 @@ const facebookAccessToken =
 
 const db = require('./db');
 
+// --- Helpers ---
+const esc = (text) => {
+  if (!text) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+};
+
 // Initialize the Telegram Bot
 let bot;
 try {
@@ -125,13 +136,18 @@ module.exports = async (req, res) => {
 
         try {
           db.registerUser(chatId, name, adAccountId, slug);
-          await bot.sendMessage(
-            chatId,
-            `✅ <b>Registration Successful!</b>\n\n<b>Name:</b> ${name}\n<b>Ad Account:</b> <code>${adAccountId}</code>\n<b>Simple Name:</b> <code>${slug}</code>\n\nYou can now use /balance or view your page at:\n<code>.../c.html?id=${slug}</code>`,
-            { parse_mode: 'HTML' }
-          );
+          const successMsg = [
+            "Registration Successful!",
+            "Name: " + name,
+            "Ad Account: " + adAccountId,
+            "Simple Name: " + slug,
+            "",
+            "View your page: c.html?id=" + slug
+          ].join("\n");
+          
+          await bot.sendMessage(chatId, successMsg);
         } catch (error) {
-          await bot.sendMessage(chatId, `❌ Error during registration: ${error.message}`);
+          await bot.sendMessage(chatId, "❌ Error: " + error.message);
         }
         return res.status(200).json({ status: 'OK' });
       }
@@ -150,7 +166,8 @@ module.exports = async (req, res) => {
         console.log(`Processing /start command for ${customer.name}.`);
         await bot.sendMessage(
           chatId,
-          `Hi ${customer.name}! I'm alive! Send /balance to get your ad account details.`
+          `Hi <b>${esc(customer.name)}</b>! I'm alive! Send /balance to get your ad account details.`,
+          { parse_mode: 'HTML' }
         );
       } else if (text === '/balance') {
         console.log(`Processing /balance command for ${customer.name}.`);
@@ -167,10 +184,10 @@ module.exports = async (req, res) => {
             parseFloat(accountDetails.balance) / 100
           ).toFixed(2);
           const replyMessage = `
-✅ <b>${customer.name}'s Ad Account Details</b> ✅
+✅ <b>${esc(customer.name)}'s Ad Account Details</b> ✅
 
-<b>Account Name:</b> ${accountDetails.name}
-<b>Current Balance:</b> ${formattedBalance} ${accountDetails.currency}
+<b>Account Name:</b> ${esc(accountDetails.name)}
+<b>Current Balance:</b> <code>${esc(formattedBalance)} ${esc(accountDetails.currency)}</code>
                     `;
           await bot.sendMessage(chatId, replyMessage, {
             parse_mode: 'HTML',
@@ -183,7 +200,7 @@ module.exports = async (req, res) => {
           );
           await bot.sendMessage(
             chatId,
-            `❌ Oops! Something went wrong.\n\n<b>Error:</b> ${error.message}`,
+            `❌ Oops! Something went wrong.\n\n<b>Error:</b> ${esc(error.message)}`,
             { parse_mode: 'HTML' }
           );
         }
@@ -205,7 +222,8 @@ module.exports = async (req, res) => {
         console.log(`Processing default message for ${customer.name}.`);
         await bot.sendMessage(
           chatId,
-          `Hi ${customer.name}! I'm your Ad Balance Bot. Send /balance to get the latest update.`
+          `Hi <b>${esc(customer.name)}</b>! I'm your Ad Balance Bot. Send /balance to get the latest update.`,
+          { parse_mode: 'HTML' }
         );
       }
     } else {
