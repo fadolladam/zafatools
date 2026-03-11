@@ -219,9 +219,15 @@ Available at: <code>https://${req.headers.host || 'your-app'}/ads.html</code>
       // --- Registered Commands Only ---
       if (!isRegistered && !text.startsWith('/register')) {
         console.log(`Unknown chat ID: ${chatId}. Sending unauthorized message.`);
+        
+        let extraHint = "";
+        if (text.toLowerCase().includes('act_')) {
+          extraHint = `\n\n💡 <b>Tip:</b> It looks like you're trying to register. You <b>must</b> start your message with <code>/register</code>.\n\nExample:\n<code>/register RHBBank act_748893406409408 rhbads</code>`;
+        }
+
         await bot.sendMessage(
           chatId,
-          `⚠️ <b>Not Registered!</b>\n\nThis Chat ID (<code>${chatId}</code>) is not found in the database.\n\nUse <code>/register &lt;Name&gt; &lt;Ad_Account_Id&gt;</code> to start monitoring this chat.`,
+          `⚠️ <b>Not Registered!</b>\n\nThis Chat ID (<code>${chatId}</code>) is not found in the database.${extraHint}\n\nUse <code>/register &lt;Name&gt; &lt;Ad_Account_Id&gt;</code> to start monitoring.`,
           { parse_mode: 'HTML' }
         );
         return res.status(200).json({ status: 'OK' });
