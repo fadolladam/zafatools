@@ -113,8 +113,8 @@ module.exports = async (req, res) => {
         if (parts.length < 3) {
           await bot.sendMessage(
             chatId,
-            "❌ **Usage:** `/register <Name> <Ad_Account_Id> [Simple_Name]`\n\nExample: `/register John act_123456789 johnny`",
-            { parse_mode: 'Markdown' }
+            "❌ <b>Usage:</b> <code>/register &lt;Name&gt; &lt;Ad_Account_Id&gt; [Simple_Name]</code>\n\nExample: <code>/register John act_123456789 johnny</code>",
+            { parse_mode: 'HTML' }
           );
           return res.status(200).json({ status: 'OK' });
         }
@@ -127,8 +127,8 @@ module.exports = async (req, res) => {
           db.registerUser(chatId, name, adAccountId, slug);
           await bot.sendMessage(
             chatId,
-            `✅ **Registration Successful!**\n\n**Name:** ${name}\n**Ad Account:** ${adAccountId}\n**Simple Name:** ${slug}\n\nYou can now use /balance or view your page at:\n\`.../c.html?id=${slug}\``,
-            { parse_mode: 'Markdown' }
+            `✅ <b>Registration Successful!</b>\n\n<b>Name:</b> ${name}\n<b>Ad Account:</b> <code>${adAccountId}</code>\n<b>Simple Name:</b> <code>${slug}</code>\n\nYou can now use /balance or view your page at:\n<code>.../c.html?id=${slug}</code>`,
+            { parse_mode: 'HTML' }
           );
         } catch (error) {
           await bot.sendMessage(chatId, `❌ Error during registration: ${error.message}`);
@@ -140,8 +140,8 @@ module.exports = async (req, res) => {
         console.log(`Unknown chat ID: ${chatId}. Sending unauthorized message.`);
         await bot.sendMessage(
           chatId,
-          "⚠️ **Unauthorized or Unregistered!**\n\nUse `/register <Name> <Ad_Account_Id>` to get started.",
-          { parse_mode: 'Markdown' }
+          "⚠️ <b>Unauthorized or Unregistered!</b>\n\nUse <code>/register &lt;Name&gt; &lt;Ad_Account_Id&gt;</code> to get started.",
+          { parse_mode: 'HTML' }
         );
         return res.status(200).json({ status: 'OK' });
       }
@@ -167,13 +167,13 @@ module.exports = async (req, res) => {
             parseFloat(accountDetails.balance) / 100
           ).toFixed(2);
           const replyMessage = `
-✅ **${customer.name}'s Ad Account Details** ✅
+✅ <b>${customer.name}'s Ad Account Details</b> ✅
 
-**Account Name:** ${accountDetails.name}
-**Current Balance:** ${formattedBalance} ${accountDetails.currency}
+<b>Account Name:</b> ${accountDetails.name}
+<b>Current Balance:</b> ${formattedBalance} ${accountDetails.currency}
                     `;
           await bot.sendMessage(chatId, replyMessage, {
-            parse_mode: 'Markdown',
+            parse_mode: 'HTML',
           });
           console.log(`Successfully sent balance details to ${customer.name}.`);
         } catch (error) {
@@ -183,23 +183,24 @@ module.exports = async (req, res) => {
           );
           await bot.sendMessage(
             chatId,
-            `❌ Oops! Something went wrong.\n\n**Error:** ${error.message}`
+            `❌ Oops! Something went wrong.\n\n<b>Error:</b> ${error.message}`,
+            { parse_mode: 'HTML' }
           );
         }
       } else if (text === '/help') {
         const helpMessage = `
-🤖 **Ad Balance Bot Help** 🤖
+🤖 <b>Ad Balance Bot Help</b> 🤖
 
-**Commands:**
+<b>Commands:</b>
 /start - Initial greeting
-/register <Name> <Ad_Account_Id> - Register your ad account
+/register &lt;Name&gt; &lt;Ad_Account_Id&gt; - Register your ad account
 /balance - Fetch your current account balance
 /help - Show this help message
 
-**Example Registration:**
-\`/register John act_123456789\`
+<b>Example Registration:</b>
+<code>/register John act_123456789</code>
         `;
-        await bot.sendMessage(chatId, helpMessage, { parse_mode: 'Markdown' });
+        await bot.sendMessage(chatId, helpMessage, { parse_mode: 'HTML' });
       } else {
         console.log(`Processing default message for ${customer.name}.`);
         await bot.sendMessage(
