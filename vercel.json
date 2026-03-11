@@ -16,14 +16,6 @@
       "dest": "/api/bot-unified.js"
     },
     {
-      "src": "/api/babiya",
-      "dest": "/api/babiya.js"
-    },
-    {
-      "src": "/api/ema",
-      "dest": "/api/ema.js"
-    },
-    {
       "src": "/(.*)",
       "dest": "/$1"
     }

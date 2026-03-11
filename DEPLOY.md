@@ -1,83 +1,40 @@
-# 🚀 Deploy to Vercel
+# 🚀 ZafaTools: Unified Ad Balance Bot
 
-## Quick Deploy
+Simplified guide to deploy and manage your dynamic Facebook Ad Account Balance Bot.
 
-### Method 1: Deploy via Vercel Website (Easiest)
+## 1. Quick Deploy to Vercel
 
-1. **Push your code to GitHub**
-   ```bash
-   git add .
-   git commit -m "Initial commit"
-   git push origin main
-   ```
+1.  **Push code to GitHub.**
+2.  **Import to Vercel** (Search for `zafatools` on vercel.com).
+3.  **Environment Variables**: Add your `FACEBOOK_ACCESS_TOKEN` and `TELEGRAM_BOT_TOKEN`.
+4.  **Deploy**.
 
-2. **Go to vercel.com** and sign in
-3. **Click "New Project"**
-4. **Import your GitHub repository**
-5. **Configure:**
-   - Framework Preset: Other
-   - Root Directory: ./
-6. **Click Deploy**
+## 2. Connect Your Bot
 
-### Method 2: Deploy via CLI
+Once deployed, set your bot's webhook to:
+`https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook?url=https://<YOUR_APP>.vercel.app/api/bot-unified`
 
-1. **Install Vercel CLI:**
-   ```powershell
-   npm install -g vercel
-   ```
+## 3. Manage Multiple Customers
 
-2. **Login:**
-   ```powershell
-   vercel login
-   ```
+This version is **Dynamic**. You no longer need to edit code to add customers.
 
-3. **Deploy:**
-   ```powershell
-   vercel --prod
-   ```
+### Registering New Customers
+1.  Add the bot to a Telegram group.
+2.  Send `/register <NiceName> <AdAccountId> [ShortID]`
+    *   Example: `/register John act_1234567 john`
+3.  The bot will remember this group and the ad account forever.
 
-## 🌐 Your URLs
+### Viewing Account Snapshots
+New customers automatically get a personal web link:
+`https://<YOUR_APP>.vercel.app/c.html?id=<ShortID>`
 
-After deployment, you'll get:
-- **Babiya Page**: `https://zafatools.vercel.app/babiya.html`
-- **Ema Page**: `https://zafatools.vercel.app/ema.html`
-- **Babiya API**: `https://zafatools.vercel.app/api/babiya`
-- **Ema API**: `https://zafatools.vercel.app/api/ema`
-- **Unified Bot**: `https://zafatools.vercel.app/api/bot-unified`
+Example: `.../c.html?id=john`
 
-## 🤖 Setup Telegram Bot (UNIFIED)
+---
 
-1. **Set webhook for the Unified Bot:**
-   ```
-   https://api.telegram.org/bot8469761825:AAEWqHvpgJ_nx8Ah18Y9hYy9Iw6YXSy1RBQ/setWebhook?url=https://zafatools.vercel.app/api/bot-unified
-   ```
+## 🛠️ Unified Dashboard
+You can manage all registered accounts and view active ads via the main dashboard:
+`https://<YOUR_APP>.vercel.app/index.html`
 
-2. **Configure Multiple Groups:**
-   - Add the bot to both groups (Babiya's and Ema's)
-   - Send a message from each group
-   - Check the logs to get the chat IDs
-   - Update `api/bot-unified.js` with the chat IDs
-
-3. **Test in Telegram:**
-   - From Babiya's group: Send `/start` or `/balance`
-   - From Ema's group: Send `/start` or `/balance`
-
-## 📝 Adding Ema's Chat ID
-
-To add Ema's chat ID:
-1. Add the bot to Ema's Telegram group
-2. Send a message like `/start` from that group
-3. Check Vercel logs to see the chat ID (it will appear in the logs)
-4. Edit `api/bot-unified.js` and uncomment/update Ema's configuration:
-   ```javascript
-   'EMA_CHAT_ID_HERE': {
-     name: 'Ema',
-     adAccountId: 'act_2976599279147919'
-   }
-   ```
-5. Redeploy to Vercel
-
-## ✅ That's It!
-
-Your unified bot will work with multiple groups!
-
+## 💡 Pro Tip: Persistence
+This project uses a local database (`api/db.js`). On Vercel, it saves to `/tmp`, meaning it will reset on redeploy. For a permanent setup, connect **Supabase** in `api/db.js`.

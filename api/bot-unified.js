@@ -10,25 +10,7 @@ const facebookAccessToken =
   process.env.FACEBOOK_ACCESS_TOKEN ||
   'EAATGRDWf4ZBgBPeBjRKJVq0bDQHq03IO5utySt6JCgm6P7wQw0vqhlc2S5aqZCMLwWFB2GzZAPwZB4OsAQOFzZCAKyJt0NPLq1GPXKuQ5Uv9WmqYofZCntjRhDKb3qLE6edAkGVt2UFcv4zwV3DoXwbMygXZBqGG2VfEcXKevOoZB8On8w7wa4xz8xn71uwtgnDeSXZAgrzS4RXIphnFD';
 
-// --- Customer Configuration ---
-// To add a new customer:
-// 1. Add the bot to their Telegram group
-// 2. Send a message to the bot from that group
-// 3. Check the logs to see the chat ID that appears
-// 4. Add the chat ID and their ad account details below
-
-const CUSTOMERS = {
-  // Babiya's Chat ID (already configured)
-  '-1002884568379': {
-    name: 'Babiya',
-    adAccountId: 'act_243431363942629',
-  },
-  // Ema's Chat ID
-  '-4870481368': {
-    name: 'Ema',
-    adAccountId: 'act_2976599279147919'
-  }
-};
+const db = require('./db');
 
 // Initialize the Telegram Bot
 let bot;
@@ -81,8 +63,37 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Handle webhook verification from Telegram
+    // Handle webhook verification and config requests
     if (req.method === 'GET') {
+      const mode = req.query?.mode;
+      const slug = req.query?.slug;
+
+      if (mode === 'config') {
+        const users = db.getUsers();
+        return res.status(200).json({
+          facebookAccessToken,
+          telegramBotToken,
+          customers: users
+        });
+      }
+
+      if (slug) {
+        console.log(`Fetching data for slug: ${slug}`);
+        const customer = db.getUserBySlug(slug);
+        if (!customer) {
+          return res.status(404).json({ error: 'Customer not found' });
+        }
+        try {
+          const accountDetails = await fetchAccountDetails(customer.adAccountId);
+          return res.status(200).json({
+            ...accountDetails,
+            customerName: customer.name
+          });
+        } catch (error) {
+          return res.status(500).json({ error: error.message });
+        }
+      }
+
       return res.status(200).send('Unified Telegram Bot Webhook Endpoint');
     }
 
@@ -94,13 +105,43 @@ module.exports = async (req, res) => {
       console.log(`Received message from chat ID ${chatId}: "${text}"`);
 
       // Check if this chat ID belongs to a known customer
-      const customer = CUSTOMERS[chatId.toString()];
+      const customer = db.getUser(chatId);
+
+      // Registration Flow
+      if (text.startsWith('/register')) {
+        const parts = text.split(' ');
+        if (parts.length < 3) {
+          await bot.sendMessage(
+            chatId,
+            "❌ **Usage:** `/register <Name> <Ad_Account_Id> [Simple_Name]`\n\nExample: `/register John act_123456789 johnny`",
+            { parse_mode: 'Markdown' }
+          );
+          return res.status(200).json({ status: 'OK' });
+        }
+
+        const name = parts[1];
+        const adAccountId = parts[2];
+        const slug = parts[3] || name.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+        try {
+          db.registerUser(chatId, name, adAccountId, slug);
+          await bot.sendMessage(
+            chatId,
+            `✅ **Registration Successful!**\n\n**Name:** ${name}\n**Ad Account:** ${adAccountId}\n**Simple Name:** ${slug}\n\nYou can now use /balance or view your page at:\n\`.../c.html?id=${slug}\``,
+            { parse_mode: 'Markdown' }
+          );
+        } catch (error) {
+          await bot.sendMessage(chatId, `❌ Error during registration: ${error.message}`);
+        }
+        return res.status(200).json({ status: 'OK' });
+      }
 
       if (!customer) {
-        console.log(`Unknown chat ID: ${chatId}. Ignoring message.`);
+        console.log(`Unknown chat ID: ${chatId}. Sending unauthorized message.`);
         await bot.sendMessage(
           chatId,
-          "⚠️ Sorry, you're not authorized to use this bot."
+          "⚠️ **Unauthorized or Unregistered!**\n\nUse `/register <Name> <Ad_Account_Id>` to get started.",
+          { parse_mode: 'Markdown' }
         );
         return res.status(200).json({ status: 'OK' });
       }
@@ -145,6 +186,20 @@ module.exports = async (req, res) => {
             `❌ Oops! Something went wrong.\n\n**Error:** ${error.message}`
           );
         }
+      } else if (text === '/help') {
+        const helpMessage = `
+🤖 **Ad Balance Bot Help** 🤖
+
+**Commands:**
+/start - Initial greeting
+/register <Name> <Ad_Account_Id> - Register your ad account
+/balance - Fetch your current account balance
+/help - Show this help message
+
+**Example Registration:**
+\`/register John act_123456789\`
+        `;
+        await bot.sendMessage(chatId, helpMessage, { parse_mode: 'Markdown' });
       } else {
         console.log(`Processing default message for ${customer.name}.`);
         await bot.sendMessage(

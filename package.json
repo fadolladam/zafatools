@@ -4,7 +4,7 @@
   "description": "Facebook Ad Account Balance Viewer with Telegram Bot",
   "main": "index.html",
   "scripts": {
-    "start": "vercel dev"
+    "start": "npx vercel dev"
   },
   "dependencies": {
     "node-telegram-bot-api": "^0.64.0",

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Customer Ad Snapshot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+    </style>
+</head>
+
+<body class="text-gray-100 antialiased flex items-center justify-center min-h-screen">
+
+    <!-- Notification Container -->
+    <div id="notification-container" class="fixed top-5 right-5 z-50 space-y-3"></div>
+
+    <!-- Main Content -->
+    <main class="p-4 w-full max-w-md">
+        <div class="bg-slate-800/50 backdrop-blur-xl border border-slate-700 p-8 rounded-3xl shadow-2xl">
+            <h1 id="customer-title" class="text-2xl font-bold mb-6 text-center text-white">Ad Account Snapshot</h1>
+            <div id="fb-ad-account-details" class="space-y-6">
+                <!-- Loading State -->
+                <div class="text-center text-slate-400 py-10">
+                    <svg class="animate-spin h-10 w-10 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg"
+                        fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                    </svg>
+                    <p class="mt-4 font-medium">Connecting to Facebook...</p>
+                </div>
+            </div>
+            
+            <div class="mt-8 pt-6 border-t border-slate-700 text-center">
+                <p class="text-xs text-slate-500">View real-time balance updates via Telegram.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const fbAdAccountDetails = document.getElementById('fb-ad-account-details');
+            const customerTitle = document.getElementById('customer-title');
+            
+            // Get slug from URL ?id=slug
+            const urlParams = new URLSearchParams(window.location.search);
+            const slug = urlParams.get('id');
+
+            function showNotification(message, type = 'info') {
+                const container = document.getElementById('notification-container');
+                const notif = document.createElement('div');
+                let classes = type === 'success' ? 'bg-emerald-500' : (type === 'error' ? 'bg-rose-500' : 'bg-sky-500');
+                notif.className = `p-4 rounded-2xl shadow-xl text-white font-medium transform transition-all duration-300 opacity-0 translate-x-10 ${classes}`;
+                notif.textContent = message;
+                container.appendChild(notif);
+                setTimeout(() => notif.classList.remove('opacity-0', 'translate-x-10'), 10);
+                setTimeout(() => {
+                    notif.classList.add('opacity-0');
+                    notif.addEventListener('transitionend', () => notif.remove());
+                }, 4000);
+            }
+
+            async function fetchData() {
+                if (!slug) {
+                    fbAdAccountDetails.innerHTML = '<p class="text-rose-400 text-center py-10 font-bold">⚠️ Customer ID Missing</p>';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/bot-unified?slug=${slug}`);
+                    const text = await response.text();
+
+                    const trimmed = text.trim();
+                    if (trimmed.startsWith('<!DOCTYPE') || trimmed.startsWith('<html')) {
+                        throw new Error("Network Conflict: Received an HTML page instead of data. Please use 'npm start' to run the project correctly via Vercel Dev.");
+                    }
+
+                    if (trimmed.startsWith('//') || trimmed.startsWith('const')) {
+                        throw new Error("Local Server Conflict: Your server is returning script source code. Please run via 'npm start'.");
+                    }
+
+                    const data = JSON.parse(text);
+                    
+                    if (data.error) throw new Error(data.error);
+
+                    customerTitle.textContent = `${data.customerName}'s Snapshot`;
+                    const displayBalance = data.balance ? (parseFloat(data.balance) / 100).toFixed(2) : '0.00';
+
+                    fbAdAccountDetails.innerHTML = `
+                        <div class="bg-slate-900/40 p-5 rounded-2xl border border-slate-700/50">
+                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Account Name</p>
+                            <p class="text-lg font-semibold text-white">${data.name}</p>
+                        </div>
+                        <div class="bg-slate-900/40 p-5 rounded-2xl border border-slate-700/50">
+                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Current Balance</p>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-3xl font-bold text-emerald-400">${displayBalance}</span>
+                                <span class="text-sm font-medium text-slate-400">${data.currency}</span>
+                            </div>
+                        </div>
+                    `;
+                    showNotification('Snapshot updated!', 'success');
+                } catch (error) {
+                    fbAdAccountDetails.innerHTML = `<p class="text-rose-400 text-center py-10 font-bold">Error: ${error.message}</p>`;
+                    showNotification(error.message, 'error');
+                }
+            }
+
+            fetchData();
+        });
+    </script>
+</body>
+</html>
