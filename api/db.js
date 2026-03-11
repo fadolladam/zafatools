@@ -5,7 +5,8 @@ const path = require('path');
 // This local file approach is for demonstration and local testing purposes.
 // To use Supabase, replace this logic with the @supabase/supabase-js client.
 
-const DB_PATH = process.env.VERCEL ? '/tmp/db.json' : path.join(process.cwd(), 'db.json');
+// For local testing, we save to the parent directory of this 'api' folder.
+const DB_PATH = process.env.VERCEL ? '/tmp/db.json' : path.join(__dirname, '..', 'db.json');
 
 // Hardcoded defaults for backward compatibility
 const DEFAULT_CUSTOMERS = {
