@@ -104,16 +104,33 @@ const db = {
     
     if (GOOGLE_SHEET_URL) {
       try {
-        await axios.post(GOOGLE_SHEET_URL, {
+        console.log(`Registering user "${name}" with slug "${userSlug}" to Google Sheets...`);
+        const response = await axios.post(GOOGLE_SHEET_URL, {
           action: 'register',
           chatId: chatId.toString(),
           name,
           adAccountId,
           slug: userSlug
+        }, {
+          maxRedirects: 5,
+          validateStatus: (status) => status >= 200 && status < 400
         });
-        return;
+        
+        console.log('Google Sheets Registration Response:', JSON.stringify(response.data));
+        
+        if (response.data && response.data.status === 'OK') {
+          console.log('Registration successfully confirmed by Google Sheets.');
+          return;
+        } else if (response.data && response.data.status === 'Error') {
+          console.error('Google Sheets returned an error:', response.data.message);
+          // Fall through to local fallback
+        }
       } catch (err) {
         console.error('Google Sheets POST error:', err.message);
+        if (err.response) {
+            console.error('Response Status:', err.response.status);
+            console.error('Response Data:', err.response.data);
+        }
       }
     }
 
