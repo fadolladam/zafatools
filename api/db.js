@@ -4,7 +4,7 @@ const axios = require('axios');
 
 // Configuration
 const DB_PATH = process.env.VERCEL ? '/tmp/db.json' : path.join(__dirname, '..', 'db.json');
-const GOOGLE_SHEET_URL = process.env.GOOGLE_SHEET_URL;
+const GOOGLE_SHEET_URL = process.env.GOOGLE_SHEET_URL || "https://script.google.com/macros/s/AKfycbzy_z8eJZdm4DrACFetkF6PLOC_7jgtFrVDiV7QlOmKw6NDo15i0AzNo3FyjTtyQBY/exec";
 
 // Initial Hardcoded defaults
 const DEFAULT_CUSTOMERS = {
@@ -48,7 +48,16 @@ const db = {
   getUsers: async () => {
     if (GOOGLE_SHEET_URL) {
       try {
+        console.log(`Fetching users from Google Sheet: ${GOOGLE_SHEET_URL.substring(0, 30)}...`);
         const response = await axios.get(`${GOOGLE_SHEET_URL}?action=get`);
+        
+        if (!response.data || !Array.isArray(response.data)) {
+          console.error('Google Sheets returned invalid data:', response.data);
+          return getLocalDb().users;
+        }
+
+        console.log(`Successfully fetched ${response.data.length} users from Google Sheets.`);
+        
         // Convert array from Google Sheet back to the { slug: data } object format
         const users = {};
         response.data.forEach(u => {
