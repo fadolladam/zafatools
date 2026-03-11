@@ -143,7 +143,7 @@ module.exports = async (req, res) => {
             "Ad Account: " + adAccountId,
             "Simple Name: " + slug,
             "",
-            "View your page: c.html?id=" + slug
+            "View your page: https://" + (req.headers.host || 'zafatools.vercel.app') + "/c.html?id=" + slug
           ].join("\n");
           
           await bot.sendMessage(chatId, successMsg);
@@ -247,7 +247,7 @@ Available at: <code>https://${req.headers.host || 'your-app'}/ads.html</code>
 
 <b>Account:</b> ${esc(accountDetails.name)}
 <b>Balance:</b> <code>${esc(formattedBalance)} ${esc(accountDetails.currency)}</code>
-<b>Link:</b> <code>c.html?id=${esc(account.slug)}</code>
+<b>Link:</b> https://${req.headers.host || 'zafatools.vercel.app'}/c.html?id=${esc(account.slug)}
             `;
             await bot.sendMessage(chatId, replyMessage, { parse_mode: 'HTML' });
           } catch (error) {
