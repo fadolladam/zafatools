@@ -22,7 +22,7 @@ This version is **Dynamic**. You no longer need to edit code to add customers.
 1.  Add the bot to a Telegram group.
 2.  Send `/register <NiceName> <AdAccountId> [ShortID]`
     *   Example: `/register John act_1234567 john`
-3.  The bot will remember this group and the ad account forever.
+3.  The bot will remember this group and the ad account. You can run `/register` multiple times in the same group to add different ad accounts!
 
 ### Viewing Account Snapshots
 New customers automatically get a personal web link:
@@ -32,9 +32,11 @@ Example: `.../c.html?id=john`
 
 ---
 
+---
+
 ## 🛠️ Unified Dashboard
 You can manage all registered accounts and view active ads via the main dashboard:
-`https://<YOUR_APP>.vercel.app/index.html`
+`https://<YOUR_APP>.vercel.app/ads.html`
 
-## 💡 Pro Tip: Persistence
-This project uses a local database (`api/db.js`). On Vercel, it saves to `/tmp`, meaning it will reset on redeploy. For a permanent setup, connect **Supabase** in `api/db.js`.
+## 💡 Managing Updates
+**IMPORTANT**: This project saves data to `/tmp/db.json` on Vercel. This means that if you update your code and redeploy, your registered customers will be lost and you will need to `/register` them again. This is the simplest way to keep your project lightweight without external databases!

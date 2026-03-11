@@ -80,7 +80,7 @@ module.exports = async (req, res) => {
       const slug = req.query?.slug;
 
       if (mode === 'config') {
-        const users = db.getUsers();
+        const users = await db.getUsers();
         return res.status(200).json({
           facebookAccessToken,
           telegramBotToken,
@@ -90,7 +90,7 @@ module.exports = async (req, res) => {
 
       if (slug) {
         console.log(`Fetching data for slug: ${slug}`);
-        const customer = db.getUserBySlug(slug);
+        const customer = await db.getUserBySlug(slug);
         if (!customer) {
           return res.status(404).json({ error: 'Customer not found' });
         }
@@ -135,7 +135,7 @@ module.exports = async (req, res) => {
         const slug = parts[3] || name.toLowerCase().replace(/[^a-z0-9]/g, '');
 
         try {
-          db.registerUser(chatId, name, adAccountId, slug);
+          await db.registerUser(chatId, name, adAccountId, slug);
           const successMsg = [
             "Registration Successful!",
             "Name: " + name,
@@ -152,79 +152,135 @@ module.exports = async (req, res) => {
         return res.status(200).json({ status: 'OK' });
       }
 
-      if (!customer) {
+      // --- Public Commands (No registration needed) ---
+      if (text === '/start') {
+        const chatType = message.chat.type;
+        const welcomeMsg = [
+          "✨ <b>Ads Monitor Bot</b> ✨",
+          "",
+          "Diagnostics for your connection:",
+          `🆔 <b>Chat ID:</b> <code>${chatId}</code>`,
+          `📂 <b>Chat Type:</b> <code>${chatType}</code>`,
+          "",
+          "<b>Available Commands:</b>",
+          "• /register - Add an ad account",
+          "• /list - List connected accounts",
+          "• /balance - Check financial status",
+          "• /help - Detailed guide",
+          "• /status - System diagnostics",
+          "",
+          "<i>Tip: You can use /register multiple times for different accounts!</i>"
+        ].join("\n");
+        await bot.sendMessage(chatId, welcomeMsg, { parse_mode: 'HTML' });
+        return res.status(200).json({ status: 'OK' });
+      }
+
+      if (text === '/help') {
+        const helpMessage = `
+📖 <b>Ads Monitor Help Guide</b>
+
+<b>1. Registration</b>
+Format: <code>/register &lt;Nickname&gt; &lt;AccountID&gt; [Slug]</code>
+Example: <code>/register Shop1 act_705976080055297 shop1</code>
+<i>The Slug is used for your personal web link.</i>
+
+<b>2. Commands</b>
+• /list - View all accounts in this groups
+• /balance - Fetch real-time balances for all
+• /remove <code>&lt;slug&gt;</code> - Delete an account
+• /status - Check if API tokens are valid
+
+<b>3. Web Dashboard</b>
+Available at: <code>https://${req.headers.host || 'your-app'}/ads.html</code>
+        `;
+        await bot.sendMessage(chatId, helpMessage, { parse_mode: 'HTML' });
+        return res.status(200).json({ status: 'OK' });
+      }
+
+      if (text === '/status') {
+        const statusMsg = [
+          "🏥 <b>System Status</b>",
+          "",
+          "✅ <b>Telegram Bot:</b> Online",
+          process.env.FACEBOOK_ACCESS_TOKEN ? "✅ <b>Facebook API:</b> Connected" : "❌ <b>Facebook API:</b> Missing Token",
+          process.env.GOOGLE_SHEET_URL ? "✅ <b>Database:</b> Google Sheets" : "⚠️ <b>Database:</b> Local File (Temporary)",
+          `📡 <b>Host:</b> ${req.headers.host || 'Vercel'}`,
+          `⏱ <b>Server Time:</b> ${new Date().toLocaleTimeString()}`
+        ].join("\n");
+        await bot.sendMessage(chatId, statusMsg, { parse_mode: 'HTML' });
+        return res.status(200).json({ status: 'OK' });
+      }
+
+      // --- Registered Commands Only ---
+      if (!customer && !text.startsWith('/register')) {
         console.log(`Unknown chat ID: ${chatId}. Sending unauthorized message.`);
         await bot.sendMessage(
           chatId,
-          "⚠️ <b>Unauthorized or Unregistered!</b>\n\nUse <code>/register &lt;Name&gt; &lt;Ad_Account_Id&gt;</code> to get started.",
+          "⚠️ <b>Not Registered!</b>\n\nUse <code>/register &lt;Name&gt; &lt;Ad_Account_Id&gt;</code> to start monitoring this chat.",
           { parse_mode: 'HTML' }
         );
         return res.status(200).json({ status: 'OK' });
       }
 
-      if (text === '/start') {
-        console.log(`Processing /start command for ${customer.name}.`);
-        await bot.sendMessage(
-          chatId,
-          `Hi <b>${esc(customer.name)}</b>! I'm alive! Send /balance to get your ad account details.`,
-          { parse_mode: 'HTML' }
-        );
-      } else if (text === '/balance') {
-        console.log(`Processing /balance command for ${customer.name}.`);
-        await bot.sendMessage(
-          chatId,
-          'Hold on, fetching your ad account balance... ⏳'
-        );
+      const accounts = await db.getAccountsForChat(chatId);
 
-        try {
-          const accountDetails = await fetchAccountDetails(
-            customer.adAccountId
-          );
-          const formattedBalance = (
-            parseFloat(accountDetails.balance) / 100
-          ).toFixed(2);
-          const replyMessage = `
-✅ <b>${esc(customer.name)}'s Ad Account Details</b> ✅
-
-<b>Account Name:</b> ${esc(accountDetails.name)}
-<b>Current Balance:</b> <code>${esc(formattedBalance)} ${esc(accountDetails.currency)}</code>
-                    `;
-          await bot.sendMessage(chatId, replyMessage, {
-            parse_mode: 'HTML',
-          });
-          console.log(`Successfully sent balance details to ${customer.name}.`);
-        } catch (error) {
-          console.error(
-            `Error in /balance handler for ${customer.name}:`,
-            error.message
-          );
-          await bot.sendMessage(
-            chatId,
-            `❌ Oops! Something went wrong.\n\n<b>Error:</b> ${esc(error.message)}`,
-            { parse_mode: 'HTML' }
-          );
+      if (text === '/balance') {
+        console.log(`Processing /balance command for chat ${chatId}.`);
+        if (accounts.length === 0) {
+          await bot.sendMessage(chatId, "❌ No registered accounts here. Use /register first.");
+          return res.status(200).json({ status: 'OK' });
         }
-      } else if (text === '/help') {
-        const helpMessage = `
-🤖 <b>Ad Balance Bot Help</b> 🤖
 
-<b>Commands:</b>
-/start - Initial greeting
-/register &lt;Name&gt; &lt;Ad_Account_Id&gt; - Register your ad account
-/balance - Fetch your current account balance
-/help - Show this help message
+        await bot.sendMessage(chatId, `⏳ Fetching financial snapshot for <b>${accounts.length}</b> account(s)...`, { parse_mode: 'HTML' });
 
-<b>Example Registration:</b>
-<code>/register John act_123456789</code>
-        `;
-        await bot.sendMessage(chatId, helpMessage, { parse_mode: 'HTML' });
+        for (const account of accounts) {
+          try {
+            const accountDetails = await fetchAccountDetails(account.adAccountId);
+            const formattedBalance = (parseFloat(accountDetails.balance) / 100).toFixed(2);
+            const replyMessage = `
+✅ <b>${esc(account.name)} Snapshot</b> ✅
+
+<b>Account:</b> ${esc(accountDetails.name)}
+<b>Balance:</b> <code>${esc(formattedBalance)} ${esc(accountDetails.currency)}</code>
+<b>Link:</b> <code>c.html?id=${esc(account.slug)}</code>
+            `;
+            await bot.sendMessage(chatId, replyMessage, { parse_mode: 'HTML' });
+          } catch (error) {
+            await bot.sendMessage(chatId, `❌ Error [${esc(account.name)}]: ${esc(error.message)}`, { parse_mode: 'HTML' });
+          }
+        }
+      } else if (text === '/list') {
+        if (accounts.length === 0) {
+           await bot.sendMessage(chatId, "📭 No accounts registered in this chat.");
+        } else {
+           const list = accounts.map(a => `• <b>${esc(a.name)}</b> (ID: <code>${esc(a.adAccountId)}</code>) [Slug: <code>${esc(a.slug)}</code>]`).join("\n");
+           await bot.sendMessage(chatId, `📋 <b>Connected Accounts:</b>\n\n${list}`, { parse_mode: 'HTML' });
+        }
+      } else if (text.startsWith('/remove ')) {
+        const slugToRemove = text.split(' ')[1]?.toLowerCase();
+        if (!slugToRemove) {
+          await bot.sendMessage(chatId, "❌ Usage: <code>/remove &lt;slug&gt;</code>", { parse_mode: 'HTML' });
+        } else {
+          // Verify it belongs to this chat
+          const target = accounts.find(a => a.slug === slugToRemove);
+          if (!target) {
+            await bot.sendMessage(chatId, "❌ Account not found in this chat.");
+          } else {
+            await bot.sendMessage(chatId, `⚠️ Removing <b>${esc(target.name)}</b>...`, { parse_mode: 'HTML' });
+            try {
+              await db.removeUser(slugToRemove);
+              await bot.sendMessage(chatId, `✅ <b>${esc(target.name)}</b> removed successfully.`, { parse_mode: 'HTML' });
+            } catch (err) {
+              await bot.sendMessage(chatId, `❌ Delete error: ${esc(err.message)}`, { parse_mode: 'HTML' });
+            }
+          }
+        }
       } else {
-        console.log(`Processing default message for ${customer.name}.`);
-        await bot.sendMessage(
-          chatId,
-          `Hi <b>${esc(customer.name)}</b>! I'm your Ad Balance Bot. Send /balance to get the latest update.`,
-          { parse_mode: 'HTML' }
-        );
+        // Fallback for registered chats sending random text
+        const oneAccount = accounts[0];
+        if (oneAccount) {
+            await bot.sendMessage(chatId, `Hi <b>${esc(oneAccount.name)}</b>! Send /balance to see your data or /help for more options.`, { parse_mode: 'HTML' });
+        }
       }
     } else {
       console.log('Received a request without a message body, ignoring.');
