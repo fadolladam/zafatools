@@ -61,12 +61,20 @@ const db = {
         // Convert array from Google Sheet back to the { slug: data } object format
         const users = {};
         response.data.forEach(u => {
-          if (u.Slug) {
-            users[u.Slug.toLowerCase()] = {
-              chatId: u.ChatID.toString(),
-              name: u.Name,
-              adAccountId: u.AdAccountID,
-              slug: u.Slug.toLowerCase()
+          // Robust Mapping: Create a case-insensitive, trimmed version of the user object
+          const normalized = {};
+          Object.keys(u).forEach(k => {
+            normalized[k.trim().toLowerCase()] = u[k];
+          });
+
+          const slug = normalized['slug'];
+          if (slug) {
+            const sLower = slug.toString().toLowerCase();
+            users[sLower] = {
+              chatId: (normalized['chatid'] || '').toString().trim(),
+              name: (normalized['name'] || '').toString(),
+              adAccountId: (normalized['adaccountid'] || '').toString(),
+              slug: sLower
             };
           }
         });

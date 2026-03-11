@@ -221,7 +221,7 @@ Available at: <code>https://${req.headers.host || 'your-app'}/ads.html</code>
         console.log(`Unknown chat ID: ${chatId}. Sending unauthorized message.`);
         await bot.sendMessage(
           chatId,
-          "⚠️ <b>Not Registered!</b>\n\nUse <code>/register &lt;Name&gt; &lt;Ad_Account_Id&gt;</code> to start monitoring this chat.",
+          `⚠️ <b>Not Registered!</b>\n\nThis Chat ID (<code>${chatId}</code>) is not found in the database.\n\nUse <code>/register &lt;Name&gt; &lt;Ad_Account_Id&gt;</code> to start monitoring this chat.`,
           { parse_mode: 'HTML' }
         );
         return res.status(200).json({ status: 'OK' });
