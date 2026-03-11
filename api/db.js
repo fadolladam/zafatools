@@ -142,4 +142,5 @@ const db = {
   }
 };
 
-module.exports = db;
+const dbInterface = { ...db, GOOGLE_SHEET_URL };
+module.exports = dbInterface;
