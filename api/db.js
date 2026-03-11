@@ -74,7 +74,8 @@ const db = {
               chatId: (normalized['chatid'] || '').toString().trim(),
               name: (normalized['name'] || '').toString(),
               adAccountId: (normalized['adaccountid'] || '').toString(),
-              slug: sLower
+              slug: sLower,
+              lastMessageId: normalized['lastmessageid']
             };
           }
         });
@@ -164,6 +165,29 @@ const db = {
     const data = getLocalDb();
     delete data.users[userSlug];
     saveLocalDb(data);
+  },
+
+  updateLastMessageId: async (slug, messageId) => {
+    const userSlug = slug.toLowerCase();
+    
+    if (GOOGLE_SHEET_URL) {
+      try {
+        await axios.post(GOOGLE_SHEET_URL, {
+          action: 'updateMsgId',
+          slug: userSlug,
+          lastMessageId: messageId
+        });
+        return;
+      } catch (err) {
+        console.error('Google Sheets UPDATE error:', err.message);
+      }
+    }
+
+    const data = getLocalDb();
+    if (data.users[userSlug]) {
+      data.users[userSlug].lastMessageId = messageId;
+      saveLocalDb(data);
+    }
   }
 };
 

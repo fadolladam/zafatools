@@ -246,6 +246,16 @@ Available at: <code>https://${req.headers.host || 'your-app'}/ads.html</code>
 
         for (const account of accounts) {
           try {
+            // --- SELF-CLEANING: Delete previous message ---
+            if (account.lastMessageId) {
+              try {
+                await bot.deleteMessage(chatId, account.lastMessageId);
+                console.log(`Deleted old message ${account.lastMessageId} for ${account.slug}`);
+              } catch (delError) {
+                console.log(`Could not delete message for ${account.slug} (might be expired or bot not admin)`);
+              }
+            }
+
             const accountDetails = await fetchAccountDetails(account.adAccountId);
             const formattedBalance = (parseFloat(accountDetails.balance) / 100).toFixed(2);
             const replyMessage = `
@@ -255,7 +265,11 @@ Available at: <code>https://${req.headers.host || 'your-app'}/ads.html</code>
 <b>Balance:</b> <code>${esc(formattedBalance)} ${esc(accountDetails.currency)}</code>
 <b>Link:</b> https://${req.headers.host || 'zafatools.vercel.app'}/c.html?id=${esc(account.slug)}
             `;
-            await bot.sendMessage(chatId, replyMessage, { parse_mode: 'HTML' });
+            const sentMsg = await bot.sendMessage(chatId, replyMessage, { parse_mode: 'HTML' });
+            
+            // Save the new message ID for next time
+            await db.updateLastMessageId(account.slug, sentMsg.message_id);
+            
           } catch (error) {
             await bot.sendMessage(chatId, `❌ Error [${esc(account.name)}]: ${esc(error.message)}`, { parse_mode: 'HTML' });
           }
