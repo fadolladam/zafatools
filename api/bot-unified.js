@@ -203,8 +203,8 @@ Available at: <code>https://${req.headers.host || 'your-app'}/ads.html</code>
           "🏥 <b>System Status</b>",
           "",
           "✅ <b>Telegram Bot:</b> Online",
-          process.env.FACEBOOK_ACCESS_TOKEN ? "✅ <b>Facebook API:</b> Connected" : "❌ <b>Facebook API:</b> Missing Token",
-          process.env.GOOGLE_SHEET_URL ? "✅ <b>Database:</b> Google Sheets" : "⚠️ <b>Database:</b> Local File (Temporary)",
+          facebookAccessToken ? "✅ <b>Facebook API:</b> Connected" : "❌ <b>Facebook API:</b> Missing Token",
+          GOOGLE_SHEET_URL ? "✅ <b>Database:</b> Google Sheets" : "⚠️ <b>Database:</b> Local File (Temporary)",
           `📡 <b>Host:</b> ${req.headers.host || 'Vercel'}`,
           `⏱ <b>Server Time:</b> ${new Date().toLocaleTimeString()}`
         ].join("\n");
