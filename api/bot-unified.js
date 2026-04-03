@@ -8,7 +8,7 @@ const telegramBotToken =
   '8469761825:AAEWqHvpgJ_nx8Ah18Y9hYy9Iw6YXSy1RBQ';
 const facebookAccessToken =
   process.env.FACEBOOK_ACCESS_TOKEN ||
-  'EAATGRDWf4ZBgBPeBjRKJVq0bDQHq03IO5utySt6JCgm6P7wQw0vqhlc2S5aqZCMLwWFB2GzZAPwZB4OsAQOFzZCAKyJt0NPLq1GPXKuQ5Uv9WmqYofZCntjRhDKb3qLE6edAkGVt2UFcv4zwV3DoXwbMygXZBqGG2VfEcXKevOoZB8On8w7wa4xz8xn71uwtgnDeSXZAgrzS4RXIphnFD';
+  'EAABsbCS1iHgBRJttdSb6ipABO58ZAflAld31y1v3sgYjIEkhYTiJTV0rueOMsc7UKWrQ8GseNrvrRJzipbQZCZChxP3e02pk7ZBefaB90gGqXKCupZBIdZBTXLXUEAbvUxUKZA0tWlbYRKZCZB9SxPyQ8DZALEUWo2ozVwtoEwFZBqAuSMb6gQpeE5xtZCQ983XTZCFHzlUCDnz5uhtZABLQZDZD';
 
 const db = require('./db');
 
@@ -145,7 +145,7 @@ module.exports = async (req, res) => {
             "",
             "View your page: https://" + (req.headers.host || 'zafatools.vercel.app') + "/c.html?id=" + slug
           ].join("\n");
-          
+
           await bot.sendMessage(chatId, successMsg);
         } catch (error) {
           await bot.sendMessage(chatId, "❌ Error: " + error.message);
@@ -199,10 +199,10 @@ Available at: <code>https://${req.headers.host || 'your-app'}/ads.html</code>
       }
 
       if (text === '/status') {
-        const tokenDisplay = facebookAccessToken 
-          ? `✅ Connected (...${facebookAccessToken.slice(-4)})` 
+        const tokenDisplay = facebookAccessToken
+          ? `✅ Connected (...${facebookAccessToken.slice(-4)})`
           : "❌ Missing Token";
-          
+
         const statusMsg = [
           "🏥 <b>System Status</b>",
           "",
@@ -219,7 +219,7 @@ Available at: <code>https://${req.headers.host || 'your-app'}/ads.html</code>
       // --- Registered Commands Only ---
       if (!isRegistered && !text.startsWith('/register')) {
         console.log(`Unknown chat ID: ${chatId}. Sending unauthorized message.`);
-        
+
         let extraHint = "";
         if (text.toLowerCase().includes('act_')) {
           extraHint = `\n\n💡 <b>Tip:</b> It looks like you're trying to register. You <b>must</b> start your message with <code>/register</code>.\n\nExample:\n<code>/register RHBBank act_748893406409408 rhbads</code>`;
@@ -266,20 +266,20 @@ Available at: <code>https://${req.headers.host || 'your-app'}/ads.html</code>
 <b>Link:</b> https://${req.headers.host || 'zafatools.vercel.app'}/c.html?id=${esc(account.slug)}
             `;
             const sentMsg = await bot.sendMessage(chatId, replyMessage, { parse_mode: 'HTML' });
-            
+
             // Save the new message ID for next time
             await db.updateLastMessageId(account.slug, sentMsg.message_id);
-            
+
           } catch (error) {
             await bot.sendMessage(chatId, `❌ Error [${esc(account.name)}]: ${esc(error.message)}`, { parse_mode: 'HTML' });
           }
         }
       } else if (text === '/list') {
         if (accounts.length === 0) {
-           await bot.sendMessage(chatId, "📭 No accounts registered in this chat.");
+          await bot.sendMessage(chatId, "📭 No accounts registered in this chat.");
         } else {
-           const list = accounts.map(a => `• <b>${esc(a.name)}</b> (ID: <code>${esc(a.adAccountId)}</code>) [Slug: <code>${esc(a.slug)}</code>]`).join("\n");
-           await bot.sendMessage(chatId, `📋 <b>Connected Accounts:</b>\n\n${list}`, { parse_mode: 'HTML' });
+          const list = accounts.map(a => `• <b>${esc(a.name)}</b> (ID: <code>${esc(a.adAccountId)}</code>) [Slug: <code>${esc(a.slug)}</code>]`).join("\n");
+          await bot.sendMessage(chatId, `📋 <b>Connected Accounts:</b>\n\n${list}`, { parse_mode: 'HTML' });
         }
       } else if (text.startsWith('/remove ')) {
         const slugToRemove = text.split(' ')[1]?.toLowerCase();
@@ -304,7 +304,7 @@ Available at: <code>https://${req.headers.host || 'your-app'}/ads.html</code>
         // Fallback for registered chats sending random text
         const oneAccount = accounts[0];
         if (oneAccount) {
-            await bot.sendMessage(chatId, `Hi <b>${esc(oneAccount.name)}</b>! Send /balance to see your data or /help for more options.`, { parse_mode: 'HTML' });
+          await bot.sendMessage(chatId, `Hi <b>${esc(oneAccount.name)}</b>! Send /balance to see your data or /help for more options.`, { parse_mode: 'HTML' });
         }
       }
     } else {
