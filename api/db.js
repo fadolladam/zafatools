@@ -18,7 +18,7 @@ const DEFAULT_CUSTOMERS = {
     chatId: '-4870481368',
     name: 'Ema',
     slug: 'ema',
-    adAccountId: 'act_2976599279147919'
+    adAccountId: 'act_932193228941978'
   }
 };
 
