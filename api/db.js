@@ -8,13 +8,14 @@ const GOOGLE_SHEET_URL = process.env.GOOGLE_SHEET_URL || "https://script.google.
 
 // Initial Hardcoded defaults
 const DEFAULT_CUSTOMERS = {
-  'babiya': {
+  babiya: {
     chatId: '-1002884568379',
     name: 'Babiya',
     slug: 'babiya',
-    adAccountId: 'act_243431363942629',
+    adAccountId: 'act_243431363942629'
   },
-  'ema': {
+
+  ema: {
     chatId: '-4870481368',
     name: 'Ema',
     slug: 'ema',
