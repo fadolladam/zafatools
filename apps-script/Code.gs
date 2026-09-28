@@ -1,109 +1,112 @@
-/**
- * ZafaTools customer database — Google Apps Script web app.
- *
- * The shared secret lives in Script Properties, never in code:
- *   Apps Script editor → Project Settings (gear) → Script Properties → Add
- *   Property: SHEET_SECRET   Value: <same value as GOOGLE_SHEET_SECRET in Vercel>
- *
- * Deploy: Deploy → New deployment → Web app → Execute as: Me, Who has access: Anyone.
- * Every request must include the secret, so the public URL alone is useless.
- *
- * Sheet layout (first row = headers): slug | chatId | name | adAccountId | lastMessageId
- */
-
+// Google Apps Script: Database API for ZafaTools
+//
+// The shared secret lives in Script Properties, never in code:
+//   Project Settings (gear) → Script Properties → SHEET_SECRET = <same as GOOGLE_SHEET_SECRET in Vercel>
+// Every request must include it, so the public web app URL alone is useless.
 const SHEET_NAME = 'Users';
-const HEADERS = ['slug', 'chatId', 'name', 'adAccountId', 'lastMessageId'];
 
-function isAuthorized_(secret) {
+function isAuthorized(secret) {
   const expected = PropertiesService.getScriptProperties().getProperty('SHEET_SECRET');
   return Boolean(expected) && secret === expected;
 }
 
-function json_(obj) {
-  return ContentService.createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-function getSheet_() {
+function getSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   let sheet = ss.getSheetByName(SHEET_NAME);
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_NAME);
-    sheet.appendRow(HEADERS);
+    sheet.appendRow(['ChatID', 'Name', 'AdAccountID', 'Slug', 'CreatedAt', 'LastMessageID']);
   }
   return sheet;
 }
 
-function readRows_() {
-  const values = getSheet_().getDataRange().getValues();
-  const headers = values.shift().map(h => String(h).trim());
-  return values.map(row => {
-    const obj = {};
-    headers.forEach((h, i) => obj[h] = row[i]);
-    return obj;
-  });
-}
-
-function findRowIndex_(slug) {
-  const values = getSheet_().getDataRange().getValues();
-  const col = values[0].map(h => String(h).trim().toLowerCase()).indexOf('slug');
-  for (let i = 1; i < values.length; i++) {
-    if (String(values[i][col]).toLowerCase() === slug) return i + 1; // 1-based sheet row
-  }
-  return -1;
-}
-
-function columnIndex_(name) {
-  const headers = getSheet_().getRange(1, 1, 1, getSheet_().getLastColumn()).getValues()[0];
-  return headers.map(h => String(h).trim().toLowerCase()).indexOf(name.toLowerCase()) + 1;
-}
-
 function doGet(e) {
-  if (!isAuthorized_(e.parameter.secret)) return json_({ status: 'Error', message: 'Unauthorized' });
-  if (e.parameter.action === 'get') return json_(readRows_());
-  return json_({ status: 'Error', message: 'Unknown action' });
+  if (!e || !e.parameter || !isAuthorized(e.parameter.secret)) {
+    return jsonResponse({ status: 'Error', message: 'Unauthorized' });
+  }
+
+  const sheet = getSheet();
+  const action = e.parameter.action;
+
+  if (action === 'get') {
+    const data = sheet.getDataRange().getValues();
+    const headers = data.shift();
+    const users = data.map(row => {
+      let obj = {};
+      headers.forEach((h, i) => {
+        if (h) obj[h.toString().trim()] = row[i];
+      });
+      return obj;
+    });
+    return jsonResponse(users);
+  }
+
+  return jsonResponse({ status: 'Error', message: 'Unknown action' });
 }
 
 function doPost(e) {
-  let body;
   try {
-    body = JSON.parse(e.postData.contents);
+    if (!e || !e.postData) return jsonResponse({ status: 'Error', message: 'No POST data' });
+
+    const body = JSON.parse(e.postData.contents);
+    if (!isAuthorized(body.secret)) return jsonResponse({ status: 'Error', message: 'Unauthorized' });
+
+    const action = body.action;
+    const sheet = getSheet();
+
+    if (action === 'register') {
+      const data = sheet.getDataRange().getValues();
+      const slug = (body.slug || '').toString().toLowerCase();
+
+      let rowIndex = -1;
+      for (let i = 1; i < data.length; i++) {
+        if (data[i][3] && data[i][3].toString().toLowerCase() === slug) {
+          rowIndex = i + 1;
+          break;
+        }
+      }
+
+      if (rowIndex === -1) {
+        sheet.appendRow([body.chatId, body.name, body.adAccountId, slug, new Date()]);
+      } else {
+        sheet.getRange(rowIndex, 1, 1, 3).setValues([[body.chatId.toString(), body.name.toString(), body.adAccountId.toString()]]);
+      }
+      return jsonResponse({ status: 'OK' });
+    }
+
+    if (action === 'remove') {
+      const data = sheet.getDataRange().getValues();
+      const slug = (body.slug || '').toString().toLowerCase();
+      for (let i = 1; i < data.length; i++) {
+        if (data[i][3] && data[i][3].toString().toLowerCase() === slug) {
+          sheet.deleteRow(i + 1);
+          break;
+        }
+      }
+      return jsonResponse({ status: 'OK' });
+    }
+
+    if (action === 'updateMsgId') {
+      const data = sheet.getDataRange().getValues();
+      const slug = (body.slug || '').toString().toLowerCase();
+      const msgId = body.lastMessageId;
+
+      for (let i = 1; i < data.length; i++) {
+        if (data[i][3] && data[i][3].toString().toLowerCase() === slug) {
+          sheet.getRange(i + 1, 6).setValue(msgId);
+          break;
+        }
+      }
+      return jsonResponse({ status: 'OK' });
+    }
+
+    return jsonResponse({ status: 'Error', message: 'Unknown action' });
   } catch (err) {
-    return json_({ status: 'Error', message: 'Invalid JSON' });
+    return jsonResponse({ status: 'Error', message: err.toString() });
   }
-  if (!isAuthorized_(body.secret)) return json_({ status: 'Error', message: 'Unauthorized' });
+}
 
-  const lock = LockService.getScriptLock();
-  lock.waitLock(10000);
-  try {
-    const sheet = getSheet_();
-    const slug = String(body.slug || '').toLowerCase();
-    if (!slug) return json_({ status: 'Error', message: 'slug is required' });
-    const row = findRowIndex_(slug);
-
-    if (body.action === 'register') {
-      // Keys are lowercase so they match headers regardless of their capitalisation.
-      const record = { slug, chatid: String(body.chatId), name: body.name, adaccountid: body.adAccountId, lastmessageid: '' };
-      const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(h => String(h).trim().toLowerCase());
-      const values = headers.map(h => record[h] !== undefined ? record[h] : '');
-      if (row > 0) sheet.getRange(row, 1, 1, values.length).setValues([values]);
-      else sheet.appendRow(values);
-      return json_({ status: 'OK' });
-    }
-
-    if (body.action === 'remove') {
-      if (row > 0) sheet.deleteRow(row);
-      return json_({ status: 'OK' });
-    }
-
-    if (body.action === 'updateMsgId') {
-      const col = columnIndex_('lastMessageId');
-      if (row > 0 && col > 0) sheet.getRange(row, col).setValue(body.lastMessageId);
-      return json_({ status: 'OK' });
-    }
-
-    return json_({ status: 'Error', message: 'Unknown action' });
-  } finally {
-    lock.releaseLock();
-  }
+function jsonResponse(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
 }

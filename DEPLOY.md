@@ -23,7 +23,7 @@ Generate random secrets with: `openssl rand -hex 32`
 
 1. Open your Google Sheet → **Extensions → Apps Script**.
 2. Replace the code with [`apps-script/Code.gs`](apps-script/Code.gs). It uses a tab named `Users`
-   with headers `slug | chatId | name | adAccountId | lastMessageId` (change `SHEET_NAME` if yours differs).
+   with headers `ChatID | Name | AdAccountID | Slug | CreatedAt | LastMessageID`.
 3. **Project Settings (gear icon) → Script Properties → Add script property**
    - Property: `SHEET_SECRET` — Value: your `GOOGLE_SHEET_SECRET`
 4. **Deploy → New deployment → Web app** (Execute as: *Me*, Who has access: *Anyone*).
