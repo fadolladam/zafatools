@@ -77,20 +77,8 @@
                 }
 
                 try {
-                    const response = await fetch(`/api/bot-unified?slug=${slug}`);
-                    const text = await response.text();
-
-                    const trimmed = text.trim();
-                    if (trimmed.startsWith('<!DOCTYPE') || trimmed.startsWith('<html')) {
-                        throw new Error("Network Conflict: Received an HTML page instead of data. Please use 'npm start' to run the project correctly via Vercel Dev.");
-                    }
-
-                    if (trimmed.startsWith('//') || trimmed.startsWith('const')) {
-                        throw new Error("Local Server Conflict: Your server is returning script source code. Please run via 'npm start'.");
-                    }
-
-                    const data = JSON.parse(text);
-                    
+                    const response = await fetch(`/api/bot-unified?slug=${encodeURIComponent(slug)}`);
+                    const data = await response.json();
                     if (data.error) throw new Error(data.error);
 
                     customerTitle.textContent = `${data.customerName}'s Snapshot`;

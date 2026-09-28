@@ -47,11 +47,11 @@ module.exports = async (req, res) => {
 
       if (slug) {
         console.log(`Fetching data for slug: ${slug}`);
-        const customer = await db.getUserBySlug(slug);
-        if (!customer) {
-          return res.status(404).json({ error: 'Customer not found' });
-        }
         try {
+          const customer = await db.getUserBySlug(slug);
+          if (!customer) {
+            return res.status(404).json({ error: 'Customer not found' });
+          }
           const accountDetails = await fetchAccountDetails(customer.adAccountId);
           return res.status(200).json({
             ...accountDetails,
@@ -173,7 +173,7 @@ Available at: <code>https://${req.headers.host || 'your-app'}/ads.html</code>
           "",
           "✅ <b>Telegram Bot:</b> Online",
           `🔑 <b>Facebook API:</b> ${tokenDisplay}`,
-          db.usesGoogleSheet ? "✅ <b>Database:</b> Google Sheets" : "⚠️ <b>Database:</b> Local File (Temporary)",
+          config.googleSheetUrl ? "✅ <b>Database:</b> Google Sheets" : "❌ <b>Database:</b> Not configured",
           `📡 <b>Host:</b> ${req.headers.host || 'Vercel'}`,
           `⏱ <b>Server Time:</b> ${new Date().toLocaleTimeString()}`
         ].join("\n");
@@ -233,7 +233,8 @@ Available at: <code>https://${req.headers.host || 'your-app'}/ads.html</code>
             const sentMsg = await bot.sendMessage(chatId, replyMessage, { parse_mode: 'HTML' });
 
             // Save the new message ID for next time
-            await db.updateLastMessageId(account.slug, sentMsg.message_id);
+            await db.updateLastMessageId(account.slug, sentMsg.message_id)
+              .catch(err => console.error(`Could not save message id for ${account.slug}:`, err.message));
 
           } catch (error) {
             await bot.sendMessage(chatId, `❌ Error [${esc(account.name)}]: ${esc(error.message)}`, { parse_mode: 'HTML' });
