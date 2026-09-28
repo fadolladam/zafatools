@@ -271,8 +271,6 @@
 
     <script>
         const state = {
-            fbToken: '',
-            tgToken: '',
             customers: {},
             adAccounts: [],
             selectedCustomer: '',
@@ -282,12 +280,37 @@
             accountLookup: {}
         };
 
-        const DATE_PRESETS = {
-            today: 'today',
-            yesterday: 'yesterday',
-            last_7_days: 'last_7d',
-            lifetime: 'lifetime'
-        };
+        // All Facebook/Telegram calls go through /api/dashboard, which holds the tokens server-side.
+        // The dashboard password is kept only for this browser tab (sessionStorage).
+        function getPassword(forcePrompt = false) {
+            let pw = '';
+            try { pw = sessionStorage.getItem('dashboardPassword') || ''; } catch (e) {}
+            if (!pw || forcePrompt) {
+                pw = window.prompt('Dashboard password') || '';
+                try { sessionStorage.setItem('dashboardPassword', pw); } catch (e) {}
+            }
+            return pw;
+        }
+
+        async function api(action, { method = 'GET', params = {}, body } = {}, retried = false) {
+            const qs = new URLSearchParams({ action, ...params });
+            const res = await fetch(`/api/dashboard?${qs}`, {
+                method,
+                cache: 'no-store',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-dashboard-password': getPassword(retried)
+                },
+                body: body ? JSON.stringify(body) : undefined
+            });
+            if (res.status === 401 && !retried) {
+                showNotification('Wrong dashboard password', 'error');
+                return api(action, { method, params, body }, true);
+            }
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+            return data;
+        }
 
         // UI HELPERS
         function showNotification(msg, type = 'info') {
@@ -317,30 +340,14 @@
         async function loadConfig() {
             setLoading('Refresh Config', true);
             try {
-                const response = await fetch('api/bot-unified?mode=config', { cache: 'no-store' });
-                const text = await response.text();
-                
-                // Detailed diagnostic check
-                const trimmed = text.trim();
-                if (trimmed.startsWith('<!DOCTYPE') || trimmed.startsWith('<html')) {
-                    throw new Error("Network Conflict: Received an HTML page instead of data. This happens when the path 'api/bot-unified' isn't recognized by your current server. IMPORTANT: Stop using Laragon's URL and use 'npm start' to get the correct local URL (http://localhost:3000).");
-                }
-                
-                if (trimmed.startsWith('//') || trimmed.startsWith('const')) {
-                    throw new Error("Local Server Conflict: Your server is returning the script source code. Please use 'npm start' to run the project correctly.");
-                }
-
-                const data = JSON.parse(text);
-                
-                state.fbToken = data.facebookAccessToken;
-                state.tgToken = data.telegramBotToken;
+                const data = await api('config');
                 state.customers = data.customers || {};
 
-                document.getElementById('telegramTokenStatus').textContent = state.tgToken ? '✅ Bot Connected' : '❌ Missing Token';
-                document.getElementById('facebookTokenStatus').textContent = state.fbToken ? '✅ API Connected' : '❌ Access Denied';
+                document.getElementById('telegramTokenStatus').textContent = data.telegramConnected ? '✅ Bot Connected' : '❌ Missing Token';
+                document.getElementById('facebookTokenStatus').textContent = data.facebookConnected ? '✅ API Connected' : '❌ Access Denied';
                 
                 renderCustomers();
-                if (state.fbToken) await loadAdAccounts();
+                if (data.facebookConnected) await loadAdAccounts();
 
             } catch (err) {
                 showNotification(`Config Sync Error: ${err.message}`, 'error');
@@ -351,11 +358,8 @@
 
         async function loadAdAccounts() {
             try {
-                const res = await fetch(`https://graph.facebook.com/v19.0/me?fields=adaccounts{name,account_id,account_status,currency}&access_token=${state.fbToken}`);
-                const data = await res.json();
-                if (data.error) throw new Error(data.error.message);
-
-                state.adAccounts = data.adaccounts?.data || [];
+                const data = await api('adaccounts');
+                state.adAccounts = data.adAccounts || [];
                 state.accountLookup = {};
                 state.adAccounts.forEach(acc => state.accountLookup[acc.id] = acc);
                 
@@ -392,17 +396,9 @@
             setLoading('Search Ads', true);
             
             try {
-                const params = new URLSearchParams({
-                    level: 'ad',
-                    fields: 'ad_name,ad_id,campaign_name,adset_name,impressions,clicks,spend,ctr,inline_link_clicks,actions',
-                    date_preset: DATE_PRESETS[state.selectedRange],
-                    effective_status: "['ACTIVE']",
-                    limit: '150'
+                const data = await api('insights', {
+                    params: { adAccountId: state.selectedAdAccount, range: state.selectedRange }
                 });
-
-                const res = await fetch(`https://graph.facebook.com/v19.0/${state.selectedAdAccount}/insights?${params}&access_token=${state.fbToken}`);
-                const data = await res.json();
-                if (data.error) throw new Error(data.error.message);
 
                 state.ads = (data.data || []).map(i => ({
                     id: i.ad_id,
@@ -489,17 +485,11 @@
             });
 
             try {
-                const res = await fetch(`https://api.telegram.org/bot${state.tgToken}/sendMessage`, {
+                await api('send', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: state.selectedCustomer,
-                        text: msg,
-                        parse_mode: 'Markdown'
-                    })
+                    body: { slug: state.selectedCustomer, text: msg }
                 });
-                if (res.ok) showNotification('Dashboard shared to Telegram!', 'success');
-                else throw new Error('Telegram API Rejected Request');
+                showNotification('Dashboard shared to Telegram!', 'success');
             } catch (err) {
                 showNotification(`Relay Error: ${err.message}`, 'error');
             } finally {

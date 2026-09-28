@@ -31,3 +31,4 @@ build/
 .next/
 out/
 
+db.json

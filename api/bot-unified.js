@@ -1,16 +1,13 @@
 // File: api/bot-unified.js - Single bot that routes based on chat ID
 const TelegramBot = require('node-telegram-bot-api');
-const axios = require('axios');
 
 // --- Configuration ---
-const telegramBotToken =
-  process.env.TELEGRAM_BOT_TOKEN ||
-  '8469761825:AAEWqHvpgJ_nx8Ah18Y9hYy9Iw6YXSy1RBQ';
-const facebookAccessToken =
-  process.env.FACEBOOK_ACCESS_TOKEN ||
-  'EAAVtTpmb2ccBSnQyScvm83pYRcj2cGCq4GGf4hiqYeAu9IPaiLWL8IQtKMSASsjIzyDQDu5wN5Ss3SNZBuEwF9ARXDNiwSJV7BbZCEnderPTvPVn8310dAWv3cxkk2ZCHeMEtWC9BHBEC5fNZCbuIFQZCm975u9iteSuMwEISSkd7LNDADctTCkM84Td0ZBL9c';
+// All secrets come from Vercel environment variables — see lib/config.js and DEPLOY.md.
+const config = require('../lib/config');
+const db = require('../lib/db');
+const { fetchAccountDetails } = require('../lib/facebook');
 
-const db = require('./db');
+const facebookAccessToken = config.facebookAccessToken;
 
 // --- Helpers ---
 const esc = (text) => {
@@ -26,41 +23,11 @@ const esc = (text) => {
 // Initialize the Telegram Bot
 let bot;
 try {
-  if (telegramBotToken) {
-    bot = new TelegramBot(telegramBotToken);
+  if (config.telegramBotToken) {
+    bot = new TelegramBot(config.telegramBotToken);
   }
 } catch (error) {
   console.error('Error initializing Telegram bot:', error.message);
-}
-
-/**
- * Fetches data from the Facebook Graph API for a specific ad account.
- */
-async function fetchAccountDetails(adAccountId) {
-  console.log(
-    `Attempting to fetch Facebook account details for: ${adAccountId}`
-  );
-  if (!facebookAccessToken) {
-    console.error('Facebook Access Token is missing!');
-    throw new Error('Facebook Access Token is not configured.');
-  }
-
-  const fields = 'name,balance,currency';
-  const url = `https://graph.facebook.com/v19.0/${adAccountId}?fields=${fields}&access_token=${facebookAccessToken}`;
-
-  try {
-    const response = await axios.get(url);
-    console.log(`Successfully fetched details for account: ${adAccountId}`);
-    return response.data;
-  } catch (error) {
-    const errorMessage = error.response
-      ? error.response.data.error.message
-      : error.message;
-    console.error('Facebook API Error:', errorMessage);
-    throw new Error(
-      'Failed to fetch details from Facebook. The token might be invalid or expired.'
-    );
-  }
 }
 
 // --- Vercel Serverless Function ---
@@ -74,19 +41,9 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Handle webhook verification and config requests
+    // Public customer snapshot used by c.html (no secrets returned)
     if (req.method === 'GET') {
-      const mode = req.query?.mode;
       const slug = req.query?.slug;
-
-      if (mode === 'config') {
-        const users = await db.getUsers();
-        return res.status(200).json({
-          facebookAccessToken,
-          telegramBotToken,
-          customers: users
-        });
-      }
 
       if (slug) {
         console.log(`Fetching data for slug: ${slug}`);
@@ -106,6 +63,14 @@ module.exports = async (req, res) => {
       }
 
       return res.status(200).send('Unified Telegram Bot Webhook Endpoint');
+    }
+
+    // Only accept webhook updates that carry the secret we registered with Telegram
+    // (setWebhook ... &secret_token=<TELEGRAM_WEBHOOK_SECRET>).
+    const incomingSecret = req.headers['x-telegram-bot-api-secret-token'];
+    if (!config.safeEqual(incomingSecret, config.telegramWebhookSecret)) {
+      console.warn('Rejected webhook call with missing/invalid secret token.');
+      return res.status(401).json({ error: 'Unauthorized' });
     }
 
     const message = req.body?.message;
@@ -208,7 +173,7 @@ Available at: <code>https://${req.headers.host || 'your-app'}/ads.html</code>
           "",
           "✅ <b>Telegram Bot:</b> Online",
           `🔑 <b>Facebook API:</b> ${tokenDisplay}`,
-          db.GOOGLE_SHEET_URL ? "✅ <b>Database:</b> Google Sheets" : "⚠️ <b>Database:</b> Local File (Temporary)",
+          db.usesGoogleSheet ? "✅ <b>Database:</b> Google Sheets" : "⚠️ <b>Database:</b> Local File (Temporary)",
           `📡 <b>Host:</b> ${req.headers.host || 'Vercel'}`,
           `⏱ <b>Server Time:</b> ${new Date().toLocaleTimeString()}`
         ].join("\n");

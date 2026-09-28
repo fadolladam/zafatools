@@ -16,6 +16,10 @@
       "dest": "/api/bot-unified.js"
     },
     {
+      "src": "/api/dashboard",
+      "dest": "/api/dashboard.js"
+    },
+    {
       "src": "/$",
       "dest": "/ads.html"
     },
