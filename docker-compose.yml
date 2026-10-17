@@ -1,0 +1,31 @@
+name: zafatools
+
+services:
+  app:
+    build: .
+    container_name: zafatools
+    restart: "no"
+    init: true
+    ports:
+      - "127.0.0.1:10000:3000"
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      FACEBOOK_ACCESS_TOKEN: ${FACEBOOK_ACCESS_TOKEN:-}
+      GOOGLE_SHEET_URL: ${GOOGLE_SHEET_URL:-}
+      GOOGLE_SHEET_SECRET: ${GOOGLE_SHEET_SECRET:-}
+      TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:-}
+      DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD:-}
+    volumes:
+      - .:/app:ro
+      - zafatools_node_modules:/app/node_modules
+    healthcheck:
+      test:
+        ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+      start_period: 60s
+
+volumes:
+  zafatools_node_modules:
+    name: zafatools_node_modules
