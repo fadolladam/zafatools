@@ -43,8 +43,8 @@ module.exports = async (req, res) => {
         const spend = Number(insights.data?.[0]?.spend || 0);
         if (!Number.isFinite(spend) || spend < account.spendLimit) continue;
 
-        const alertDate = accountDateKey(details.timezone_name);
         stage = 'claim_alert';
+        const alertDate = accountDateKey(details.timezone_name);
         const claim = await db.claimSpendAlert(account.slug, alertDate);
         if (!claim.claimed) continue;
 
@@ -53,13 +53,13 @@ module.exports = async (req, res) => {
           stage = 'send_telegram';
           await bot.sendMessage(
             account.chatId,
-            `🚨 Ad spend limit reached\n\nAccount: ${account.name}\nToday's spend: ${details.currency} ${spend.toFixed(2)}\nYour limit: ${details.currency} ${account.spendLimit.toFixed(2)}\n\nThis alert is sent once per day for this account.`
+            `🚨 Ad spend limit reached\n\nAccount: ${account.name}\nToday's spend: ${details.currency} ${spend.toFixed(2)}\nYour limit: ${details.currency} ${account.spendLimit.toFixed(2)}\n\nWhile spend stays at or above the limit, reminders repeat every 15 minutes.`
           );
           sent = true;
           notified++;
         } finally {
           if (sent) stage = 'finish_alert';
-          await db.finishSpendAlert(account.slug, alertDate, claim.claimToken, sent);
+          await db.finishSpendAlert(account.slug, claim.claimToken, sent);
         }
       } catch (error) {
         failed++;

@@ -18,7 +18,7 @@ function getSheet() {
     sheet.appendRow(['ChatID', 'Name', 'AdAccountID', 'Slug', 'CreatedAt', 'LastMessageID']);
   }
   const headers = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
-  ['SpendLimit', 'LastAlertDate', 'AlertClaim'].forEach(name => {
+  ['SpendLimit', 'LastAlertDate', 'LastAlertAt', 'AlertClaim'].forEach(name => {
     if (headers.indexOf(name) === -1) {
       sheet.getRange(1, sheet.getLastColumn() + 1).setValue(name);
       headers.push(name);
@@ -139,11 +139,22 @@ function doPost(e) {
         const row = findSlugRow(sheet, body.slug.toString());
         if (row === -1) return jsonResponse({ status: 'Error', message: 'Account not found' });
         const lastAlertDate = sheet.getRange(row, columnIndex(sheet, 'LastAlertDate')).getValue().toString();
+        const lastAlertAtValue = sheet.getRange(row, columnIndex(sheet, 'LastAlertAt')).getValue();
+        const lastAlertAt = lastAlertAtValue instanceof Date
+          ? lastAlertAtValue.getTime()
+          : (Date.parse(lastAlertAtValue) || 0);
+        if (!lastAlertAt && body.alertDate && lastAlertDate === body.alertDate) {
+          // Migrate a same-day alert from the old daily-only cooldown.
+          sheet.getRange(row, columnIndex(sheet, 'LastAlertAt')).setValue(new Date());
+          return jsonResponse({ status: 'OK', claimed: false });
+        }
         const claimCell = sheet.getRange(row, columnIndex(sheet, 'AlertClaim'));
         const claim = claimCell.getValue().toString();
         const now = Date.now();
         const claimParts = claim.split('|');
-        if (lastAlertDate === body.alertDate || (claimParts.length === 2 && now - Number(claimParts[1]) < 10 * 60 * 1000)) {
+        const cooldownMs = 15 * 60 * 1000;
+        const claimIsActive = claimParts.length === 2 && now - Number(claimParts[1]) < 10 * 60 * 1000;
+        if ((lastAlertAt > 0 && now - lastAlertAt < cooldownMs) || claimIsActive) {
           return jsonResponse({ status: 'OK', claimed: false });
         }
         const claimToken = Utilities.getUuid();
@@ -163,7 +174,7 @@ function doPost(e) {
         const claimCell = sheet.getRange(row, columnIndex(sheet, 'AlertClaim'));
         const claim = claimCell.getValue().toString().split('|')[0];
         if (claim === body.claimToken) {
-          if (body.sent === true) sheet.getRange(row, columnIndex(sheet, 'LastAlertDate')).setValue(body.alertDate);
+          if (body.sent === true) sheet.getRange(row, columnIndex(sheet, 'LastAlertAt')).setValue(new Date());
           claimCell.clearContent();
         }
         return jsonResponse({ status: 'OK' });
