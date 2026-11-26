@@ -17,7 +17,28 @@ function getSheet() {
     sheet = ss.insertSheet(SHEET_NAME);
     sheet.appendRow(['ChatID', 'Name', 'AdAccountID', 'Slug', 'CreatedAt', 'LastMessageID']);
   }
+  const headers = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
+  ['SpendLimit', 'LastAlertDate', 'AlertClaim'].forEach(name => {
+    if (headers.indexOf(name) === -1) {
+      sheet.getRange(1, sheet.getLastColumn() + 1).setValue(name);
+      headers.push(name);
+    }
+  });
   return sheet;
+}
+
+function columnIndex(sheet, name) {
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  return headers.indexOf(name) + 1;
+}
+
+function findSlugRow(sheet, slug) {
+  const data = sheet.getDataRange().getValues();
+  const slugColumn = columnIndex(sheet, 'Slug') - 1;
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][slugColumn] && data[i][slugColumn].toString().toLowerCase() === slug.toLowerCase()) return i + 1;
+  }
+  return -1;
 }
 
 function doGet(e) {
@@ -98,6 +119,57 @@ function doPost(e) {
         }
       }
       return jsonResponse({ status: 'OK' });
+    }
+
+    if (action === 'setSpendLimit') {
+      const limit = Number(body.spendLimit);
+      if (!body.slug || !Number.isFinite(limit) || limit < 0 || limit > 1000000000) {
+        return jsonResponse({ status: 'Error', message: 'Invalid spend limit' });
+      }
+      const row = findSlugRow(sheet, body.slug.toString());
+      if (row === -1) return jsonResponse({ status: 'Error', message: 'Account not found' });
+      sheet.getRange(row, columnIndex(sheet, 'SpendLimit')).setValue(limit);
+      return jsonResponse({ status: 'OK' });
+    }
+
+    if (action === 'claimSpendAlert') {
+      const lock = LockService.getScriptLock();
+      lock.waitLock(10000);
+      try {
+        const row = findSlugRow(sheet, body.slug.toString());
+        if (row === -1) return jsonResponse({ status: 'Error', message: 'Account not found' });
+        const lastAlertDate = sheet.getRange(row, columnIndex(sheet, 'LastAlertDate')).getValue().toString();
+        const claimCell = sheet.getRange(row, columnIndex(sheet, 'AlertClaim'));
+        const claim = claimCell.getValue().toString();
+        const now = Date.now();
+        const claimParts = claim.split('|');
+        if (lastAlertDate === body.alertDate || (claimParts.length === 2 && now - Number(claimParts[1]) < 10 * 60 * 1000)) {
+          return jsonResponse({ status: 'OK', claimed: false });
+        }
+        const claimToken = Utilities.getUuid();
+        claimCell.setValue(claimToken + '|' + now);
+        return jsonResponse({ status: 'OK', claimed: true, claimToken });
+      } finally {
+        lock.releaseLock();
+      }
+    }
+
+    if (action === 'finishSpendAlert') {
+      const lock = LockService.getScriptLock();
+      lock.waitLock(10000);
+      try {
+        const row = findSlugRow(sheet, body.slug.toString());
+        if (row === -1) return jsonResponse({ status: 'Error', message: 'Account not found' });
+        const claimCell = sheet.getRange(row, columnIndex(sheet, 'AlertClaim'));
+        const claim = claimCell.getValue().toString().split('|')[0];
+        if (claim === body.claimToken) {
+          if (body.sent === true) sheet.getRange(row, columnIndex(sheet, 'LastAlertDate')).setValue(body.alertDate);
+          claimCell.clearContent();
+        }
+        return jsonResponse({ status: 'OK' });
+      } finally {
+        lock.releaseLock();
+      }
     }
 
     return jsonResponse({ status: 'Error', message: 'Unknown action' });

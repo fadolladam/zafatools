@@ -1,0 +1,32 @@
+name: Five-minute ad spend check
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ad-spend-alert-check
+  cancel-in-progress: false
+
+jobs:
+  check-spend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Call the Vercel spend-alert endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::notice::Add the CRON_SECRET Actions secret to enable scheduled checks."
+            exit 0
+          fi
+          curl --fail --silent --show-error --max-time 45 \
+            --retry 2 --retry-all-errors \
+            --header "Authorization: Bearer ${CRON_SECRET}" \
+            "https://zafatools.vercel.app/api/cron-spend-alerts" \
+            --output /dev/null

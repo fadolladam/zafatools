@@ -150,6 +150,20 @@
                     </div>
                 </div>
 
+                <!-- Daily spend alert limit -->
+                <div class="glass-card rounded-3xl p-6">
+                    <h3 class="text-lg font-semibold mb-2 flex items-center gap-2">
+                        <span class="text-amber-400">$</span> Daily Spend Alert
+                    </h3>
+                    <p class="text-xs text-slate-400 mb-4">Send one Telegram alert per account day when spend reaches this amount. Set 0 to turn it off.</p>
+                    <p class="text-[10px] text-slate-500 mb-2">Amount in <span id="spendLimitCurrency">the ad account's currency</span></p>
+                    <div class="flex gap-2">
+                        <input id="spendLimitInput" type="number" min="0" step="0.01" inputmode="decimal" placeholder="100.00" class="min-w-0 flex-1 rounded-xl p-3 input-dark text-sm">
+                        <button id="saveSpendLimitBtn" class="px-4 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold transition">Save</button>
+                    </div>
+                    <p id="spendLimitStatus" class="mt-3 text-xs text-slate-500">Choose a customer to configure an alert.</p>
+                </div>
+
                 <!-- Date Filter -->
                 <div class="glass-card rounded-3xl p-6">
                     <h3 class="text-lg font-semibold mb-6 flex items-center gap-2">
@@ -497,6 +511,45 @@
             }
         }
 
+        async function saveSpendLimit() {
+            if (!state.selectedCustomer) return showNotification('Choose a customer first', 'error');
+            const customer = state.customers[state.selectedCustomer];
+            if (customer.adAccountId !== state.selectedAdAccount) {
+                return showNotification('Select this customer’s registered ad account before saving the limit', 'error');
+            }
+            const input = document.getElementById('spendLimitInput');
+            const spendLimit = Number(input.value);
+            if (!Number.isFinite(spendLimit) || spendLimit < 0 || spendLimit > 1000000000) {
+                return showNotification('Enter a valid limit of 0 or more', 'error');
+            }
+            setLoading('Save', true);
+            try {
+                await api('set-limit', { method: 'POST', body: { slug: state.selectedCustomer, spendLimit } });
+                state.customers[state.selectedCustomer].spendLimit = spendLimit;
+                document.getElementById('spendLimitStatus').textContent = spendLimit === 0
+                    ? 'Spend alert is off for this customer.'
+                    : `Alert when today's spend reaches ${formatCurrency(spendLimit, state.accountLookup[state.selectedAdAccount]?.currency)}.`;
+                showNotification('Spend alert limit saved', 'success');
+            } catch (err) {
+                showNotification(`Could not save limit: ${err.message}`, 'error');
+            } finally {
+                setLoading('Save', false);
+            }
+        }
+
+        function loadSpendLimit() {
+            const customer = state.customers[state.selectedCustomer];
+            const limit = Number(customer?.spendLimit || 0);
+            const currency = state.accountLookup[customer?.adAccountId]?.currency;
+            document.getElementById('spendLimitCurrency').textContent = currency || "the ad account's currency";
+            document.getElementById('spendLimitInput').value = limit > 0 ? limit : '';
+            document.getElementById('spendLimitStatus').textContent = !customer
+                ? 'Choose a customer to configure an alert.'
+                : limit > 0
+                    ? `Current limit: ${formatCurrency(limit, currency)}.`
+                    : 'No alert set. Enter a limit, or leave at 0 to keep alerts off.';
+        }
+
         function setLoading(btnId, isLoading) {
             const btn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes(btnId));
             if (!btn) return;
@@ -517,19 +570,23 @@
         document.getElementById('refreshConfigBtn').onclick = loadConfig;
         document.getElementById('fetchAdsBtn').onclick = fetchAds;
         document.getElementById('sendTelegramBtn').onclick = sendToTelegram;
+        document.getElementById('saveSpendLimitBtn').onclick = saveSpendLimit;
         
         document.getElementById('customerSelect').onchange = (e) => {
             state.selectedCustomer = e.target.value;
             const customer = state.customers[e.target.value];
+            loadSpendLimit();
             if (customer && customer.adAccountId) {
                 document.getElementById('adAccountSelect').value = customer.adAccountId;
                 state.selectedAdAccount = customer.adAccountId;
+                loadSpendLimit();
                 fetchAds();
             }
         };
 
         document.getElementById('adAccountSelect').onchange = (e) => {
             state.selectedAdAccount = e.target.value;
+            loadSpendLimit();
             if (state.selectedAdAccount) fetchAds();
         };
 

@@ -6,7 +6,8 @@ const { URL } = require('node:url');
 const root = __dirname;
 const apiHandlers = {
   '/api/bot-unified': require('./api/bot-unified'),
-  '/api/dashboard': require('./api/dashboard')
+  '/api/dashboard': require('./api/dashboard'),
+  '/api/cron-spend-alerts': require('./api/cron-spend-alerts')
 };
 
 const mimeTypes = {

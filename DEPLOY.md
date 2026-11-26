@@ -16,6 +16,7 @@ Guide to deploy and manage your dynamic Facebook Ad Account Balance Bot.
 | `GOOGLE_SHEET_SECRET` | Random string you generate — must equal `SHEET_SECRET` in Apps Script |
 | `TELEGRAM_WEBHOOK_SECRET` | Random string you generate (letters, digits, `_`, `-` only) |
 | `DASHBOARD_PASSWORD` | Password for `ads.html` |
+| `CRON_SECRET` | Random secret shared by the protected endpoint and GitHub scheduled workflow |
 
 Generate random secrets with: `openssl rand -hex 32`
 
@@ -33,8 +34,20 @@ Generate random secrets with: `openssl rand -hex 32`
 ## 3. Vercel
 
 1. vercel.com → project `zafatools` → **Settings → Environment Variables**.
-2. Add all six variables from step 1 (Production, Preview and Development).
+2. Add all seven variables from step 1 (Production, Preview and Development).
 3. Redeploy (Deployments → ⋯ → Redeploy) so the new values take effect.
+
+### Daily spend alerts
+
+The dashboard lets you set a daily spend limit for each registered account. The
+limit is saved in the Google Sheet and can be changed or disabled in the
+dashboard at any time. The protected endpoint checks Meta account-level spend
+and sends one Telegram group message per account day after the limit is reached.
+This project is on Vercel Hobby, so five-minute checks are scheduled by GitHub
+Actions instead of Vercel Cron. Add the same `CRON_SECRET` value to Vercel
+Production Environment Variables and the GitHub repository Actions secret named
+`CRON_SECRET`. Generate a long random value locally with `openssl rand -hex 32`.
+GitHub schedules support five-minute intervals, though actual runs can be delayed.
 
 ## 4. Connect the bot (with webhook secret)
 
@@ -54,7 +67,8 @@ Each customer gets a public balance page: `https://<YOUR_APP>.vercel.app/c.html?
 
 ## 🛠️ Dashboard
 
-`https://<YOUR_APP>.vercel.app/ads.html` — asks for `DASHBOARD_PASSWORD`. The browser never
+`https://<YOUR_APP>.vercel.app/ads.html` — asks for `DASHBOARD_PASSWORD`. Set the limit
+under **Daily Spend Alert** for each customer. The browser never
 receives the Facebook or Telegram tokens; all calls go through `/api/dashboard`.
 
 ## 💻 Local development

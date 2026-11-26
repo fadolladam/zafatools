@@ -23,7 +23,7 @@ page at <http://localhost:3000/c.html?id=SLUG>. The root URL redirects to the
 dashboard. Logs: `docker compose logs -f app`. Stop the app with
 `docker compose stop`; named volumes and source files are preserved.
 
-The container runs `dev-server.js`, a local adapter for this project's two
+The container runs `dev-server.js`, a local adapter for this project's API
 Vercel Node function handlers and its static routes. It reads the same `.env`
 values but does not require Vercel CLI login. The adapter supports the handler
 request/response features used here; it does not emulate Vercel's deployment,
@@ -45,3 +45,12 @@ project settings requires an authenticated Vercel project link.
 
 No database schema, seed data, or external deployment is needed for this local
 development setup.
+
+## Daily spend alerts
+
+Set a per-account daily spend threshold in the password-protected dashboard.
+A GitHub Actions schedule checks Meta spend every five minutes and calls the
+Vercel endpoint, which sends one Telegram alert per account day when the
+threshold is met. Use the same `CRON_SECRET` value in Vercel Production
+Environment Variables and GitHub Actions repository secrets. GitHub may delay
+scheduled runs during periods of high load.

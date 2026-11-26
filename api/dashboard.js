@@ -56,6 +56,18 @@ module.exports = async (req, res) => {
       return res.status(200).json({ data: data.data || [] });
     }
 
+    if (req.method === 'POST' && action === 'set-limit') {
+      const { slug, spendLimit } = req.body || {};
+      const limit = Number(spendLimit);
+      if (!slug || !Number.isFinite(limit) || limit < 0 || limit > 1000000000) {
+        return res.status(400).json({ error: 'A valid spend limit of 0 or more is required.' });
+      }
+      const customer = await db.getUserBySlug(String(slug));
+      if (!customer) return res.status(404).json({ error: 'Customer not found' });
+      await db.setSpendLimit(String(slug), limit);
+      return res.status(200).json({ status: 'OK', spendLimit: limit });
+    }
+
     if (req.method === 'POST' && action === 'send') {
       const { slug, text } = req.body || {};
       if (!slug || !text) {
