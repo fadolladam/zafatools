@@ -10,11 +10,6 @@
       "use": "@vercel/static"
     }
   ],
-  "functions": {
-    "api/cron-spend-alerts.js": {
-      "maxDuration": 60
-    }
-  },
   "routes": [
     {
       "src": "/api/bot-unified",
