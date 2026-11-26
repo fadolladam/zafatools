@@ -31,6 +31,7 @@ module.exports = async (req, res) => {
     for (const account of Object.values(users)) {
       if (!account.chatId || !account.adAccountId || !Number.isFinite(account.spendLimit) || account.spendLimit <= 0) continue;
       checked++;
+      let stage = 'fetch_spend';
       try {
         const accountId = String(account.adAccountId);
         if (!/^act_\d+$/.test(accountId)) throw new Error('Invalid ad account id');
@@ -43,11 +44,13 @@ module.exports = async (req, res) => {
         if (!Number.isFinite(spend) || spend < account.spendLimit) continue;
 
         const alertDate = accountDateKey(details.timezone_name);
+        stage = 'claim_alert';
         const claim = await db.claimSpendAlert(account.slug, alertDate);
         if (!claim.claimed) continue;
 
         let sent = false;
         try {
+          stage = 'send_telegram';
           await bot.sendMessage(
             account.chatId,
             `🚨 Ad spend limit reached\n\nAccount: ${account.name}\nToday's spend: ${details.currency} ${spend.toFixed(2)}\nYour limit: ${details.currency} ${account.spendLimit.toFixed(2)}\n\nThis alert is sent once per day for this account.`
@@ -55,11 +58,12 @@ module.exports = async (req, res) => {
           sent = true;
           notified++;
         } finally {
+          if (sent) stage = 'finish_alert';
           await db.finishSpendAlert(account.slug, alertDate, claim.claimToken, sent);
         }
       } catch (error) {
         failed++;
-        console.error(`Spend alert check failed for ${account.slug}`);
+        console.error(`Spend alert check failed for ${account.slug} during ${stage}`);
       }
     }
     return res.status(failed ? 503 : 200).json({ ok: failed === 0, checked, notified, failed });
