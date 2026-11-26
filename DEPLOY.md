@@ -37,12 +37,13 @@ Generate random secrets with: `openssl rand -hex 32`
 2. Add all seven variables from step 1 (Production, Preview and Development).
 3. Redeploy (Deployments → ⋯ → Redeploy) so the new values take effect.
 
-### Daily spend alerts
+### Outstanding balance alerts
 
-The dashboard lets you set a daily spend limit for each registered account. The
-limit is saved in the Google Sheet and can be changed or disabled in the
-dashboard at any time. The protected endpoint checks Meta account-level spend
-and sends one Telegram group message per account day after the limit is reached.
+The dashboard lets you set an outstanding balance limit for each registered
+account. The limit is saved in the Google Sheet and can be changed or disabled
+in the dashboard at any time. The protected endpoint checks Meta's account
+balance due and sends a Telegram group reminder every 15 minutes while the
+balance remains at or above the limit.
 This project is on Vercel Hobby, so five-minute checks are scheduled by GitHub
 Actions instead of Vercel Cron. Add the same `CRON_SECRET` value to Vercel
 Production Environment Variables and the GitHub repository Actions secret named

@@ -18,7 +18,7 @@ function getSheet() {
     sheet.appendRow(['ChatID', 'Name', 'AdAccountID', 'Slug', 'CreatedAt', 'LastMessageID']);
   }
   const headers = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
-  ['SpendLimit', 'LastAlertDate', 'LastAlertAt', 'AlertClaim'].forEach(name => {
+  ['BalanceLimit', 'LastAlertDate', 'LastAlertAt', 'AlertClaim'].forEach(name => {
     if (headers.indexOf(name) === -1) {
       sheet.getRange(1, sheet.getLastColumn() + 1).setValue(name);
       headers.push(name);
@@ -121,14 +121,14 @@ function doPost(e) {
       return jsonResponse({ status: 'OK' });
     }
 
-    if (action === 'setSpendLimit') {
-      const limit = Number(body.spendLimit);
+    if (action === 'setBalanceLimit') {
+      const limit = Number(body.balanceLimit);
       if (!body.slug || !Number.isFinite(limit) || limit < 0 || limit > 1000000000) {
-        return jsonResponse({ status: 'Error', message: 'Invalid spend limit' });
+        return jsonResponse({ status: 'Error', message: 'Invalid outstanding balance limit' });
       }
       const row = findSlugRow(sheet, body.slug.toString());
       if (row === -1) return jsonResponse({ status: 'Error', message: 'Account not found' });
-      sheet.getRange(row, columnIndex(sheet, 'SpendLimit')).setValue(limit);
+      sheet.getRange(row, columnIndex(sheet, 'BalanceLimit')).setValue(limit);
       return jsonResponse({ status: 'OK' });
     }
 

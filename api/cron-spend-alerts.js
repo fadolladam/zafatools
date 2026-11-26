@@ -1,7 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 const config = require('../lib/config');
 const db = require('../lib/db');
-const { graphGet, fetchAccountDetails } = require('../lib/facebook');
+const { fetchAccountDetails } = require('../lib/facebook');
 
 const bot = config.telegramBotToken ? new TelegramBot(config.telegramBotToken) : null;
 
@@ -11,6 +11,18 @@ function accountDateKey(timeZone) {
   }).formatToParts(new Date());
   const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
   return `${values.year}-${values.month}-${values.day}`;
+}
+
+function fromMetaCurrencyUnits(amount, currency) {
+  const rawAmount = Number(amount);
+  if (!Number.isFinite(rawAmount)) throw new Error('Meta returned an invalid outstanding balance');
+  let fractionDigits = 2;
+  try {
+    fractionDigits = new Intl.NumberFormat('en', { style: 'currency', currency }).resolvedOptions().maximumFractionDigits;
+  } catch (_) {
+    // Use two decimal places for an unrecognized currency code.
+  }
+  return rawAmount / (10 ** fractionDigits);
 }
 
 module.exports = async (req, res) => {
@@ -29,19 +41,16 @@ module.exports = async (req, res) => {
   try {
     const users = await db.getUsers();
     for (const account of Object.values(users)) {
-      if (!account.chatId || !account.adAccountId || !Number.isFinite(account.spendLimit) || account.spendLimit <= 0) continue;
+      if (!account.chatId || !account.adAccountId || !Number.isFinite(account.balanceLimit) || account.balanceLimit <= 0) continue;
       checked++;
-      let stage = 'fetch_spend';
+      let stage = 'fetch_balance';
       try {
         const accountId = String(account.adAccountId);
         if (!/^act_\d+$/.test(accountId)) throw new Error('Invalid ad account id');
 
-        const [insights, details] = await Promise.all([
-          graphGet(`${accountId}/insights`, { fields: 'spend', date_preset: 'today', level: 'account', limit: 1 }),
-          fetchAccountDetails(accountId)
-        ]);
-        const spend = Number(insights.data?.[0]?.spend || 0);
-        if (!Number.isFinite(spend) || spend < account.spendLimit) continue;
+        const details = await fetchAccountDetails(accountId);
+        const outstandingBalance = fromMetaCurrencyUnits(details.balance, details.currency);
+        if (outstandingBalance < account.balanceLimit) continue;
 
         stage = 'claim_alert';
         const alertDate = accountDateKey(details.timezone_name);
@@ -53,7 +62,7 @@ module.exports = async (req, res) => {
           stage = 'send_telegram';
           await bot.sendMessage(
             account.chatId,
-            `🚨 Ad spend limit reached\n\nAccount: ${account.name}\nToday's spend: ${details.currency} ${spend.toFixed(2)}\nYour limit: ${details.currency} ${account.spendLimit.toFixed(2)}\n\nWhile spend stays at or above the limit, reminders repeat every 15 minutes.`
+            `🚨 Outstanding balance limit reached\n\nAccount: ${account.name}\nAmount due: ${details.currency} ${outstandingBalance.toFixed(2)}\nYour alert limit: ${details.currency} ${account.balanceLimit.toFixed(2)}\n\nWhile the outstanding balance stays at or above the limit, reminders repeat every 15 minutes.`
           );
           sent = true;
           notified++;

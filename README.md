@@ -46,11 +46,12 @@ project settings requires an authenticated Vercel project link.
 No database schema, seed data, or external deployment is needed for this local
 development setup.
 
-## Daily spend alerts
+## Outstanding balance alerts
 
-Set a per-account daily spend threshold in the password-protected dashboard.
-A GitHub Actions schedule checks Meta spend every five minutes and calls the
-Vercel endpoint, which sends one Telegram alert per account day when the
-threshold is met. Use the same `CRON_SECRET` value in Vercel Production
-Environment Variables and GitHub Actions repository secrets. GitHub may delay
-scheduled runs during periods of high load.
+Set a per-account outstanding balance threshold in the password-protected
+dashboard. A GitHub Actions schedule checks Meta's bill amount due every five
+minutes and calls the Vercel endpoint. When the balance meets the threshold,
+Telegram reminders repeat every 15 minutes while it remains at or above the
+limit. Use the same `CRON_SECRET` value in Vercel Production Environment
+Variables and GitHub Actions repository secrets. GitHub may delay scheduled
+runs during periods of high load.
