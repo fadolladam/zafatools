@@ -63,7 +63,8 @@ module.exports = async (req, res) => {
         }
       } catch (error) {
         failed++;
-        console.error(`Spend alert check failed for ${account.slug} during ${stage}`);
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        console.error(`Spend alert check failed for ${account.slug} during ${stage}: ${message}`);
       }
     }
     return res.status(failed ? 503 : 200).json({ ok: failed === 0, checked, notified, failed });
